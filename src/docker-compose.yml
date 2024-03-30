@@ -1,0 +1,30 @@
+version: '3.4'
+
+services:
+  ecopark.presentation:
+    image: ${DOCKER_REGISTRY-}ecoparkpresentation
+    networks:
+      - internal-network
+    build:
+      context: .
+      dockerfile: EcoPark.Presentation/Dockerfile
+
+  database:
+    user: root    
+    container_name: Database
+    networks:
+      - internal-network
+    restart: always
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    environment:
+      MSSQL_SA_PASSWORD: "Ecopark123!@"
+      ACCEPT_EULA: "Y"
+      MSSQL_PID: "Developer"
+    ports:
+      - "1433:1433"
+    volumes:
+      - ../volumes/mssql_data:/var/opt/mssql/data
+
+networks:
+  internal-network:
+    driver: bridge
