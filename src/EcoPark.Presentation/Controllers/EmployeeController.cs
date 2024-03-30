@@ -12,7 +12,7 @@ namespace EcoPark.Presentation.Controllers;
 public class EmployeeController(ILogger<EmployeeController> logger) : ControllerBase
 {
     [HttpPost("list")]
-    public async Task<IActionResult> GetList([FromServices] IHandler<ListEmployeesQuery, IEnumerable<EmployeeSimplifiedViewModel>> handler,
+    public async Task<IActionResult> GetList([FromServices] IHandler<ListEmployeesQuery, IEnumerable<EmployeeViewModel>> handler,
         [FromBody] ListEmployeesQuery query, CancellationToken cancellationToken)
     {
         logger.LogInformation(
@@ -22,7 +22,7 @@ public class EmployeeController(ILogger<EmployeeController> logger) : Controller
     }
 
     [HttpGet]
-    public async Task<IActionResult> GetById([FromServices] IHandler<GetEmployeeQuery, EmployeeSimplifiedViewModel> handler, 
+    public async Task<IActionResult> GetById([FromServices] IHandler<GetEmployeeQuery, EmployeeViewModel> handler, 
         [FromQuery] GetEmployeeQuery query, CancellationToken cancellationToken)
     {
         logger.LogInformation(
