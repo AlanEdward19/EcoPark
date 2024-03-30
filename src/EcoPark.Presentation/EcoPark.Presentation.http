@@ -1,0 +1,6 @@
+@EcoPark.Presentation_HostAddress = http://localhost:5185
+
+GET {{EcoPark.Presentation_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
