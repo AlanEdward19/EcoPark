@@ -18,26 +18,27 @@ public class LocationController(ILogger<LocationController> logger) : Controller
     }
 
     [HttpPost]
-    public async Task<IActionResult> Insert([FromServices] IHandler<InsertLocationCommand, Guid> handler,
+    public async Task<IActionResult> Insert([FromServices] IHandler<InsertLocationCommand, DatabaseOperationResponseViewModel> handler,
         [FromBody] InsertLocationCommand command, CancellationToken cancellationToken)
     {
         return Created(Request.GetDisplayUrl(), await handler.HandleAsync(command, cancellationToken));
     }
 
     [HttpPatch("{id}")]
-    public async Task<IActionResult> Update([FromServices] IHandler<UpdateLocationCommand, Guid> handler,
+    public async Task<IActionResult> Update([FromServices] IHandler<UpdateLocationCommand, DatabaseOperationResponseViewModel> handler,
         [FromBody] UpdateLocationCommand command, CancellationToken cancellationToken)
     {
         return Created(Request.GetDisplayUrl(), await handler.HandleAsync(command, cancellationToken));
     }
 
     [HttpDelete("{id}")]
-    public async Task<IActionResult> Delete([FromServices] IHandler<Guid, bool> handler, Guid id, CancellationToken cancellationToken)
+    public async Task<IActionResult> Delete([FromServices] IHandler<Guid, DatabaseOperationResponseViewModel> handler, 
+        Guid id, CancellationToken cancellationToken)
     {
         var result = await handler.HandleAsync(id, cancellationToken);
 
-        if (result)
-            return NoContent();
+        if (result.Status == "Successful")
+            return StatusCode(204, result);
 
         return NotFound();
     }

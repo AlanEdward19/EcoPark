@@ -1,5 +1,5 @@
-﻿using Application;
-using Infrastructure;
+﻿using EcoPark.Application;
+using EcoPark.Infrastructure;
 
 namespace EcoPark.Configurations;
 

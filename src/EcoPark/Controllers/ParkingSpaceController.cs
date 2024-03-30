@@ -18,21 +18,21 @@ public class ParkingSpaceController(ILogger<ParkingSpaceController> logger) : Co
     }
 
     [HttpPost]
-    public async Task<IActionResult> Insert([FromServices] IHandler<InsertParkingSpaceCommand, Guid> handler,
+    public async Task<IActionResult> Insert([FromServices] IHandler<InsertParkingSpaceCommand, DatabaseOperationResponseViewModel> handler,
         [FromBody] InsertParkingSpaceCommand command, CancellationToken cancellationToken)
     {
         return Created(Request.GetDisplayUrl(), await handler.HandleAsync(command, cancellationToken));
     }
 
     [HttpPatch("{id}")]
-    public async Task<IActionResult> Update([FromServices] IHandler<UpdateParkingSpaceCommand, Guid> handler,
+    public async Task<IActionResult> Update([FromServices] IHandler<UpdateParkingSpaceCommand, DatabaseOperationResponseViewModel> handler,
         [FromBody] UpdateParkingSpaceCommand command, CancellationToken cancellationToken)
     {
         return Created(Request.GetDisplayUrl(), await handler.HandleAsync(command, cancellationToken));
     }
 
     [HttpDelete("{id}")]
-    public async Task<IActionResult> Delete([FromServices] IHandler<Guid, bool> handler, Guid id, CancellationToken cancellationToken)
+    public async Task<IActionResult> Delete([FromServices] IHandler<Guid, DatabaseOperationResponseViewModel> handler, Guid id, CancellationToken cancellationToken)
     {
         var result = await handler.HandleAsync(id, cancellationToken);
 
