@@ -1,0 +1,33 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Folder Include="Cars\Get\" />
+    <Folder Include="Cars\Insert\" />
+    <Folder Include="Cars\Delete\" />
+    <Folder Include="Cars\Models\" />
+    <Folder Include="Cars\Update\" />
+    <Folder Include="Employees\Delete\" />
+    <Folder Include="Employees\Insert\" />
+    <Folder Include="Employees\Models\" />
+    <Folder Include="Employees\List\" />
+    <Folder Include="Employees\Update\" />
+    <Folder Include="Authentication\" />
+    <Folder Include="ParkingSpaces\Models\" />
+  </ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="8.0.1" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <ProjectReference Include="..\EcoPark.Domain\EcoPark.Domain.csproj" />
+	  <ProjectReference Include="..\EcoPark.Infrastructure\EcoPark.Infrastructure.csproj" />
+	</ItemGroup>
+
+</Project>
