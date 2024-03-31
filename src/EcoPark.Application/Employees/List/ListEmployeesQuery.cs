@@ -2,5 +2,5 @@
 
 public class ListEmployeesQuery
 {
-    
+    public IEnumerable<Guid>? EmployeeIds { get; set; }
 }

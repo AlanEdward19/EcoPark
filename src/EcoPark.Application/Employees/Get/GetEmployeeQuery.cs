@@ -2,5 +2,5 @@
 
 public class GetEmployeeQuery
 {
-    
+    public Guid EmployeeId { get; set; }
 }
