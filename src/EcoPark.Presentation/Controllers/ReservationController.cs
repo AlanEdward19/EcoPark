@@ -10,6 +10,7 @@ namespace EcoPark.Presentation.Controllers;
 public class ReservationController(ILogger<ReservationController> logger) : ControllerBase
 {
     [HttpPost("list")]
+    [Authorize(Roles = "Administrator, Employee")]
     public async Task<IActionResult> GetList([FromServices] IHandler<ListReservationQuery?, IEnumerable<ReservationSimplifiedViewModel>> handler,
         [FromBody] ListReservationQuery query, CancellationToken cancellationToken)
     {
@@ -20,6 +21,7 @@ public class ReservationController(ILogger<ReservationController> logger) : Cont
     }
 
     [HttpGet]
+    [Authorize(Roles = "Administrator, Employee")]
     public async Task<IActionResult> GetById([FromServices] IHandler<GetReservationQuery, ReservationModel> handler, GetReservationQuery query, CancellationToken cancellationToken)
     {
         logger.LogInformation(
@@ -29,6 +31,7 @@ public class ReservationController(ILogger<ReservationController> logger) : Cont
     }
 
     [HttpPost]
+    [Authorize(Roles = "Administrator, Employee")]
     public async Task<IActionResult> Insert([FromServices] IHandler<InsertReservationCommand, DatabaseOperationResponseViewModel> handler,
         [FromBody] InsertReservationCommand command, CancellationToken cancellationToken)
     {
@@ -39,6 +42,7 @@ public class ReservationController(ILogger<ReservationController> logger) : Cont
     }
 
     [HttpPatch]
+    [Authorize(Roles = "Administrator, Employee")]
     public async Task<IActionResult> Update([FromServices] IHandler<UpdateReservationCommand, DatabaseOperationResponseViewModel> handler,
         [FromBody] UpdateReservationCommand command, CancellationToken cancellationToken)
     {
@@ -49,6 +53,7 @@ public class ReservationController(ILogger<ReservationController> logger) : Cont
     }
 
     [HttpDelete]
+    [Authorize(Roles = "Administrator, Employee")]
     public async Task<IActionResult> Delete([FromServices] IHandler<DeleteReservationCommand, DatabaseOperationResponseViewModel> handler,
         [FromQuery] DeleteReservationCommand command, CancellationToken cancellationToken)
     {

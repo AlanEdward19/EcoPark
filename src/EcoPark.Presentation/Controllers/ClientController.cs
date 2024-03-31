@@ -1,4 +1,6 @@
-﻿using EcoPark.Application.Clients.Delete;
+﻿using EcoPark.Application.Authentication.Get;
+using EcoPark.Application.Authentication.Models;
+using EcoPark.Application.Clients.Delete;
 using EcoPark.Application.Clients.Get;
 using EcoPark.Application.Clients.Insert;
 using EcoPark.Application.Clients.List;
@@ -11,7 +13,18 @@ namespace EcoPark.Presentation.Controllers;
 [ApiController]
 public class ClientController(ILogger<ClientController> logger) : ControllerBase
 {
+    [HttpPut("login")]
+    public async Task<IActionResult> Login([FromServices] IHandler<LoginQuery, LoginViewModel> handler, [FromBody] LoginQuery query, CancellationToken cancellationToken)
+    {
+        logger.LogInformation(
+            $"Method Call: Login [Clients] with email: {query.Email}");
+
+        query.SetIsEmployee(false);
+        return Ok(await handler.HandleAsync(query, cancellationToken));
+    }
+
     [HttpPost("list")]
+    [Authorize(Roles = "Administrator, Employee")]
     public async Task<IActionResult> GetList([FromServices] IHandler<ListClientsQuery, IEnumerable<ClientSimplifiedViewModel>> handler,
         [FromBody] ListClientsQuery query, CancellationToken cancellationToken)
     {
@@ -22,6 +35,7 @@ public class ClientController(ILogger<ClientController> logger) : ControllerBase
     }
 
     [HttpGet]
+    [Authorize(Roles = "Administrator, Employee")]
     public async Task<IActionResult> GetById([FromServices] IHandler<GetClientQuery, ClientSimplifiedViewModel> handler, 
         [FromQuery] GetClientQuery query, CancellationToken cancellationToken)
     {
@@ -42,6 +56,7 @@ public class ClientController(ILogger<ClientController> logger) : ControllerBase
     }
 
     [HttpPatch]
+    [Authorize(Roles = "Administrator, Employee, Client")]
     public async Task<IActionResult> Update([FromServices] IHandler<UpdateClientCommand, DatabaseOperationResponseViewModel> handler,
         [FromBody] UpdateClientCommand command, CancellationToken cancellationToken)
     {
@@ -52,6 +67,7 @@ public class ClientController(ILogger<ClientController> logger) : ControllerBase
     }
 
     [HttpDelete]
+    [Authorize(Roles = "Administrator")]
     public async Task<IActionResult> Delete([FromServices] IHandler<DeleteClientCommand, DatabaseOperationResponseViewModel> handler, 
         [FromQuery] DeleteClientCommand command, CancellationToken cancellationToken)
     {

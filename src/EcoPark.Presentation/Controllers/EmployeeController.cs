@@ -1,4 +1,6 @@
-﻿using EcoPark.Application.Employees.Delete;
+﻿using EcoPark.Application.Authentication.Get;
+using EcoPark.Application.Authentication.Models;
+using EcoPark.Application.Employees.Delete;
 using EcoPark.Application.Employees.Get;
 using EcoPark.Application.Employees.Insert;
 using EcoPark.Application.Employees.List;
@@ -11,7 +13,18 @@ namespace EcoPark.Presentation.Controllers;
 [ApiController]
 public class EmployeeController(ILogger<EmployeeController> logger) : ControllerBase
 {
+    [HttpPut("login")]
+    public async Task<IActionResult> Login([FromServices] IHandler<LoginQuery, LoginViewModel> handler, [FromBody] LoginQuery query, CancellationToken cancellationToken)
+    {
+        logger.LogInformation(
+            $"Method Call: Login [Employees] with email: {query.Email}");
+
+        query.SetIsEmployee(true);
+        return Ok(await handler.HandleAsync(query, cancellationToken));
+    }
+
     [HttpPost("list")]
+    [Authorize(Roles = "Administrator")]
     public async Task<IActionResult> GetList([FromServices] IHandler<ListEmployeesQuery, IEnumerable<EmployeeViewModel>> handler,
         [FromBody] ListEmployeesQuery query, CancellationToken cancellationToken)
     {
@@ -22,6 +35,7 @@ public class EmployeeController(ILogger<EmployeeController> logger) : Controller
     }
 
     [HttpGet]
+    [Authorize(Roles = "Administrator")]
     public async Task<IActionResult> GetById([FromServices] IHandler<GetEmployeeQuery, EmployeeViewModel> handler, 
         [FromQuery] GetEmployeeQuery query, CancellationToken cancellationToken)
     {
@@ -32,6 +46,7 @@ public class EmployeeController(ILogger<EmployeeController> logger) : Controller
     }
 
     [HttpPost]
+    [Authorize(Roles = "Administrator")]
     public async Task<IActionResult> Insert([FromServices] IHandler<InsertEmployeeCommand, DatabaseOperationResponseViewModel> handler,
         [FromBody] InsertEmployeeCommand command, CancellationToken cancellationToken)
     {
@@ -42,6 +57,7 @@ public class EmployeeController(ILogger<EmployeeController> logger) : Controller
     }
 
     [HttpPatch]
+    [Authorize(Roles = "Administrator")]
     public async Task<IActionResult> Update([FromServices] IHandler<UpdateEmployeeCommand, DatabaseOperationResponseViewModel> handler,
         [FromBody] UpdateEmployeeCommand command, Guid id, CancellationToken cancellationToken)
     {
@@ -53,6 +69,7 @@ public class EmployeeController(ILogger<EmployeeController> logger) : Controller
     }
 
     [HttpDelete]
+    [Authorize(Roles = "Administrator")]
     public async Task<IActionResult> Delete([FromServices] IHandler<DeleteEmployeeCommand, DatabaseOperationResponseViewModel> handler, 
         [FromQuery] DeleteEmployeeCommand command, CancellationToken cancellationToken)
     {

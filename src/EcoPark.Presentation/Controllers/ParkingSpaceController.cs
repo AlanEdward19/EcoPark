@@ -10,6 +10,7 @@ namespace EcoPark.Presentation.Controllers;
 public class ParkingSpaceController(ILogger<ParkingSpaceController> logger) : ControllerBase
 {
     [HttpPost("list")]
+    [Authorize(Roles = "Administrator, Employee")]
     public async Task<IActionResult> GetList([FromServices] IHandler<ListParkingSpacesQuery, IEnumerable<ParkingSpaceSimplifiedViewModel>> handler,
         [FromBody] ListParkingSpacesQuery query, CancellationToken cancellationToken)
     {
@@ -20,6 +21,7 @@ public class ParkingSpaceController(ILogger<ParkingSpaceController> logger) : Co
     }
 
     [HttpGet]
+    [Authorize(Roles = "Administrator, Employee")]
     public async Task<IActionResult> GetById([FromServices] IHandler<GetParkingSpaceQuery, ParkingSpaceSimplifiedViewModel> handler,
         [FromQuery] GetParkingSpaceQuery query, CancellationToken cancellationToken)
     {
@@ -30,6 +32,7 @@ public class ParkingSpaceController(ILogger<ParkingSpaceController> logger) : Co
     }
 
     [HttpPost]
+    [Authorize(Roles = "Administrator, Employee")]
     public async Task<IActionResult> Insert([FromServices] IHandler<InsertParkingSpaceCommand, DatabaseOperationResponseViewModel> handler,
         [FromBody] InsertParkingSpaceCommand command, CancellationToken cancellationToken)
     {
@@ -40,6 +43,7 @@ public class ParkingSpaceController(ILogger<ParkingSpaceController> logger) : Co
     }
 
     [HttpPatch]
+    [Authorize(Roles = "Administrator, Employee")]
     public async Task<IActionResult> Update([FromServices] IHandler<UpdateParkingSpaceCommand, DatabaseOperationResponseViewModel> handler,
         [FromBody] UpdateParkingSpaceCommand command, Guid Id, CancellationToken cancellationToken)
     {
@@ -51,6 +55,7 @@ public class ParkingSpaceController(ILogger<ParkingSpaceController> logger) : Co
     }
 
     [HttpDelete]
+    [Authorize(Roles = "Administrator, Employee")]
     public async Task<IActionResult> Delete([FromServices] IHandler<DeleteParkingSpaceCommand, DatabaseOperationResponseViewModel> handler,
         [FromQuery] DeleteParkingSpaceCommand command, CancellationToken cancellationToken)
     {
