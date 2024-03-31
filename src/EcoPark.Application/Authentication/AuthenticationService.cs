@@ -39,6 +39,9 @@ public class AuthenticationService(IConfiguration configuration) : IAuthenticati
 
     public string ComputeSha256Hash(string password)
     {
+        if(string.IsNullOrWhiteSpace(password))
+            return password;
+
         using SHA256 sha256Hash = SHA256.Create();
 
         byte[] bytes = sha256Hash.ComputeHash(Encoding.UTF8.GetBytes(password));
