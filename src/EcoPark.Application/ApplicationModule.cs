@@ -1,4 +1,8 @@
-﻿namespace EcoPark.Application;
+﻿using EcoPark.Application.Authentication.Get;
+using EcoPark.Application.Authentication.Models;
+using EcoPark.Application.Authentication.Services;
+
+namespace EcoPark.Application;
 
 public static class ApplicationModule
 {
@@ -32,6 +36,8 @@ public static class ApplicationModule
         
         services.AddScoped<IHandler<GetEmployeeQuery, EmployeeViewModel?>, GetEmployeeQueryHandler>();
         services.AddScoped<IHandler<ListEmployeesQuery, IEnumerable<EmployeeViewModel>>, ListEmployeesQueryHandler>();
+
+        services.AddScoped<IHandler<LoginQuery, LoginViewModel>, LoginQueryHandler>();
 
         return services;
     }
