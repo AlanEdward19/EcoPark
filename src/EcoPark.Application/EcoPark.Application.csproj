@@ -7,6 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Folder Include="Authentication\Models\" />
     <Folder Include="Cars\Get\" />
     <Folder Include="Cars\Insert\" />
     <Folder Include="Cars\Delete\" />
@@ -17,7 +18,6 @@
     <Folder Include="Employees\Models\" />
     <Folder Include="Employees\List\" />
     <Folder Include="Employees\Update\" />
-    <Folder Include="Authentication\" />
     <Folder Include="ParkingSpaces\Models\" />
   </ItemGroup>
 
