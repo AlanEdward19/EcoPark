@@ -11,6 +11,13 @@ public class LocationAggregateRoot
     public string Address { get; private set; }
     public IReadOnlyCollection<ParkingSpaceAggregate> ParkingSpaces => new ReadOnlyCollection<ParkingSpaceAggregate>(_parkingSpaces);
 
+    public LocationAggregateRoot(Guid id, string name, string address)
+    {
+        Id = id;
+        Name = name;
+        Address = address;
+    }
+
     public LocationAggregateRoot(LocationModel locationModel)
     {
         Id = locationModel.Id;
