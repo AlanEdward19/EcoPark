@@ -43,11 +43,12 @@ public class EmployeeController(ILogger<EmployeeController> logger) : Controller
 
     [HttpPatch]
     public async Task<IActionResult> Update([FromServices] IHandler<UpdateEmployeeCommand, DatabaseOperationResponseViewModel> handler,
-        [FromBody] UpdateEmployeeCommand command, CancellationToken cancellationToken)
+        [FromBody] UpdateEmployeeCommand command, Guid id, CancellationToken cancellationToken)
     {
         logger.LogInformation(
             $"Method Call: UpdateEmployee with parameters: \n{string.Join("\n", EntityPropertiesUtilities.GetEntityPropertiesAndValueAsIEnumerable(command))}");
 
+        command.SetEmployeeId(id);
         return Created(Request.GetDisplayUrl(), await handler.HandleAsync(command, cancellationToken));
     }
 
