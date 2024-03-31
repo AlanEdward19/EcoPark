@@ -45,7 +45,7 @@ public class EmployeeValueObject
     public void UpdateEmail(string? email)
     {
         if (!string.IsNullOrWhiteSpace(email))
-            Email = email;
+            Email = email.ToLower();
     }
 
     public void UpdatePassword(string? password)
