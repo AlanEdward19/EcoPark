@@ -5,7 +5,7 @@ using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
 
-namespace EcoPark.Application.Authentication;
+namespace EcoPark.Application.Authentication.Services;
 
 public class AuthenticationService(IConfiguration configuration) : IAuthenticationService
 {
@@ -39,7 +39,7 @@ public class AuthenticationService(IConfiguration configuration) : IAuthenticati
 
     public string ComputeSha256Hash(string password)
     {
-        if(string.IsNullOrWhiteSpace(password))
+        if (string.IsNullOrWhiteSpace(password))
             return password;
 
         using SHA256 sha256Hash = SHA256.Create();
