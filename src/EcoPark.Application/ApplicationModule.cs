@@ -14,6 +14,8 @@ public static class ApplicationModule
 
     public static IServiceCollection ConfigureServices(this IServiceCollection services)
     {
+        services.AddScoped<IAuthenticationService, AuthenticationService>();
+
         return services;
     }
 
@@ -27,6 +29,9 @@ public static class ApplicationModule
 
         services.AddScoped<IHandler<GetReservationQuery, ReservationSimplifiedViewModel?>, GetReservationQueryHandler>();
         services.AddScoped<IHandler<IEnumerable<Guid>?, IEnumerable<ReservationModel>>, ListReservationsQueryHandler>();
+        
+        services.AddScoped<IHandler<GetEmployeeQuery, EmployeeViewModel?>, GetEmployeeQueryHandler>();
+        services.AddScoped<IHandler<ListEmployeesQuery, IEnumerable<EmployeeViewModel>>, ListEmployeesQueryHandler>();
 
         return services;
     }
@@ -62,6 +67,17 @@ public static class ApplicationModule
         services
             .AddScoped<IHandler<DeleteReservationCommand, DatabaseOperationResponseViewModel>,
                 DeleteReservationCommandHandler>();
+
+        services
+            .AddScoped<IHandler<InsertEmployeeCommand, DatabaseOperationResponseViewModel>,
+                InsertEmployeeCommandHandler>();
+        services
+            .AddScoped<IHandler<UpdateEmployeeCommand, DatabaseOperationResponseViewModel>,
+                UpdateEmployeeCommandHandler>();
+
+        services
+            .AddScoped<IHandler<DeleteEmployeeCommand, DatabaseOperationResponseViewModel>,
+                DeleteEmployeeCommandHandler>();
 
         return services;
     }
