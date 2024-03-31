@@ -1,4 +1,6 @@
-﻿namespace EcoPark.Domain.ValueObjects;
+﻿using System.Security.Cryptography;
+
+namespace EcoPark.Domain.ValueObjects;
 
 public class EmployeeValueObject
 {
@@ -59,4 +61,6 @@ public class EmployeeValueObject
         if (userType != null && userType != UserType)
             UserType = userType.Value;
     }
+
+    public string GetFullName() => $"{FirstName} {LastName}";
 }
