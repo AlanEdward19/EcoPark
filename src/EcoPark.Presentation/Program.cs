@@ -1,16 +1,46 @@
 using EcoPark.Presentation.Configurations;
+using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
-builder.Services.AddControllers();
+builder.Services
+    .ConfigureController()
+    .ConfigureIoC(builder.Configuration)
+    .ConfigureCors()
+    .ConfigureAuthentication(builder.Configuration)
+    .AddEndpointsApiExplorer()
+    .AddSwaggerGen(c =>
+    {
+        c.SwaggerDoc("v1", new OpenApiInfo {Title = "EcoPark.API", Version = "v1"});
 
-builder.Services.ConfigureIoC(builder.Configuration);
+        c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+        {
+            Name = "Authorization",
+            Type = SecuritySchemeType.ApiKey,
+            Scheme = "Bearer",
+            BearerFormat = "JWT",
+            In = ParameterLocation.Header,
+            Description = "JWT Authorization header usando o esquema Bearer."
+        });
 
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+        c.AddSecurityRequirement(new OpenApiSecurityRequirement
+        {
+            {
+                new OpenApiSecurityScheme
+                {
+                    Reference = new OpenApiReference
+                    {
+                        Type = ReferenceType.SecurityScheme,
+                        Id = "Bearer"
+                    }
+                },
+                new string[] { }
+            }
+        });
+    })
+    .AddHealthChecks();
 
 var app = builder.Build();
 
@@ -21,10 +51,13 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
-
-app.UseAuthorization();
-
-app.MapControllers();
+app
+    .UseCors("CorsPolicy")
+    .ConfigureMiddleware()
+    .UseHttpsRedirection()
+    .UseRouting()
+    .UseAuthentication()
+    .UseAuthorization()
+    .ConfigureEndpoints(builder.Configuration.GetSection("EndPointsConfig"));
 
 app.Run();
