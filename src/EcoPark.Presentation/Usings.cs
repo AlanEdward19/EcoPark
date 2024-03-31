@@ -1,5 +1,6 @@
 ﻿global using Microsoft.AspNetCore.Http.Extensions;
 global using Microsoft.AspNetCore.Mvc;
+global using Microsoft.AspNetCore.Authorization;
 
 #region Domain
 
