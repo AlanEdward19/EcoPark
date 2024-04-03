@@ -9,8 +9,8 @@ public class InsertParkingSpaceCommandHandler(DatabaseDbContext databaseDbContex
 
         try
         {
-            ParkingSpaceModel parkingSpaceModel = new(command.LocationId, command.Floor, command.ParkingSpaceName,
-                command.IsOccupied, command.Type);
+            ParkingSpaceModel parkingSpaceModel = new(command.LocationId!.Value, command.Floor!.Value, command.ParkingSpaceName!,
+                command.IsOccupied!.Value, command.Type!.Value);
 
             await databaseDbContext.ParkingSpaces.AddAsync(parkingSpaceModel, cancellationToken);
 
