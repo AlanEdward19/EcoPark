@@ -1,6 +1,7 @@
 ﻿using EcoPark.Application.Authentication.Get;
 using EcoPark.Application.Authentication.Models;
 using EcoPark.Application.Authentication.Services;
+using EcoPark.Domain.Interfaces.Services;
 
 namespace EcoPark.Application;
 
@@ -32,7 +33,7 @@ public static class ApplicationModule
         services.AddScoped<IHandler<ListParkingSpacesQuery, IEnumerable<ParkingSpaceSimplifiedViewModel>?>, ListParkingSpacesQueryHandler>();
 
         services.AddScoped<IHandler<GetReservationQuery, ReservationSimplifiedViewModel?>, GetReservationQueryHandler>();
-        services.AddScoped<IHandler<IEnumerable<Guid>?, IEnumerable<ReservationModel>>, ListReservationsQueryHandler>();
+        services.AddScoped<IHandler<ListReservationQuery, IEnumerable<ReservationSimplifiedViewModel>>, ListReservationsQueryHandler>();
         
         services.AddScoped<IHandler<GetEmployeeQuery, EmployeeViewModel?>, GetEmployeeQueryHandler>();
         services.AddScoped<IHandler<ListEmployeesQuery, IEnumerable<EmployeeViewModel>>, ListEmployeesQueryHandler>();

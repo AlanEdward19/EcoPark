@@ -1,6 +1,6 @@
 ﻿namespace EcoPark.Application.ParkingSpaces.Insert;
 
-public class InsertParkingSpaceCommand(Guid? locationId, int? floor, string? parkingSpaceName, bool? isOccupied, EParkingSpaceType? type)
+public class InsertParkingSpaceCommand(Guid? locationId, int? floor, string? parkingSpaceName, bool? isOccupied, EParkingSpaceType? type) : ICommand
 {
     public Guid? LocationId { get; private set; } = locationId;
     public int? Floor { get; private set; } = floor;

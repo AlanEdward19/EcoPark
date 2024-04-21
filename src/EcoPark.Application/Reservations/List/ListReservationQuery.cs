@@ -1,6 +1,6 @@
 ﻿namespace EcoPark.Application.Reservations.List;
 
-public class ListReservationQuery
+public class ListReservationQuery : IQuery
 {
     
 }

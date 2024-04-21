@@ -1,6 +1,4 @@
-﻿using EcoPark.Application.Authentication.Get;
-using EcoPark.Application.Authentication.Models;
-using EcoPark.Application.Clients.Delete;
+﻿using EcoPark.Application.Clients.Delete;
 using EcoPark.Application.Clients.Get;
 using EcoPark.Application.Clients.Insert;
 using EcoPark.Application.Clients.List;

@@ -1,7 +1,9 @@
 ﻿using EcoPark.Application.ParkingSpaces.Delete;
 using EcoPark.Application.ParkingSpaces.Get;
+using EcoPark.Application.ParkingSpaces.Insert;
 using EcoPark.Application.ParkingSpaces.List;
 using EcoPark.Application.ParkingSpaces.Models;
+using EcoPark.Application.ParkingSpaces.Update;
 
 namespace EcoPark.Presentation.Controllers;
 

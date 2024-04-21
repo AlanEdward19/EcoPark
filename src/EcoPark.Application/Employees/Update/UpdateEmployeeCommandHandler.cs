@@ -1,8 +1,6 @@
-﻿using EcoPark.Domain.ValueObjects;
+﻿namespace EcoPark.Application.Employees.Update;
 
-namespace EcoPark.Application.Employees.Update;
-
-public class UpdateEmployeeCommandHandler(DatabaseDbContext databaseDbContext, IAuthenticationService authenticationService) : IHandler<UpdateEmployeeCommand, DatabaseOperationResponseViewModel>
+public class UpdateEmployeeCommandHandler(IRepository<EmployeeModel> repository) : IHandler<UpdateEmployeeCommand, DatabaseOperationResponseViewModel>
 {
     public async Task<DatabaseOperationResponseViewModel> HandleAsync(UpdateEmployeeCommand command, CancellationToken cancellationToken)
     {
@@ -10,32 +8,26 @@ public class UpdateEmployeeCommandHandler(DatabaseDbContext databaseDbContext, I
 
         try
         {
-            EmployeeModel? employeeModel = await databaseDbContext.Employees
-                .FirstOrDefaultAsync(e => e.Id == command.EmployeeId, cancellationToken);
+            await repository.UnitOfWork.StartAsync(cancellationToken);
 
-            if (employeeModel != null)
+            var databaseOperationResult = await repository.UpdateAsync(command, cancellationToken);
+
+            if (databaseOperationResult)
             {
-                EmployeeValueObject employeeValueObject = new(employeeModel);
-
-                employeeValueObject.UpdateEmail(command.Email);
-                employeeValueObject.UpdatePassword(authenticationService.ComputeSha256Hash(command.Password!));
-                employeeValueObject.UpdateFirstName(command.FirstName);
-                employeeValueObject.UpdateLastName(command.LastName);
-                employeeValueObject.UpdateUserType(command.UserType);
-
-                employeeModel.UpdateBasedOnValueObject(employeeValueObject);
-
-                databaseDbContext.Employees.Update(employeeModel);
-
-                await databaseDbContext.SaveChangesAsync(cancellationToken);
+                await repository.UnitOfWork.SaveEntitiesAsync(cancellationToken);
+                await repository.UnitOfWork.CommitAsync(cancellationToken);
 
                 result = new("Patch", EOperationStatus.Successful, "Employee updated successfully");
             }
             else
+            {
+                await repository.UnitOfWork.RollbackAsync(cancellationToken);
                 result = new("Patch", EOperationStatus.Failed, "No Employee were found with this id");
+            }
         }
         catch (Exception e)
         {
+            await repository.UnitOfWork.RollbackAsync(cancellationToken);
             result = new("Patch", EOperationStatus.Failed, e.Message);
         }
 

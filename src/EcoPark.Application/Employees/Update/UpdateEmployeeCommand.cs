@@ -1,6 +1,6 @@
 ﻿namespace EcoPark.Application.Employees.Update;
 
-public class UpdateEmployeeCommand(string? firstName, string? lastName, string? email, string? password, EUserType? userType)
+public class UpdateEmployeeCommand(string? firstName, string? lastName, string? email, string? password, EUserType? userType) : ICommand
 {
     public Guid EmployeeId { get; private set; }
     public string? FirstName { get; private set; } = firstName;

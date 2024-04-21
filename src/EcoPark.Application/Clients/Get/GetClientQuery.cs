@@ -1,6 +1,6 @@
 ﻿namespace EcoPark.Application.Clients.Get;
 
-public class GetClientQuery
+public class GetClientQuery : IQuery
 {
     
 }

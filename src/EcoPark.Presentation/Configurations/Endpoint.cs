@@ -1,4 +1,6 @@
-﻿namespace EcoPark.Presentation.Configurations;
+﻿using EcoPark.Infrastructure.WebSocket;
+
+namespace EcoPark.Presentation.Configurations;
 
 public static class Endpoint
 {
@@ -12,6 +14,7 @@ public static class Endpoint
             {
                 endpoints.MapControllers();
                 endpoints.MapHealthChecks(apiHealthCheckUrl);
+                endpoints.MapHub<ParkingSpaceHub>("/parkingSpaceHub");
             });
 
         return app;

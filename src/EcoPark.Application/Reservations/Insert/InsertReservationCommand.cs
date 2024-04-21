@@ -1,6 +1,6 @@
 ﻿namespace EcoPark.Application.Reservations.Insert;
 
-public class InsertReservationCommand
+public class InsertReservationCommand : ICommand
 {
     
 }

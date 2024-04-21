@@ -1,4 +1,4 @@
-﻿namespace EcoPark.Domain.Interfaces;
+﻿namespace EcoPark.Domain.Interfaces.Services;
 
 public interface IAuthenticationService
 {

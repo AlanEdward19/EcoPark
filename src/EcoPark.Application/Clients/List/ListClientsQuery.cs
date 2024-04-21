@@ -1,6 +1,6 @@
 ﻿namespace EcoPark.Application.Clients.List;
 
-public class ListClientsQuery
+public class ListClientsQuery : IQuery
 {
     
 }

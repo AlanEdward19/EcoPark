@@ -1,7 +1,6 @@
 ﻿namespace EcoPark.Application.Employees.Insert;
 
-public class InsertEmployeeCommandHandler(DatabaseDbContext databaseContext, IAuthenticationService authenticationService) 
-    : IHandler<InsertEmployeeCommand, DatabaseOperationResponseViewModel>
+public class InsertEmployeeCommandHandler(IRepository<EmployeeModel> repository) : IHandler<InsertEmployeeCommand, DatabaseOperationResponseViewModel>
 {
     public async Task<DatabaseOperationResponseViewModel> HandleAsync(InsertEmployeeCommand command, CancellationToken cancellationToken)
     {
@@ -9,16 +8,26 @@ public class InsertEmployeeCommandHandler(DatabaseDbContext databaseContext, IAu
 
         try
         {
-            EmployeeModel employeeModel = command.ToModel(authenticationService);
+            await repository.UnitOfWork.StartAsync(cancellationToken);
 
-            await databaseContext.Employees.AddAsync(employeeModel, cancellationToken);
+            var databaseOperationResult = await repository.AddAsync(command, cancellationToken);
 
-            await databaseContext.SaveChangesAsync(cancellationToken);
+            if (databaseOperationResult)
+            {
+                await repository.UnitOfWork.SaveEntitiesAsync(cancellationToken);
+                await repository.UnitOfWork.CommitAsync(cancellationToken);
 
-            result = new DatabaseOperationResponseViewModel("Post", EOperationStatus.Successful, "Employee was inserted successfully!");
+                result = new DatabaseOperationResponseViewModel("Post", EOperationStatus.Successful, "Employee was inserted successfully!");
+            }
+            else
+            {
+                await repository.UnitOfWork.RollbackAsync(cancellationToken);
+                result = new DatabaseOperationResponseViewModel("Post", EOperationStatus.Failed, "Employee was not inserted!");
+            }
         }
         catch (Exception e)
         {
+            await repository.UnitOfWork.RollbackAsync(cancellationToken);
             result = new DatabaseOperationResponseViewModel("Post", EOperationStatus.Failed, e.Message);
         }
 

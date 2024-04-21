@@ -1,19 +1,13 @@
 ﻿global using Microsoft.Extensions.DependencyInjection;
-global using Microsoft.EntityFrameworkCore;
 
 #region Domain
 
 global using EcoPark.Domain.Interfaces;
 global using EcoPark.Domain.Commons.Enums;
 global using EcoPark.Domain.DataModels;
-global using EcoPark.Domain.Aggregates.Location;
-global using EcoPark.Domain.Aggregates.Location.ParkingSpace;
-
-#endregion
-
-#region Infrastructure
-
-global using EcoPark.Infrastructure.Data;
+global using EcoPark.Domain.Commons.Base;
+global using EcoPark.Domain.Interfaces.Database;
+global using EcoPark.Domain.Interfaces.Services;
 
 #endregion
 

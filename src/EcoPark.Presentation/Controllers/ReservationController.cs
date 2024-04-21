@@ -1,7 +1,9 @@
 ﻿using EcoPark.Application.Reservations.Delete;
 using EcoPark.Application.Reservations.Get;
+using EcoPark.Application.Reservations.Insert;
 using EcoPark.Application.Reservations.List;
 using EcoPark.Application.Reservations.Models;
+using EcoPark.Application.Reservations.Update;
 
 namespace EcoPark.Presentation.Controllers;
 

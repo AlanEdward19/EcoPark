@@ -1,42 +1,30 @@
 ﻿namespace EcoPark.Application.Reservations.Get;
 
-public class GetReservationQueryHandler(DatabaseDbContext databaseContext) : IHandler<GetReservationQuery, ReservationSimplifiedViewModel?>
+public class GetReservationQueryHandler(IRepository<ReservationModel> repository) : IHandler<GetReservationQuery, ReservationSimplifiedViewModel?>
 {
     public async Task<ReservationSimplifiedViewModel?> HandleAsync(GetReservationQuery command, CancellationToken cancellationToken)
     {
-        ReservationModel? reservationModel;
         ReservationSimplifiedViewModel? result = null;
+        var reservation =  await repository.GetByIdAsync(command, cancellationToken);
 
-        if (command.IncludeParkingSpace)
+        if (reservation != null)
         {
-            reservationModel = await databaseContext.Reservations
-                .Include(r => r.ParkingSpace).ThenInclude(parkingSpaceModel => parkingSpaceModel.Location)
-                .FirstOrDefaultAsync(r => r.Id == command.ReservationId, cancellationToken);
-
-            if (reservationModel != null)
+            if (command.IncludeParkingSpace)
             {
-                LocationSimplifiedViewModel location = new(reservationModel.ParkingSpace.Location.Name,
-                    reservationModel.ParkingSpace.Location.Address);
+                ParkingSpaceSimplifiedViewModel parkingSpace = new(reservation.ParkingSpace.Floor,
+                    reservation.ParkingSpace.ParkingSpaceName, reservation.ParkingSpace.IsOccupied,
+                    reservation.ParkingSpace.ParkingSpaceType);
 
-                ParkingSpaceSimplifiedViewModel parkingSpace = new(reservationModel.ParkingSpace.Floor,
-                    reservationModel.ParkingSpace.ParkingSpaceName, reservationModel.ParkingSpace.IsOccupied,
-                    reservationModel.ParkingSpace.ParkingSpaceType, location);
-
-                result = new ReservationViewModel(reservationModel.CardId, reservationModel.ClientId,
-                    reservationModel.ReservationCode,
-                    reservationModel.Status, reservationModel.ReservationDate, reservationModel.ExpirationDate,
+                result = new ReservationViewModel(reservation.CardId, reservation.ClientId,
+                    reservation.ReservationCode, reservation.Status, 
+                    reservation.ReservationDate, reservation.ExpirationDate,
                     parkingSpace);
             }
-        }
-        else
-        {
-            reservationModel = await databaseContext.Reservations
-                .FirstOrDefaultAsync(r => r.Id == command.ReservationId, cancellationToken);
 
-            if (reservationModel != null)
-                result = new ReservationSimplifiedViewModel(reservationModel.CardId, reservationModel.ClientId,
-                    reservationModel.ReservationCode,
-                    reservationModel.Status, reservationModel.ReservationDate, reservationModel.ExpirationDate);
+            else
+                result = new ReservationSimplifiedViewModel(reservation.CardId, reservation.ClientId,
+                    reservation.ReservationCode,
+                reservation.Status, reservation.ReservationDate, reservation.ExpirationDate);
         }
 
         return result;
