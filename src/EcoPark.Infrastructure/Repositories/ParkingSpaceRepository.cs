@@ -7,9 +7,9 @@ using EcoPark.Domain.Aggregates.Location.ParkingSpace;
 
 namespace EcoPark.Infrastructure.Repositories;
 
-public class ParkingSpaceRepository(DatabaseDbContext databaseDbContext) : IAggregateRepository<ParkingSpaceModel>
+public class ParkingSpaceRepository(DatabaseDbContext databaseDbContext, IUnitOfWork unitOfWork) : IAggregateRepository<ParkingSpaceModel>
 {
-    public IUnitOfWork UnitOfWork { get; }
+    public IUnitOfWork UnitOfWork { get; } = unitOfWork;
 
     public async Task<bool> AddAsync(ICommand command, CancellationToken cancellationToken)
     {

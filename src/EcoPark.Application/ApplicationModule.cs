@@ -1,6 +1,11 @@
 ﻿using EcoPark.Application.Authentication.Get;
 using EcoPark.Application.Authentication.Models;
 using EcoPark.Application.Authentication.Services;
+using EcoPark.Application.Clients.Delete;
+using EcoPark.Application.Clients.Get;
+using EcoPark.Application.Clients.Insert;
+using EcoPark.Application.Clients.List;
+using EcoPark.Application.Clients.Update;
 using EcoPark.Domain.Interfaces.Services;
 
 namespace EcoPark.Application;
@@ -37,6 +42,9 @@ public static class ApplicationModule
         
         services.AddScoped<IHandler<GetEmployeeQuery, EmployeeViewModel?>, GetEmployeeQueryHandler>();
         services.AddScoped<IHandler<ListEmployeesQuery, IEnumerable<EmployeeViewModel>>, ListEmployeesQueryHandler>();
+
+        services.AddScoped<IHandler<GetClientQuery, ClientSimplifiedViewModel?>, GetClientQueryHandler>();
+        services.AddScoped<IHandler<ListClientsQuery, IEnumerable<ClientSimplifiedViewModel>>, ListClientsQueryHandler>();
 
         services.AddScoped<IHandler<LoginQuery, LoginViewModel>, LoginQueryHandler>();
 
@@ -81,10 +89,16 @@ public static class ApplicationModule
         services
             .AddScoped<IHandler<UpdateEmployeeCommand, DatabaseOperationResponseViewModel>,
                 UpdateEmployeeCommandHandler>();
-
         services
             .AddScoped<IHandler<DeleteEmployeeCommand, DatabaseOperationResponseViewModel>,
                 DeleteEmployeeCommandHandler>();
+
+        services
+            .AddScoped<IHandler<InsertClientCommand, DatabaseOperationResponseViewModel>, InsertClientCommandHandler>();
+        services
+            .AddScoped<IHandler<UpdateClientCommand, DatabaseOperationResponseViewModel>, UpdateClientCommandHandler>();
+        services
+            .AddScoped<IHandler<DeleteClientCommand, DatabaseOperationResponseViewModel>, DeleteClientCommandHandler>();
 
         return services;
     }

@@ -1,6 +1,6 @@
 ﻿namespace EcoPark.Application.Clients.Delete;
 
-public class DeleteClientCommandHandler(IAggregateRepository<ClientSimplifiedViewModel> repository) : IHandler<DeleteClientCommand, DatabaseOperationResponseViewModel>
+public class DeleteClientCommandHandler(IAggregateRepository<ClientModel> repository) : IHandler<DeleteClientCommand, DatabaseOperationResponseViewModel>
 {
     public async Task<DatabaseOperationResponseViewModel> HandleAsync(DeleteClientCommand command, 
         CancellationToken cancellationToken)

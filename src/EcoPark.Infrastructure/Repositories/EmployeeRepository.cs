@@ -6,9 +6,9 @@ using EcoPark.Application.Employees.Update;
 
 namespace EcoPark.Infrastructure.Repositories;
 
-public class EmployeeRepository(DatabaseDbContext databaseDbContext, IAuthenticationService authenticationService) : IRepository<EmployeeModel>
+public class EmployeeRepository(DatabaseDbContext databaseDbContext, IAuthenticationService authenticationService, IUnitOfWork unitOfWork) : IRepository<EmployeeModel>
 {
-    public IUnitOfWork UnitOfWork { get; }
+    public IUnitOfWork UnitOfWork { get; } = unitOfWork;
 
     public async Task<bool> AddAsync(ICommand command, CancellationToken cancellationToken)
     {
