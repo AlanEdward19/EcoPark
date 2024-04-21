@@ -1,6 +1,6 @@
 ﻿namespace EcoPark.Application.Clients.Insert;
 
-public class InsertClientCommandHandler(IAggregateRepository<ClientSimplifiedViewModel> repository) : IHandler<InsertClientCommand, DatabaseOperationResponseViewModel>
+public class InsertClientCommandHandler(IAggregateRepository<ClientModel> repository) : IHandler<InsertClientCommand, DatabaseOperationResponseViewModel>
 {
     public async Task<DatabaseOperationResponseViewModel> HandleAsync(InsertClientCommand command, 
         CancellationToken cancellationToken)

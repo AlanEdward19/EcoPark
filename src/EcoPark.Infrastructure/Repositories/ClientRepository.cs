@@ -1,32 +1,93 @@
-﻿using EcoPark.Application.Clients.Models;
+﻿using EcoPark.Application.Clients.Delete;
+using EcoPark.Application.Clients.Get;
+using EcoPark.Application.Clients.Insert;
+using EcoPark.Application.Clients.List;
+using EcoPark.Application.Clients.Update;
+using EcoPark.Domain.Aggregates.Client;
 
 namespace EcoPark.Infrastructure.Repositories;
 
-public class ClientRepository : IRepository<ClientSimplifiedViewModel>
+public class ClientRepository(DatabaseDbContext databaseDbContext, IAuthenticationService authenticationService, IUnitOfWork unitOfWork) 
+    : IAggregateRepository<ClientModel>
 {
-    public IUnitOfWork UnitOfWork { get; }
+    public IUnitOfWork UnitOfWork { get; } = unitOfWork;
+
     public async Task<bool> AddAsync(ICommand command, CancellationToken cancellationToken)
     {
-        throw new NotImplementedException();
+        var parsedCommand = command as InsertClientCommand;
+
+        ClientModel clientModel = parsedCommand.ToModel(authenticationService);
+
+        await databaseDbContext.Clients.AddAsync(clientModel, cancellationToken);
+
+        return true;
     }
 
     public async Task<bool> UpdateAsync(ICommand command, CancellationToken cancellationToken)
     {
-        throw new NotImplementedException();
+        var parsedCommand = command as UpdateClientCommand;
+
+        ClientModel? clientModel = await databaseDbContext.Clients
+            .FirstOrDefaultAsync(e => e.Id == parsedCommand.ClientId, cancellationToken);
+
+        if (clientModel != null)
+        {
+            ClientAggregateRoot clientAggregate = new(clientModel);
+
+            clientAggregate.UpdateEmail(parsedCommand.Email);
+            clientAggregate.UpdatePassword(authenticationService.ComputeSha256Hash(parsedCommand.Password!));
+            clientAggregate.UpdateFirstName(parsedCommand.FirstName);
+            clientAggregate.UpdateLastName(parsedCommand.LastName);
+
+            clientModel.UpdateBasedOnAggregate(clientAggregate);
+
+            databaseDbContext.Clients.Update(clientModel);
+
+            return true;
+        }
+
+        return false;
     }
 
     public async Task<bool> DeleteAsync(ICommand command, CancellationToken cancellationToken)
     {
-        throw new NotImplementedException();
+        var parsedCommand = command as DeleteClientCommand;
+
+        ClientModel? clientModel = await databaseDbContext.Clients
+            .FirstOrDefaultAsync(e => e.Id == parsedCommand.Id, cancellationToken);
+
+        if (clientModel == null) return false;
+
+        databaseDbContext.Clients.Remove(clientModel);
+        return true;
     }
 
-    public async Task<ClientSimplifiedViewModel?> GetByIdAsync(IQuery query, CancellationToken cancellationToken)
+    public async Task<ClientModel?> GetByIdAsync(IQuery query, CancellationToken cancellationToken)
     {
-        throw new NotImplementedException();
+        var parsedQuery = query as GetClientQuery;
+
+        IQueryable<ClientModel> databaseQuery = databaseDbContext.Clients.AsNoTracking().AsQueryable();
+
+        if(parsedQuery.IncludeCars)
+            databaseQuery = databaseQuery.Include(c => c.Cars);
+
+        return await databaseQuery.FirstOrDefaultAsync(c => c.Id == parsedQuery.ClientId, cancellationToken);
     }
 
-    public async Task<IEnumerable<ClientSimplifiedViewModel>> ListAsync(IQuery query, CancellationToken cancellationToken)
+    public async Task<IEnumerable<ClientModel>> ListAsync(IQuery query, CancellationToken cancellationToken)
     {
-        throw new NotImplementedException();
+        var parsedQuery = query as ListClientsQuery;
+
+        bool hasClientIds = parsedQuery.ClientIds != null && parsedQuery.ClientIds.Any();
+
+        IQueryable<ClientModel> databaseQuery = databaseDbContext.Clients.AsNoTracking().AsQueryable();
+
+        if(parsedQuery.IncludeCars)
+            databaseQuery = databaseQuery.Include(c => c.Cars);
+
+        if(hasClientIds)
+            databaseQuery = databaseQuery.Where(c => parsedQuery.ClientIds!.Contains(c.Id));
+
+        return await databaseQuery.ToListAsync(cancellationToken);
     }
 }

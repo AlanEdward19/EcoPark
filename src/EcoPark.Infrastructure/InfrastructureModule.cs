@@ -1,8 +1,4 @@
-﻿using EcoPark.Application.Clients.Models;
-using EcoPark.Domain.Commons.Base;
-using EcoPark.Domain.Interfaces.Database;
-using EcoPark.Infrastructure.Data;
-using EcoPark.Infrastructure.Repositories;
+﻿using EcoPark.Infrastructure.Repositories;
 using Microsoft.Extensions.Configuration;
 
 namespace EcoPark.Infrastructure;
@@ -36,7 +32,7 @@ public static class InfrastructureModule
         services.AddScoped<IRepository<EmployeeModel>, EmployeeRepository>();
         services.AddScoped<IRepository<ReservationModel>, ReservationRepository>();
         services.AddScoped<IRepository<UserModel>, LoginRepository>();
-        services.AddScoped<IRepository<ClientSimplifiedViewModel>, ClientRepository>();
+        services.AddScoped<IAggregateRepository<ClientModel>, ClientRepository>();
 
         return services;
     }

@@ -56,11 +56,12 @@ public class ClientController(ILogger<ClientController> logger) : ControllerBase
     [HttpPatch]
     [Authorize(Roles = "Administrator, Employee, Client")]
     public async Task<IActionResult> Update([FromServices] IHandler<UpdateClientCommand, DatabaseOperationResponseViewModel> handler,
-        [FromBody] UpdateClientCommand command, CancellationToken cancellationToken)
+        [FromQuery] Guid id, [FromBody] UpdateClientCommand command, CancellationToken cancellationToken)
     {
         logger.LogInformation(
             $"Method Call: UpdateClient with parameters: \n{string.Join("\n", EntityPropertiesUtilities.GetEntityPropertiesAndValueAsIEnumerable(command))}");
 
+        command.SetClientId(id);
         return Created(Request.GetDisplayUrl(), await handler.HandleAsync(command, cancellationToken));
     }
 

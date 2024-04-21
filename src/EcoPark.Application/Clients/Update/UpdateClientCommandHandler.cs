@@ -1,9 +1,6 @@
-﻿using EcoPark.Domain.Interfaces.Database;
-using EcoPark.Domain.Interfaces.Services;
+﻿namespace EcoPark.Application.Clients.Update;
 
-namespace EcoPark.Application.Clients.Update;
-
-public class UpdateClientCommandHandler(IRepository<LocationSimplifiedViewModel> repository) : IHandler<UpdateClientCommand, DatabaseOperationResponseViewModel>
+public class UpdateClientCommandHandler(IAggregateRepository<ClientModel> repository) : IHandler<UpdateClientCommand, DatabaseOperationResponseViewModel>
 {
     public async Task<DatabaseOperationResponseViewModel> HandleAsync(UpdateClientCommand command, 
         CancellationToken cancellationToken)
