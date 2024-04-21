@@ -1,6 +1,6 @@
 ﻿namespace EcoPark.Application.ParkingSpaces.Insert;
 
-public class InsertParkingSpaceCommandHandler(DatabaseDbContext databaseDbContext) : IHandler<InsertParkingSpaceCommand, DatabaseOperationResponseViewModel>
+public class InsertParkingSpaceCommandHandler(IAggregateRepository<ParkingSpaceModel> repository) : IHandler<InsertParkingSpaceCommand, DatabaseOperationResponseViewModel>
 {
     public async Task<DatabaseOperationResponseViewModel> HandleAsync(InsertParkingSpaceCommand command, 
         CancellationToken cancellationToken)
@@ -9,18 +9,27 @@ public class InsertParkingSpaceCommandHandler(DatabaseDbContext databaseDbContex
 
         try
         {
-            ParkingSpaceModel parkingSpaceModel = new(command.LocationId!.Value, command.Floor!.Value, command.ParkingSpaceName!,
-                command.IsOccupied!.Value, command.Type!.Value);
+            await repository.UnitOfWork.StartAsync(cancellationToken);
 
-            await databaseDbContext.ParkingSpaces.AddAsync(parkingSpaceModel, cancellationToken);
+            var databaseOperationResult = await repository.AddAsync(command, cancellationToken);
 
-            await databaseDbContext.SaveChangesAsync(cancellationToken);
+            if (databaseOperationResult)
+            {
+                await repository.UnitOfWork.SaveEntitiesAsync(cancellationToken);
+                await repository.UnitOfWork.CommitAsync(cancellationToken);
 
-            result = new DatabaseOperationResponseViewModel("Post", EOperationStatus.Successful,
-                "Parking space was inserted successfully!");
+                result = new DatabaseOperationResponseViewModel("Post", EOperationStatus.Successful,
+                    "Parking space was inserted successfully!");
+            }
+            else
+            {
+                await repository.UnitOfWork.RollbackAsync(cancellationToken);
+                result = new DatabaseOperationResponseViewModel("Post", EOperationStatus.Failed, "Parking space was not inserted!");
+            }
         }
         catch (Exception e)
         {
+            await repository.UnitOfWork.RollbackAsync(cancellationToken);
             result = new DatabaseOperationResponseViewModel("Post", EOperationStatus.Failed, e.Message);
         }
 

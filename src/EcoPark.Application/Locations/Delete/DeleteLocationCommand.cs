@@ -1,3 +1,3 @@
 ﻿namespace EcoPark.Application.Locations.Delete;
 
-public record DeleteLocationCommand : DeleteEntityCommand { }
+public record DeleteLocationCommand : DeleteEntityCommand, ICommand { }

@@ -1,37 +1,34 @@
 ﻿namespace EcoPark.Application.Locations.Update;
 
-public class UpdateLocationCommandHandler(DatabaseDbContext databaseDbContext) : IHandler<UpdateLocationCommand, DatabaseOperationResponseViewModel>
+public class UpdateLocationCommandHandler(IAggregateRepository<LocationModel> repository) : IHandler<UpdateLocationCommand, DatabaseOperationResponseViewModel>
 {
-    public async Task<DatabaseOperationResponseViewModel> HandleAsync(UpdateLocationCommand command, 
+    public async Task<DatabaseOperationResponseViewModel> HandleAsync(UpdateLocationCommand command,
         CancellationToken cancellationToken)
     {
         DatabaseOperationResponseViewModel result;
 
         try
         {
-            LocationModel? locationModel = await databaseDbContext.Locations
-                .FirstOrDefaultAsync(l => l.Id == command.LocationId, cancellationToken);
+            await repository.UnitOfWork.StartAsync(cancellationToken);
 
-            if (locationModel != null)
+            var databaseOperationResult = await repository.UpdateAsync(command, cancellationToken);
+
+            if (databaseOperationResult)
             {
-                LocationAggregateRoot locationAggregate = new(locationModel);
-
-                locationAggregate.UpdateName(command.Name);
-                locationAggregate.UpdateAddress(command.Address);
-
-                locationModel.UpdateBasedOnAggregate(locationAggregate);
-
-                databaseDbContext.Locations.Update(locationModel);
-
-                await databaseDbContext.SaveChangesAsync(cancellationToken);
+                await repository.UnitOfWork.SaveEntitiesAsync(cancellationToken);
+                await repository.UnitOfWork.CommitAsync(cancellationToken);
 
                 result = new("Patch", EOperationStatus.Successful, "Location updated successfully");
             }
             else
+            {
+                await repository.UnitOfWork.RollbackAsync(cancellationToken);
                 result = new("Patch", EOperationStatus.Failed, "No Location were found with this id");
+            }
         }
         catch (Exception e)
         {
+            await repository.UnitOfWork.RollbackAsync(cancellationToken);
             result = new("Patch", EOperationStatus.Failed, e.Message);
         }
 

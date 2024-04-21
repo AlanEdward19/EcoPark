@@ -1,7 +1,9 @@
 ﻿using EcoPark.Application.Locations.Delete;
 using EcoPark.Application.Locations.Get;
+using EcoPark.Application.Locations.Insert;
 using EcoPark.Application.Locations.List;
 using EcoPark.Application.Locations.Models;
+using EcoPark.Application.Locations.Update;
 
 namespace EcoPark.Presentation.Controllers;
 

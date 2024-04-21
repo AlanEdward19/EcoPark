@@ -1,6 +1,6 @@
 ﻿namespace EcoPark.Application.Employees.Delete;
 
-public class DeleteEmployeeCommandHandler(DatabaseDbContext databaseDbContext) : IHandler<DeleteEmployeeCommand, DatabaseOperationResponseViewModel>
+public class DeleteEmployeeCommandHandler(IRepository<EmployeeModel> repository) : IHandler<DeleteEmployeeCommand, DatabaseOperationResponseViewModel>
 {
     public async Task<DatabaseOperationResponseViewModel> HandleAsync(DeleteEmployeeCommand command, CancellationToken cancellationToken)
     {
@@ -8,23 +8,26 @@ public class DeleteEmployeeCommandHandler(DatabaseDbContext databaseDbContext) :
 
         try
         {
-            EmployeeModel? employeeModel = await databaseDbContext.Employees
-                .FirstOrDefaultAsync(e => e.Id == command.Id, cancellationToken);
+            await repository.UnitOfWork.StartAsync(cancellationToken);
 
-            if (employeeModel != null)
+            var databaseOperationResult = await repository.DeleteAsync(command, cancellationToken);
+
+            if (databaseOperationResult)
             {
-                databaseDbContext.Employees.Remove(employeeModel);
-
-                await databaseDbContext.SaveChangesAsync(cancellationToken);
+                await repository.UnitOfWork.SaveEntitiesAsync(cancellationToken);
+                await repository.UnitOfWork.CommitAsync(cancellationToken);
 
                 result = new DatabaseOperationResponseViewModel("Delete", EOperationStatus.Successful, "Employee was deleted successfully!");
             }
             else
+            {
+                await repository.UnitOfWork.RollbackAsync(cancellationToken);
                 result = new DatabaseOperationResponseViewModel("Delete", EOperationStatus.Failed, "No Employee were found with this id");
-
+            }
         }
         catch (Exception e)
         {
+            await repository.UnitOfWork.RollbackAsync(cancellationToken);
             result = new DatabaseOperationResponseViewModel("Delete", EOperationStatus.Failed, e.Message);
         }
 

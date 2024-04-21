@@ -1,6 +1,6 @@
 ﻿namespace EcoPark.Application.ParkingSpaces.Delete;
 
-public class DeleteParkingSpaceCommandHandler(DatabaseDbContext databaseDbContext) : IHandler<DeleteParkingSpaceCommand, DatabaseOperationResponseViewModel>
+public class DeleteParkingSpaceCommandHandler(IAggregateRepository<ParkingSpaceModel> repository) : IHandler<DeleteParkingSpaceCommand, DatabaseOperationResponseViewModel>
 {
     public async Task<DatabaseOperationResponseViewModel> HandleAsync(DeleteParkingSpaceCommand command,
         CancellationToken cancellationToken)
@@ -9,24 +9,28 @@ public class DeleteParkingSpaceCommandHandler(DatabaseDbContext databaseDbContex
 
         try
         {
-            ParkingSpaceModel? parkingSpaceModel = await databaseDbContext.ParkingSpaces
-                .FirstOrDefaultAsync(ps => ps.Id == command.Id, cancellationToken);
+            await repository.UnitOfWork.StartAsync(cancellationToken);
 
-            if (parkingSpaceModel != null)
+            var databaseOperationResult = await repository.DeleteAsync(command, cancellationToken);
+
+            if (databaseOperationResult)
             {
-                databaseDbContext.ParkingSpaces.Remove(parkingSpaceModel);
-
-                await databaseDbContext.SaveChangesAsync(cancellationToken);
+                await repository.UnitOfWork.SaveEntitiesAsync(cancellationToken);
+                await repository.UnitOfWork.CommitAsync(cancellationToken);
 
                 result = new DatabaseOperationResponseViewModel("Delete", EOperationStatus.Successful,
                     "Parking space was deleted successfully!");
             }
             else
+            {
+                await repository.UnitOfWork.RollbackAsync(cancellationToken);
                 result = new DatabaseOperationResponseViewModel("Delete", EOperationStatus.Failed,
                     "No Parking space were found with this id");
+            }
         }
         catch (Exception e)
         {
+            await repository.UnitOfWork.RollbackAsync(cancellationToken);
             result = new DatabaseOperationResponseViewModel("Delete", EOperationStatus.Failed, e.Message);
         }
 

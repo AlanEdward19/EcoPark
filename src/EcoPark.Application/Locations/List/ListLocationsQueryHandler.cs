@@ -1,16 +1,11 @@
 ﻿namespace EcoPark.Application.Locations.List;
 
-public class ListLocationsQueryHandler(DatabaseDbContext databaseDbContext) : IHandler<ListLocationQuery, IEnumerable<LocationSimplifiedViewModel>>
+public class ListLocationsQueryHandler(IAggregateRepository<LocationModel> repository) : IHandler<ListLocationQuery, IEnumerable<LocationSimplifiedViewModel>>
 {
     public async Task<IEnumerable<LocationSimplifiedViewModel>> HandleAsync(ListLocationQuery command, CancellationToken cancellationToken)
     {
         bool hasLocationIds = command.LocationIds != null && command.LocationIds.Any();
-        IQueryable<LocationModel> query = databaseDbContext.Locations;
-
-        IEnumerable<LocationModel> locationModels;
-
-        if (hasLocationIds)
-            query = query.Where(l => command.LocationIds!.Contains(l.Id));
+        var locations =  await repository.ListAsync(command, cancellationToken);
 
         if (command.IncludeParkingSpaces!.Value)
         {
@@ -18,15 +13,11 @@ public class ListLocationsQueryHandler(DatabaseDbContext databaseDbContext) : IH
                 ? new(command.LocationIds!.Count())
                 : new(100);
 
-            query = query.Include(l => l.ParkingSpaces);
-
-            locationModels = await query.ToListAsync(cancellationToken);
-
-            foreach (var locationModel in locationModels)
+            foreach (var locationModel in locations)
             {
-                List<ParkingSpaceSimplifiedWithoutLocationViewModel>? parkingSpaces =
+                List<ParkingSpaceSimplifiedViewModel>? parkingSpaces =
                     locationModel.ParkingSpaces?.Select(x =>
-                        new ParkingSpaceSimplifiedWithoutLocationViewModel(x.Floor, x.ParkingSpaceName, x.IsOccupied,
+                        new ParkingSpaceSimplifiedViewModel(x.Floor, x.ParkingSpaceName, x.IsOccupied,
                             x.ParkingSpaceType)).ToList();
 
                 LocationViewModel location = new(locationModel.Name, locationModel.Address, parkingSpaces);
@@ -42,9 +33,7 @@ public class ListLocationsQueryHandler(DatabaseDbContext databaseDbContext) : IH
                 ? new(command.LocationIds!.Count())
                 : new(100);
 
-            locationModels = await query.ToListAsync(cancellationToken);
-
-            foreach (var locationModel in locationModels)
+            foreach (var locationModel in locations)
             {
                 LocationSimplifiedViewModel location = new(locationModel.Name, locationModel.Address);
 

@@ -1,3 +1,3 @@
 ﻿namespace EcoPark.Application.Clients.Delete;
 
-public record DeleteClientCommand : DeleteEntityCommand { }
+public record DeleteClientCommand : DeleteEntityCommand, ICommand { }

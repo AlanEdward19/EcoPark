@@ -1,6 +1,8 @@
-﻿namespace EcoPark.Application.Employees.Insert;
+﻿using EcoPark.Domain.Interfaces.Services;
 
-public class InsertEmployeeCommand(string? email, string? password, string? firstName, string? lastName, EUserType? userType)
+namespace EcoPark.Application.Employees.Insert;
+
+public class InsertEmployeeCommand(string? email, string? password, string? firstName, string? lastName, EUserType? userType): ICommand
 {
     public string? Email { get; private set; } = email!.ToLower();
     public string? Password { get; private set; } = password;

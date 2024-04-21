@@ -1,6 +1,6 @@
 ﻿namespace EcoPark.Application.Reservations.Update;
 
-public class UpdateReservationCommand
+public class UpdateReservationCommand : ICommand
 {
     
 }

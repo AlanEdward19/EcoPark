@@ -1,6 +1,6 @@
 ﻿namespace EcoPark.Application.Locations.Get;
 
-public class GetLocationQuery
+public class GetLocationQuery : IQuery
 {
     public Guid LocationId { get; set; }
     public bool? IncludeParkingSpaces { get; set; } = false;

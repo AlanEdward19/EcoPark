@@ -1,6 +1,6 @@
 ﻿namespace EcoPark.Application.Clients.Update;
 
-public class UpdateClientCommand
+public class UpdateClientCommand : ICommand
 {
     
 }

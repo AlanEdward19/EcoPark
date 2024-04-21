@@ -1,9 +1,9 @@
 ﻿namespace EcoPark.Application.Clients.Get;
 
-public class GetClientQueryHandler : IHandler<GetClientQuery, ClientSimplifiedViewModel>
+public class GetClientQueryHandler (IAggregateRepository<ClientSimplifiedViewModel> repository) : IHandler<GetClientQuery, ClientSimplifiedViewModel?>
 {
-    public async Task<ClientSimplifiedViewModel> HandleAsync(GetClientQuery command, CancellationToken cancellationToken)
+    public async Task<ClientSimplifiedViewModel?> HandleAsync(GetClientQuery command, CancellationToken cancellationToken)
     {
-        throw new NotImplementedException();
+        return await repository.GetByIdAsync(command, cancellationToken);
     }
 }

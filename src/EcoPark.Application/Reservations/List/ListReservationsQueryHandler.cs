@@ -1,8 +1,8 @@
 ﻿namespace EcoPark.Application.Reservations.List;
 
-public class ListReservationsQueryHandler : IHandler<IEnumerable<Guid>?, IEnumerable<ReservationModel>>
+public class ListReservationsQueryHandler(IRepository<ReservationModel> repository) : IHandler<ListReservationQuery, IEnumerable<ReservationSimplifiedViewModel>>
 {
-    public async Task<IEnumerable<ReservationModel>> HandleAsync(IEnumerable<Guid>? command, CancellationToken cancellationToken)
+    public async Task<IEnumerable<ReservationSimplifiedViewModel>> HandleAsync(ListReservationQuery command, CancellationToken cancellationToken)
     {
         throw new NotImplementedException();
     }
