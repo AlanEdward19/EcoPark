@@ -7,9 +7,9 @@ using EcoPark.Domain.Aggregates.Location;
 
 namespace EcoPark.Infrastructure.Repositories;
 
-public class LocationRepository(DatabaseDbContext databaseDbContext) : IAggregateRepository<LocationModel>
+public class LocationRepository(DatabaseDbContext databaseDbContext, IUnitOfWork unitOfWork) : IAggregateRepository<LocationModel>
 {
-    public IUnitOfWork UnitOfWork { get; }
+    public IUnitOfWork UnitOfWork { get; } = unitOfWork;
 
     public async Task<bool> AddAsync(ICommand command, CancellationToken cancellationToken)
     {

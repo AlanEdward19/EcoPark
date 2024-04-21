@@ -1,8 +1,8 @@
 ﻿namespace EcoPark.Infrastructure.Repositories;
 
-public class LoginRepository(DatabaseDbContext databaseDbContext, IAuthenticationService authenticationService) : IRepository<UserModel>
+public class LoginRepository(DatabaseDbContext databaseDbContext, IAuthenticationService authenticationService, IUnitOfWork unitOfWork) : IRepository<UserModel>
 {
-    public IUnitOfWork UnitOfWork { get; }
+    public IUnitOfWork UnitOfWork { get; } = unitOfWork;
 
     public async Task<bool> AddAsync(ICommand command, CancellationToken cancellationToken)
     {

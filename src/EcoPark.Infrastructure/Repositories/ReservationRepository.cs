@@ -6,9 +6,9 @@ using EcoPark.Application.Reservations.Update;
 
 namespace EcoPark.Infrastructure.Repositories;
 
-public class ReservationRepository(DatabaseDbContext databaseDbContext) : IRepository<ReservationModel>
+public class ReservationRepository(DatabaseDbContext databaseDbContext, IUnitOfWork unitOfWork) : IRepository<ReservationModel>
 {
-    public IUnitOfWork UnitOfWork { get; }
+    public IUnitOfWork UnitOfWork { get; } = unitOfWork;
 
     public async Task<bool> AddAsync(ICommand command, CancellationToken cancellationToken)
     {
