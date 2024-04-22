@@ -4,6 +4,7 @@ public interface IRepository<T>
 {
     IUnitOfWork UnitOfWork { get; }
 
+    Task<bool> CheckChangePermissionAsync(ICommand command, CancellationToken cancellationToken);
     Task<bool> AddAsync(ICommand command, CancellationToken cancellationToken);
     Task<bool> UpdateAsync(ICommand command, CancellationToken cancellationToken);
     Task<bool> DeleteAsync(ICommand command, CancellationToken cancellationToken);

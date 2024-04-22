@@ -1,6 +1,6 @@
-﻿namespace EcoPark.Application.Employees.Delete;
+﻿namespace EcoPark.Application.Cars.Delete;
 
-public record DeleteEmployeeCommand : DeleteEntityCommand, ICommand
+public record DeleteCarCommand : DeleteEntityCommand, ICommand
 {
     public (string Email, string UserType) RequestUserInfo { get; private set; }
 

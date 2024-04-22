@@ -2,14 +2,14 @@
 
 namespace EcoPark.Application.Authentication.Get;
 
-public class LoginQueryHandler(IRepository<UserModel> repository, IAuthenticationService authenticationService) : IHandler<LoginQuery, LoginViewModel>
+public class LoginQueryHandler(IRepository<UserModel> repository, IAuthenticationService authenticationService) : IHandler<LoginQuery, LoginViewModel?>
 {
-    public async Task<LoginViewModel> HandleAsync(LoginQuery command, CancellationToken cancellationToken)
+    public async Task<LoginViewModel?> HandleAsync(LoginQuery command, CancellationToken cancellationToken)
     {
         var user = await repository.GetByIdAsync(command, cancellationToken);
 
         if (user == null)
-            throw new Exception("User not found!");
+            return null;
 
         string token = authenticationService.GenerateJwtToken(command.Email,
             command.IsEmployee ? (user as EmployeeModel).UserType.ToString() : "Client");

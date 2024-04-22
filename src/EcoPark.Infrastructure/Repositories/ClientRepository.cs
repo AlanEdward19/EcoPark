@@ -7,10 +7,39 @@ using EcoPark.Domain.Aggregates.Client;
 
 namespace EcoPark.Infrastructure.Repositories;
 
-public class ClientRepository(DatabaseDbContext databaseDbContext, IAuthenticationService authenticationService, IUnitOfWork unitOfWork) 
+public class ClientRepository(DatabaseDbContext databaseDbContext, IAuthenticationService authenticationService, IUnitOfWork unitOfWork)
     : IAggregateRepository<ClientModel>
 {
     public IUnitOfWork UnitOfWork { get; } = unitOfWork;
+
+    public async Task<bool> CheckChangePermissionAsync(ICommand command, CancellationToken cancellationToken)
+    {
+        if (!command.RequestUserInfo.UserType.Equals("client", StringComparison.InvariantCultureIgnoreCase))
+            return true;
+
+        ClientModel? clientModel = null;
+
+        switch (command.GetType().Name)
+        {
+            case nameof(UpdateClientCommand):
+                var parsedUpdateCommand = command as UpdateClientCommand;
+                clientModel = await databaseDbContext.Clients
+                    .FirstOrDefaultAsync(
+                        e => e.Email.Equals(parsedUpdateCommand.RequestUserInfo.Email) &&
+                             e.Id == parsedUpdateCommand.ClientId, cancellationToken);
+                break;
+
+            case nameof(DeleteClientCommand):
+                var parsedDeleteCommand = command as DeleteClientCommand;
+                clientModel = await databaseDbContext.Clients
+                    .FirstOrDefaultAsync(
+                        e => e.Email.Equals(parsedDeleteCommand.RequestUserInfo.Email) &&
+                             e.Id == parsedDeleteCommand.Id, cancellationToken);
+                break;
+        }
+
+        return clientModel != null;
+    }
 
     public async Task<bool> AddAsync(ICommand command, CancellationToken cancellationToken)
     {
@@ -68,7 +97,7 @@ public class ClientRepository(DatabaseDbContext databaseDbContext, IAuthenticati
 
         IQueryable<ClientModel> databaseQuery = databaseDbContext.Clients.AsNoTracking().AsQueryable();
 
-        if(parsedQuery.IncludeCars)
+        if (parsedQuery.IncludeCars)
             databaseQuery = databaseQuery.Include(c => c.Cars);
 
         return await databaseQuery.FirstOrDefaultAsync(c => c.Id == parsedQuery.ClientId, cancellationToken);
@@ -82,10 +111,10 @@ public class ClientRepository(DatabaseDbContext databaseDbContext, IAuthenticati
 
         IQueryable<ClientModel> databaseQuery = databaseDbContext.Clients.AsNoTracking().AsQueryable();
 
-        if(parsedQuery.IncludeCars)
+        if (parsedQuery.IncludeCars)
             databaseQuery = databaseQuery.Include(c => c.Cars);
 
-        if(hasClientIds)
+        if (hasClientIds)
             databaseQuery = databaseQuery.Where(c => parsedQuery.ClientIds!.Contains(c.Id));
 
         return await databaseQuery.ToListAsync(cancellationToken);

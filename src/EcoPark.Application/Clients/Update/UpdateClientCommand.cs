@@ -9,8 +9,15 @@ public class UpdateClientCommand(string? email, string? password, string? firstN
     public string? FirstName { get; private set; } = firstName;
     public string? LastName { get; private set; } = lastName;
 
+    public (string Email, string UserType) RequestUserInfo { get; private set; }
+
     public void SetClientId(Guid clientId)
     {
         ClientId = clientId;
+    }
+
+    public void SetRequestUserInfo((string email, string userType) information)
+    {
+        RequestUserInfo = information;
     }
 }

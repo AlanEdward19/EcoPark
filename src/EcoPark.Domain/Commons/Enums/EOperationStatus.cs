@@ -3,5 +3,6 @@
 public enum EOperationStatus
 {
     Successful,
+    NotAuthorized,
     Failed
 }
