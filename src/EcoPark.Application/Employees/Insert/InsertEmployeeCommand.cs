@@ -1,6 +1,4 @@
-﻿using EcoPark.Domain.Interfaces.Services;
-
-namespace EcoPark.Application.Employees.Insert;
+﻿namespace EcoPark.Application.Employees.Insert;
 
 public class InsertEmployeeCommand(string? email, string? password, string? firstName, string? lastName, EUserType? userType): ICommand
 {
@@ -15,5 +13,11 @@ public class InsertEmployeeCommand(string? email, string? password, string? firs
         string hashedPassword = authenticationService.ComputeSha256Hash(this.Password!);
 
         return new(Email!, hashedPassword, FirstName!, LastName!, UserType!.Value);
+    }
+
+    public (string Email, string UserType) RequestUserInfo { get; private set; }
+    public void SetRequestUserInfo((string email, string userType) information)
+    {
+        RequestUserInfo = information;
     }
 }

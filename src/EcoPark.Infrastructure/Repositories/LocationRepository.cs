@@ -11,6 +11,11 @@ public class LocationRepository(DatabaseDbContext databaseDbContext, IUnitOfWork
 {
     public IUnitOfWork UnitOfWork { get; } = unitOfWork;
 
+    public async Task<bool> CheckChangePermissionAsync(ICommand command, CancellationToken cancellationToken)
+    {
+        throw new NotImplementedException();
+    }
+
     public async Task<bool> AddAsync(ICommand command, CancellationToken cancellationToken)
     {
         var parsedCommand = command as InsertLocationCommand;

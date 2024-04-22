@@ -10,6 +10,33 @@ public class EmployeeRepository(DatabaseDbContext databaseDbContext, IAuthentica
 {
     public IUnitOfWork UnitOfWork { get; } = unitOfWork;
 
+    public async Task<bool> CheckChangePermissionAsync(ICommand command, CancellationToken cancellationToken)
+    {
+        if (command.RequestUserInfo.UserType.Equals("Administrator", StringComparison.InvariantCultureIgnoreCase))
+            return true;
+
+        EmployeeModel? employeeModel = null;
+
+        switch (command.GetType().Name)
+        {
+            case nameof(UpdateEmployeeCommand):
+                var parsedUpdateCommand = command as UpdateEmployeeCommand;
+                employeeModel = await databaseDbContext.Employees
+                    .FirstOrDefaultAsync(e => e.Email.Equals(parsedUpdateCommand.RequestUserInfo.Email) &&
+                                              e.Id == parsedUpdateCommand.EmployeeId, cancellationToken);
+                break;
+
+            case nameof(DeleteEmployeeCommand):
+                var parsedDeleteCommand = command as DeleteEmployeeCommand;
+                employeeModel = await databaseDbContext.Employees
+                    .FirstOrDefaultAsync(e => e.Email.Equals(parsedDeleteCommand.RequestUserInfo.Email) &&
+                                              e.Id == parsedDeleteCommand.Id, cancellationToken);
+                break;
+        }
+
+        return employeeModel != null;
+    }
+
     public async Task<bool> AddAsync(ICommand command, CancellationToken cancellationToken)
     {
         var parsedCommand = command as InsertEmployeeCommand;

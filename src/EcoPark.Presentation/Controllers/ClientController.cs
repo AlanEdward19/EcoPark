@@ -4,6 +4,7 @@ using EcoPark.Application.Clients.Insert;
 using EcoPark.Application.Clients.List;
 using EcoPark.Application.Clients.Models;
 using EcoPark.Application.Clients.Update;
+using EcoPark.Domain.Commons.Enums;
 
 namespace EcoPark.Presentation.Controllers;
 
@@ -18,7 +19,12 @@ public class ClientController(ILogger<ClientController> logger) : ControllerBase
             $"Method Call: Login [Clients] with email: {query.Email}");
 
         query.SetIsEmployee(false);
-        return Ok(await handler.HandleAsync(query, cancellationToken));
+        var result = await handler.HandleAsync(query, cancellationToken);
+
+        if(result == null)
+            return NotFound(new { Message = "User not found" });
+
+        return Ok(result);
     }
 
     [HttpPost("list")]
@@ -61,8 +67,25 @@ public class ClientController(ILogger<ClientController> logger) : ControllerBase
         logger.LogInformation(
             $"Method Call: UpdateClient with parameters: \n{string.Join("\n", EntityPropertiesUtilities.GetEntityPropertiesAndValueAsIEnumerable(command))}");
 
+        var user = HttpContext.User;
+        var userEmail = user.FindFirst("userName")?.Value;
+        var userType = user.Claims
+            .FirstOrDefault(c => c.Type.Contains("role", StringComparison.InvariantCultureIgnoreCase))?.Value;
+
         command.SetClientId(id);
-        return Created(Request.GetDisplayUrl(), await handler.HandleAsync(command, cancellationToken));
+        command.SetRequestUserInfo((userEmail, userType));
+
+        var result = await handler.HandleAsync(command, cancellationToken);
+        var status = Enum.Parse<EOperationStatus>(result.Status);
+
+         return status switch
+        {
+            EOperationStatus.Successful => Created(Request.GetDisplayUrl(), result),
+
+            EOperationStatus.Failed => BadRequest(result),
+
+            EOperationStatus.NotAuthorized => Unauthorized(result)
+        };
     }
 
     [HttpDelete]

@@ -10,7 +10,6 @@
     <Folder Include="Authentication\Models\" />
     <Folder Include="Cars\Get\" />
     <Folder Include="Cars\Insert\" />
-    <Folder Include="Cars\Delete\" />
     <Folder Include="Cars\Models\" />
     <Folder Include="Cars\Update\" />
     <Folder Include="Employees\Delete\" />

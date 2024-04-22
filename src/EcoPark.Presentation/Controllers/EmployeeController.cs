@@ -18,7 +18,12 @@ public class EmployeeController(ILogger<EmployeeController> logger) : Controller
             $"Method Call: Login [Employees] with email: {query.Email}");
 
         query.SetIsEmployee(true);
-        return Ok(await handler.HandleAsync(query, cancellationToken));
+        var result = await handler.HandleAsync(query, cancellationToken);
+
+        if (result == null)
+            return NotFound(new{Message = "User not found" });
+
+        return Ok(result);
     }
 
     [HttpPost("list")]
