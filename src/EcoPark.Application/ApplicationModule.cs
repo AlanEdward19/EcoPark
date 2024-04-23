@@ -1,6 +1,11 @@
 ﻿using EcoPark.Application.Authentication.Get;
 using EcoPark.Application.Authentication.Models;
 using EcoPark.Application.Authentication.Services;
+using EcoPark.Application.Cars.Delete;
+using EcoPark.Application.Cars.Get;
+using EcoPark.Application.Cars.Insert;
+using EcoPark.Application.Cars.List;
+using EcoPark.Application.Cars.Update;
 using EcoPark.Application.Clients.Delete;
 using EcoPark.Application.Clients.Get;
 using EcoPark.Application.Clients.Insert;
@@ -46,7 +51,10 @@ public static class ApplicationModule
         services.AddScoped<IHandler<GetClientQuery, ClientSimplifiedViewModel?>, GetClientQueryHandler>();
         services.AddScoped<IHandler<ListClientsQuery, IEnumerable<ClientSimplifiedViewModel>>, ListClientsQueryHandler>();
 
-        services.AddScoped<IHandler<LoginQuery, LoginViewModel>, LoginQueryHandler>();
+        services.AddScoped<IHandler<LoginQuery, LoginViewModel?>, LoginQueryHandler>();
+
+        services.AddScoped<IHandler<GetCarQuery, CarViewModel?>, GetCarQueryHandler>();
+        services.AddScoped<IHandler<ListCarQuery, IEnumerable<CarViewModel>>, ListCarQueryHandler>();
 
         return services;
     }
@@ -99,6 +107,10 @@ public static class ApplicationModule
             .AddScoped<IHandler<UpdateClientCommand, DatabaseOperationResponseViewModel>, UpdateClientCommandHandler>();
         services
             .AddScoped<IHandler<DeleteClientCommand, DatabaseOperationResponseViewModel>, DeleteClientCommandHandler>();
+
+        services.AddScoped<IHandler<InsertCarCommand, DatabaseOperationResponseViewModel>, InsertCarCommandHandler>();
+        services.AddScoped<IHandler<UpdateCarCommand, DatabaseOperationResponseViewModel>, UpdateCarCommandHandler>();
+        services.AddScoped<IHandler<DeleteCarCommand, DatabaseOperationResponseViewModel>, DeleteCarCommandHandler>();
 
         return services;
     }
