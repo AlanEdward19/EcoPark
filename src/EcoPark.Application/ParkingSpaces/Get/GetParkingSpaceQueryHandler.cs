@@ -13,7 +13,7 @@ public class GetParkingSpaceQueryHandler(IAggregateRepository<ParkingSpaceModel>
             if (command.IncludeReservations)
             {
                 IEnumerable<ReservationSimplifiedViewModel>? reservations = parkingSpace.Reservations?.Select(x =>
-                    new ReservationSimplifiedViewModel(x.CardId, x.ClientId, x.ReservationCode, x.Status,
+                    new ReservationSimplifiedViewModel(x.CarId, x.ClientId, x.ReservationCode, x.Status,
                         x.ReservationDate, x.ExpirationDate));
 
                 result = new ParkingSpaceViewModel(parkingSpace.Floor, parkingSpace.ParkingSpaceName,

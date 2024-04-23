@@ -67,13 +67,9 @@ public class ClientController(ILogger<ClientController> logger) : ControllerBase
         logger.LogInformation(
             $"Method Call: UpdateClient with parameters: \n{string.Join("\n", EntityPropertiesUtilities.GetEntityPropertiesAndValueAsIEnumerable(command))}");
 
-        var user = HttpContext.User;
-        var userEmail = user.FindFirst("userName")?.Value;
-        var userType = user.Claims
-            .FirstOrDefault(c => c.Type.Contains("role", StringComparison.InvariantCultureIgnoreCase))?.Value;
-
+        var requestUserInfo = EntityPropertiesUtilities.GetUserInfo(HttpContext.User);
         command.SetClientId(id);
-        command.SetRequestUserInfo((userEmail, userType));
+        command.SetRequestUserInfo(requestUserInfo);
 
         var result = await handler.HandleAsync(command, cancellationToken);
         var status = Enum.Parse<EOperationStatus>(result.Status);
@@ -82,7 +78,7 @@ public class ClientController(ILogger<ClientController> logger) : ControllerBase
         {
             EOperationStatus.Successful => Created(Request.GetDisplayUrl(), result),
 
-            EOperationStatus.Failed => BadRequest(result),
+            EOperationStatus.Failed => NotFound(result),
 
             EOperationStatus.NotAuthorized => Unauthorized(result)
         };
@@ -97,13 +93,15 @@ public class ClientController(ILogger<ClientController> logger) : ControllerBase
             $"Method Call: DeleteClient with parameters: \n{string.Join("\n", EntityPropertiesUtilities.GetEntityPropertiesAndValueAsIEnumerable(command))}");
 
         var result = await handler.HandleAsync(command, cancellationToken);
+        var status = Enum.Parse<EOperationStatus>(result.Status);
 
-        if (result.Status == "Successful")
-            return Accepted(Request.GetDisplayUrl(), result);
+        return status switch
+        {
+            EOperationStatus.Successful => Created(Request.GetDisplayUrl(), result),
 
-        if (result.Message == "No Client were found with this id")
-            return NotFound(result);
+            EOperationStatus.Failed => NotFound(result),
 
-        return BadRequest(result);
+            EOperationStatus.NotAuthorized => Unauthorized(result)
+        };
     }
 }

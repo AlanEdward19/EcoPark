@@ -1,12 +1,12 @@
-﻿namespace EcoPark.Application.ParkingSpaces.List;
+﻿namespace EcoPark.Application.Cars.List;
 
-public class ListParkingSpacesQuery : IQuery
+public class ListCarQuery(IEnumerable<Guid> carIds) : IQuery
 {
-    public IEnumerable<Guid>? ParkingSpaceIds { get; set; }
-    public bool? IncludeReservations { get; set; } = false;
+    public IEnumerable<Guid> CarIds { get; private set; } = carIds;
 
     [JsonIgnore]
     public (string Email, string UserType) RequestUserInfo { get; private set; }
+
     public void SetRequestUserInfo((string email, string userType) information)
     {
         RequestUserInfo = information;

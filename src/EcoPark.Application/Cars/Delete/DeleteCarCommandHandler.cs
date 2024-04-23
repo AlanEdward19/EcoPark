@@ -1,12 +1,11 @@
-﻿namespace EcoPark.Application.Reservations.Delete;
+﻿namespace EcoPark.Application.Cars.Delete;
 
-public class DeleteReservationCommandHandler(IRepository<ReservationModel> repository) : IHandler<DeleteReservationCommand, DatabaseOperationResponseViewModel>
+public class DeleteCarCommandHandler(IRepository<CarModel> repository) : IHandler<DeleteCarCommand, DatabaseOperationResponseViewModel>
 {
-    public async Task<DatabaseOperationResponseViewModel> HandleAsync(DeleteReservationCommand command, 
+    public async Task<DatabaseOperationResponseViewModel> HandleAsync(DeleteCarCommand command, 
         CancellationToken cancellationToken)
     {
         DatabaseOperationResponseViewModel result;
-
         try
         {
             if (await repository.CheckChangePermissionAsync(command, cancellationToken))
@@ -21,18 +20,18 @@ public class DeleteReservationCommandHandler(IRepository<ReservationModel> repos
                     await repository.UnitOfWork.CommitAsync(cancellationToken);
 
                     result = new DatabaseOperationResponseViewModel("Delete", EOperationStatus.Successful,
-                        "Reservation was deleted successfully!");
+                        "Car was deleted successfully!");
                 }
                 else
                 {
                     await repository.UnitOfWork.RollbackAsync(cancellationToken);
                     result = new DatabaseOperationResponseViewModel("Delete", EOperationStatus.Failed,
-                        "No Reservations were found with this id");
+                        "No Car were found with this id");
                 }
             }
             else
-                result = new("Delete", EOperationStatus.NotAuthorized,
-                    "You have no permission to delete this reservation");
+                result = new("Delete", EOperationStatus.NotAuthorized, "You have no permission to delete this car");
+
         }
         catch (Exception e)
         {

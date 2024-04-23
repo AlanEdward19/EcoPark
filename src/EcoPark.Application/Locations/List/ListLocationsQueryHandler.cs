@@ -4,14 +4,14 @@ public class ListLocationsQueryHandler(IAggregateRepository<LocationModel> repos
 {
     public async Task<IEnumerable<LocationSimplifiedViewModel>> HandleAsync(ListLocationQuery command, CancellationToken cancellationToken)
     {
-        bool hasLocationIds = command.LocationIds != null && command.LocationIds.Any();
         var locations =  await repository.ListAsync(command, cancellationToken);
+
+        if (locations == null || !locations.Any())
+            return Enumerable.Empty<LocationSimplifiedViewModel>();
 
         if (command.IncludeParkingSpaces!.Value)
         {
-            List<LocationViewModel> result = hasLocationIds
-                ? new(command.LocationIds!.Count())
-                : new(100);
+            List<LocationViewModel> result = new(command.LocationIds!.Count());
 
             foreach (var locationModel in locations)
             {
@@ -29,9 +29,7 @@ public class ListLocationsQueryHandler(IAggregateRepository<LocationModel> repos
         }
         else
         {
-            List<LocationSimplifiedViewModel> result = hasLocationIds
-                ? new(command.LocationIds!.Count())
-                : new(100);
+            List<LocationSimplifiedViewModel> result = new(command.LocationIds!.Count());
 
             foreach (var locationModel in locations)
             {

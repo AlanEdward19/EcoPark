@@ -87,7 +87,7 @@ public class ClientAggregateRoot
     public void UpdateEmail(string email)
     {
         if (!string.IsNullOrWhiteSpace(email) && !Email.Equals(email, StringComparison.InvariantCultureIgnoreCase))
-            Email = email;
+            Email = email.ToLower();
     }
 
     public void UpdatePassword(string password)

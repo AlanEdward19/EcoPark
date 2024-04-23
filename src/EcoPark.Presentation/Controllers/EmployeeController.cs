@@ -4,6 +4,7 @@ using EcoPark.Application.Employees.Insert;
 using EcoPark.Application.Employees.List;
 using EcoPark.Application.Employees.Models;
 using EcoPark.Application.Employees.Update;
+using EcoPark.Domain.Commons.Enums;
 
 namespace EcoPark.Presentation.Controllers;
 
@@ -39,13 +40,18 @@ public class EmployeeController(ILogger<EmployeeController> logger) : Controller
 
     [HttpGet]
     [Authorize(Roles = "Administrator")]
-    public async Task<IActionResult> GetById([FromServices] IHandler<GetEmployeeQuery, EmployeeViewModel> handler, 
+    public async Task<IActionResult> GetById([FromServices] IHandler<GetEmployeeQuery, EmployeeViewModel?> handler, 
         [FromQuery] GetEmployeeQuery query, CancellationToken cancellationToken)
     {
         logger.LogInformation(
             $"Method Call: GetEmployee with parameters: \n{string.Join("\n", EntityPropertiesUtilities.GetEntityPropertiesAndValueAsIEnumerable(query))}");
 
-        return Ok(await handler.HandleAsync(query, cancellationToken));
+        var result = await handler.HandleAsync(query, cancellationToken);
+
+        if (result == null)
+            return NotFound(new {Message = "Employee not Found"});
+
+        return Ok(result);
     }
 
     [HttpPost]
@@ -67,8 +73,21 @@ public class EmployeeController(ILogger<EmployeeController> logger) : Controller
         logger.LogInformation(
             $"Method Call: UpdateEmployee with parameters: \n{string.Join("\n", EntityPropertiesUtilities.GetEntityPropertiesAndValueAsIEnumerable(command))}");
 
+        var requestUserInfo = EntityPropertiesUtilities.GetUserInfo(HttpContext.User);
         command.SetEmployeeId(id);
-        return Created(Request.GetDisplayUrl(), await handler.HandleAsync(command, cancellationToken));
+        command.SetRequestUserInfo(requestUserInfo);
+
+        var result = await handler.HandleAsync(command, cancellationToken);
+        var status = Enum.Parse<EOperationStatus>(result.Status);
+
+        return status switch
+        {
+            EOperationStatus.Successful => Created(Request.GetDisplayUrl(), result),
+
+            EOperationStatus.Failed => BadRequest(result),
+
+            EOperationStatus.NotAuthorized => Unauthorized(result)
+        };
     }
 
     [HttpDelete]
@@ -80,13 +99,15 @@ public class EmployeeController(ILogger<EmployeeController> logger) : Controller
             $"Method Call: DeleteEmployee with parameters: \n{string.Join("\n", EntityPropertiesUtilities.GetEntityPropertiesAndValueAsIEnumerable(command))}");
 
         var result = await handler.HandleAsync(command, cancellationToken);
+        var status = Enum.Parse<EOperationStatus>(result.Status);
 
-        if (result.Status == "Successful")
-            return Accepted(Request.GetDisplayUrl(), result);
+        return status switch
+        {
+            EOperationStatus.Successful => Accepted(Request.GetDisplayUrl(), result),
 
-        if (result.Message == "No Employees were found with this id")
-            return NotFound(result);
+            EOperationStatus.Failed => BadRequest(result),
 
-        return BadRequest(result);
+            EOperationStatus.NotAuthorized => Unauthorized(result)
+        };
     }
 }

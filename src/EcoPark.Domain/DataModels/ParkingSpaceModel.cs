@@ -22,9 +22,11 @@ public class ParkingSpaceModel(Guid locationId, int floor, string parkingSpaceNa
         ParkingSpaceType = parkingSpaceAggregate.Type;
         UpdatedAt = DateTime.Now;
 
-        if(parkingSpaceAggregate.Reservations.Any())
-            Reservations = parkingSpaceAggregate.Reservations.Select(reservation =>
-            new ReservationModel(parkingSpaceAggregate.Id, reservation.CardId, reservation.ClientId,
-                reservation.ReservationDate)).ToList();
+        if (parkingSpaceAggregate.Reservations.Any())
+            Reservations = parkingSpaceAggregate.Reservations
+                .Select(reservation =>
+                new ReservationModel(parkingSpaceAggregate.Id, reservation.ClientId, reservation.CarId,
+                    reservation.ReservationDate, reservation.ReservationCode))
+                .ToList();
     }
 }

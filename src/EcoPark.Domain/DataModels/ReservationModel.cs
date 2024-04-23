@@ -3,8 +3,8 @@
 public class ReservationModel : BaseDataModel
 {
     public Guid ParkingSpaceId { get; private set; }
-    public Guid CardId { get; private set; }
     public Guid ClientId { get; private set; }
+    public Guid CarId { get; private set; }
     public string ReservationCode { get; private set; }
     public EReservationStatus Status { get; private set; }
     public DateTime ReservationDate { get; private set; }
@@ -16,19 +16,29 @@ public class ReservationModel : BaseDataModel
     [ForeignKey(nameof(ClientId))]
     public virtual ClientModel Client { get; set; }
 
-    public string GenerateReservationCode()
-    {
-        return "";
-    }
+    [ForeignKey(nameof(CarId))]
+    public virtual CarModel Car { get; set; }
 
-    public ReservationModel(Guid parkingSpaceId, Guid cardId, Guid clientId, DateTime reservationDate)
+    public ReservationModel(Guid parkingSpaceId, Guid clientId, Guid carId, DateTime reservationDate, string reservationCode)
     {
         ParkingSpaceId = parkingSpaceId;
-        CardId = cardId;
         ClientId = clientId;
-        ReservationCode = GenerateReservationCode();
+        CarId = carId;
+        ReservationCode = reservationCode;
         Status = EReservationStatus.Created;
         ReservationDate = reservationDate;
         ExpirationDate = reservationDate.AddMinutes(15);
+    }
+
+    public ReservationModel()
+    {
+        
+    }
+
+    public void UpdateBasedOnValueObject(Reservation reservation)
+    {
+        Status = reservation.Status;
+        ReservationDate = reservation.ReservationDate;
+        ExpirationDate = reservation.ExpirationDate;
     }
 }

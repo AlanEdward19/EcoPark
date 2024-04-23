@@ -6,7 +6,7 @@ public class ListClientsQueryHandler(IAggregateRepository<ClientModel> repositor
     {
         var clients =  await repository.ListAsync(command, cancellationToken);
 
-        if (clients == null)
+        if (clients == null || !clients.Any())
             return Enumerable.Empty<ClientSimplifiedViewModel>();
 
         if (command.IncludeCars)

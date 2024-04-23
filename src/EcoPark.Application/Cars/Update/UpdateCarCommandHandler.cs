@@ -1,8 +1,8 @@
-﻿namespace EcoPark.Application.Reservations.Update;
+﻿namespace EcoPark.Application.Cars.Update;
 
-public class UpdateReservationCommandHandler(IRepository<ReservationModel> repository) : IHandler<UpdateReservationCommand, DatabaseOperationResponseViewModel>
+public class UpdateCarCommandHandler(IRepository<CarModel> repository) : IHandler<UpdateCarCommand, DatabaseOperationResponseViewModel>
 {
-    public async Task<DatabaseOperationResponseViewModel> HandleAsync(UpdateReservationCommand command, 
+    public async Task<DatabaseOperationResponseViewModel> HandleAsync(UpdateCarCommand command,
         CancellationToken cancellationToken)
     {
         DatabaseOperationResponseViewModel result;
@@ -20,16 +20,17 @@ public class UpdateReservationCommandHandler(IRepository<ReservationModel> repos
                     await repository.UnitOfWork.SaveEntitiesAsync(cancellationToken);
                     await repository.UnitOfWork.CommitAsync(cancellationToken);
 
-                    result = new("Patch", EOperationStatus.Successful, "Reservation updated successfully");
+                    result = new("Patch", EOperationStatus.Successful, "Car updated successfully");
                 }
                 else
                 {
                     await repository.UnitOfWork.RollbackAsync(cancellationToken);
-                    result = new("Patch", EOperationStatus.Failed, "No Reservations were found with this id");
+                    result = new("Patch", EOperationStatus.Failed, "No Car were found with this id");
                 }
             }
+
             else
-                result = new("Patch", EOperationStatus.NotAuthorized, "You have no permission to update this reservation");
+                result = new("Patch", EOperationStatus.NotAuthorized, "You have no permission to update this car");
         }
         catch (Exception e)
         {
