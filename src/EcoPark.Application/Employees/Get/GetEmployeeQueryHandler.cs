@@ -6,10 +6,10 @@ public class GetEmployeeQueryHandler(IRepository<EmployeeModel> repository) : IH
     {
         EmployeeViewModel? result = null;
 
-        var employee =  await repository.GetByIdAsync(command, cancellationToken);
+        var employee = await repository.GetByIdAsync(command, cancellationToken);
 
         if (employee != null)
-            result = new EmployeeViewModel(employee.Email, employee.FirstName, employee.LastName,
+            result = new EmployeeViewModel(employee.Id, employee.Email, employee.FirstName, employee.LastName,
                 employee.UserType);
 
         return result;

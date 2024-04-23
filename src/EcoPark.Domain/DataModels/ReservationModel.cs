@@ -19,7 +19,7 @@ public class ReservationModel : BaseDataModel
     [ForeignKey(nameof(CarId))]
     public virtual CarModel Car { get; set; }
 
-    public ReservationModel(Guid parkingSpaceId, Guid clientId, Guid carId, DateTime reservationDate, string reservationCode)
+    public ReservationModel(Guid parkingSpaceId, Guid clientId, Guid carId, DateTime reservationDate, string reservationCode, int reservationGraceInMinutes)
     {
         ParkingSpaceId = parkingSpaceId;
         ClientId = clientId;
@@ -27,7 +27,7 @@ public class ReservationModel : BaseDataModel
         ReservationCode = reservationCode;
         Status = EReservationStatus.Created;
         ReservationDate = reservationDate;
-        ExpirationDate = reservationDate.AddMinutes(15);
+        ExpirationDate = reservationDate.AddMinutes(reservationGraceInMinutes);
     }
 
     public ReservationModel()

@@ -1,7 +1,8 @@
 ﻿namespace EcoPark.Application.Employees.Models;
 
-public class EmployeeViewModel(string email, string firstName, string lastName, EUserType userType)
+public class EmployeeViewModel(Guid id, string email, string firstName, string lastName, EUserType userType)
 {
+    public Guid Id { get; private set; } = id;
     public string Email { get; private set; } = email;
     public string FirstName { get; private set; } = firstName;
     public string LastName { get; private set; } = lastName;
