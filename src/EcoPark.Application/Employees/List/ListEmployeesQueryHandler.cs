@@ -4,13 +4,14 @@ public class ListEmployeesQueryHandler(IRepository<EmployeeModel> repository) : 
 {
     public async Task<IEnumerable<EmployeeViewModel>> HandleAsync(ListEmployeesQuery command, CancellationToken cancellationToken)
     {
-        var employees =  await repository.ListAsync(command, cancellationToken);
+        var employees = await repository.ListAsync(command, cancellationToken);
 
         List<EmployeeViewModel> result = new(employees.Count());
 
         foreach (var employeeModel in employees)
         {
-            EmployeeViewModel employee = new(employeeModel.Email, employeeModel.FirstName, employeeModel.LastName, employeeModel.UserType);
+            EmployeeViewModel employee = new(employeeModel.Id, employeeModel.Email, employeeModel.FirstName, 
+                employeeModel.LastName, employeeModel.UserType);
 
             result.Add(employee);
         }

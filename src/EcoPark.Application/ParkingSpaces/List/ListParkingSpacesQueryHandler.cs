@@ -14,10 +14,10 @@ public class ListParkingSpacesQueryHandler(IAggregateRepository<ParkingSpaceMode
             foreach (var parkingSpaceModel in parkingSpaces)
             {
                 IEnumerable<ReservationSimplifiedViewModel>? reservations = parkingSpaceModel.Reservations?.Select(x =>
-                    new ReservationSimplifiedViewModel(x.CarId, x.ClientId, x.ReservationCode, x.Status,
+                    new ReservationSimplifiedViewModel(x.Id, x.CarId, x.ClientId, x.ReservationCode, x.Status,
                         x.ReservationDate, x.ExpirationDate));
 
-                ParkingSpaceViewModel parkingSpace = new(parkingSpaceModel.Floor,
+                ParkingSpaceViewModel parkingSpace = new(parkingSpaceModel.Id, parkingSpaceModel.Floor,
                     parkingSpaceModel.ParkingSpaceName,
                     parkingSpaceModel.IsOccupied, parkingSpaceModel.ParkingSpaceType, reservations);
 
@@ -32,7 +32,7 @@ public class ListParkingSpacesQueryHandler(IAggregateRepository<ParkingSpaceMode
 
             foreach (var parkingSpaceModel in parkingSpaces)
             {
-                ParkingSpaceSimplifiedViewModel parkingSpace = new(parkingSpaceModel.Floor,
+                ParkingSpaceSimplifiedViewModel parkingSpace = new(parkingSpaceModel.Id, parkingSpaceModel.Floor,
                     parkingSpaceModel.ParkingSpaceName,
                     parkingSpaceModel.IsOccupied, parkingSpaceModel.ParkingSpaceType);
 

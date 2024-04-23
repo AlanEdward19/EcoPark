@@ -4,7 +4,7 @@ public class ListLocationsQueryHandler(IAggregateRepository<LocationModel> repos
 {
     public async Task<IEnumerable<LocationSimplifiedViewModel>> HandleAsync(ListLocationQuery command, CancellationToken cancellationToken)
     {
-        var locations =  await repository.ListAsync(command, cancellationToken);
+        var locations = await repository.ListAsync(command, cancellationToken);
 
         if (locations == null || !locations.Any())
             return Enumerable.Empty<LocationSimplifiedViewModel>();
@@ -17,10 +17,10 @@ public class ListLocationsQueryHandler(IAggregateRepository<LocationModel> repos
             {
                 List<ParkingSpaceSimplifiedViewModel>? parkingSpaces =
                     locationModel.ParkingSpaces?.Select(x =>
-                        new ParkingSpaceSimplifiedViewModel(x.Floor, x.ParkingSpaceName, x.IsOccupied,
+                        new ParkingSpaceSimplifiedViewModel(x.Id, x.Floor, x.ParkingSpaceName, x.IsOccupied,
                             x.ParkingSpaceType)).ToList();
 
-                LocationViewModel location = new(locationModel.Name, locationModel.Address, locationModel.ReservationGraceInMinutes,
+                LocationViewModel location = new(locationModel.Id, locationModel.Name, locationModel.Address, locationModel.ReservationGraceInMinutes,
                     locationModel.CancellationFeeRate, locationModel.ReservationFeeRate, locationModel.HourlyParkingRate, parkingSpaces);
 
                 result.Add(location);
@@ -34,7 +34,7 @@ public class ListLocationsQueryHandler(IAggregateRepository<LocationModel> repos
 
             foreach (var locationModel in locations)
             {
-                LocationSimplifiedViewModel location = new(locationModel.Name, locationModel.Address, locationModel.ReservationGraceInMinutes,
+                LocationSimplifiedViewModel location = new(locationModel.Id, locationModel.Name, locationModel.Address, locationModel.ReservationGraceInMinutes,
                     locationModel.CancellationFeeRate, locationModel.ReservationFeeRate, locationModel.HourlyParkingRate);
 
                 result.Add(location);

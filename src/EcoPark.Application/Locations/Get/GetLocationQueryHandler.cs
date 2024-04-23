@@ -4,7 +4,7 @@ public class GetLocationQueryHandler(IAggregateRepository<LocationModel> reposit
 {
     public async Task<LocationSimplifiedViewModel?> HandleAsync(GetLocationQuery command, CancellationToken cancellationToken)
     {
-        var location =  await repository.GetByIdAsync(command, cancellationToken);
+        var location = await repository.GetByIdAsync(command, cancellationToken);
 
         if (location == null) return null;
 
@@ -12,14 +12,14 @@ public class GetLocationQueryHandler(IAggregateRepository<LocationModel> reposit
         {
             IEnumerable<ParkingSpaceSimplifiedViewModel>? parkingSpace =
                 location.ParkingSpaces?.Select(x =>
-                    new ParkingSpaceSimplifiedViewModel(x.Floor, x.ParkingSpaceName, x.IsOccupied,
+                    new ParkingSpaceSimplifiedViewModel(x.Id, x.Floor, x.ParkingSpaceName, x.IsOccupied,
                         x.ParkingSpaceType));
 
-            return new LocationViewModel(location.Name, location.Address, location.ReservationGraceInMinutes,
+            return new LocationViewModel(location.Id, location.Name, location.Address, location.ReservationGraceInMinutes,
                 location.CancellationFeeRate, location.ReservationFeeRate, location.HourlyParkingRate, parkingSpace);
         }
 
-        return new LocationSimplifiedViewModel(location.Name, location.Address, location.ReservationGraceInMinutes,
+        return new LocationSimplifiedViewModel(location.Id, location.Name, location.Address, location.ReservationGraceInMinutes,
             location.CancellationFeeRate, location.ReservationFeeRate, location.HourlyParkingRate);
     }
 }

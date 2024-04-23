@@ -4,7 +4,7 @@ public class ListClientsQueryHandler(IAggregateRepository<ClientModel> repositor
 {
     public async Task<IEnumerable<ClientSimplifiedViewModel>> HandleAsync(ListClientsQuery command, CancellationToken cancellationToken)
     {
-        var clients =  await repository.ListAsync(command, cancellationToken);
+        var clients = await repository.ListAsync(command, cancellationToken);
 
         if (clients == null || !clients.Any())
             return Enumerable.Empty<ClientSimplifiedViewModel>();
@@ -16,9 +16,9 @@ public class ListClientsQueryHandler(IAggregateRepository<ClientModel> repositor
             foreach (var client in clients)
             {
                 IEnumerable<CarViewModel> cars = client.Cars.Select(car =>
-                    new CarViewModel(car.Plate, car.Type, car.Brand, car.Model, car.Color, car.Year));
+                    new CarViewModel(car.Id, car.Plate, car.Type, car.Brand, car.Model, car.Color, car.Year));
 
-                ClientViewModel model = new(client.Email, client.FirstName, client.LastName, cars);
+                ClientViewModel model = new(client.Id, client.Email, client.FirstName, client.LastName, cars);
 
                 result.Add(model);
             }
@@ -31,7 +31,7 @@ public class ListClientsQueryHandler(IAggregateRepository<ClientModel> repositor
 
             foreach (var client in clients)
             {
-                ClientSimplifiedViewModel model = new(client.Email, client.FirstName, client.LastName);
+                ClientSimplifiedViewModel model = new(client.Id, client.Email, client.FirstName, client.LastName);
 
                 result.Add(model);
             }

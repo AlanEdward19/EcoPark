@@ -16,11 +16,11 @@ public class ListReservationsQueryHandler(IRepository<ReservationModel> reposito
             foreach (var reservationModel in reservations)
             {
                 var parkingSpace = reservationModel.ParkingSpace;
-                ParkingSpaceSimplifiedViewModel parkingSpaceViewModel = new(parkingSpace.Floor,
+                ParkingSpaceSimplifiedViewModel parkingSpaceViewModel = new(parkingSpace.Id, parkingSpace.Floor,
                     parkingSpace.ParkingSpaceName, parkingSpace.IsOccupied, parkingSpace.ParkingSpaceType);
 
-                ReservationViewModel reservation = new(reservationModel.CarId, reservationModel.ClientId,
-                    reservationModel.ReservationCode, reservationModel.Status, reservationModel.ReservationDate,
+                ReservationViewModel reservation = new(reservationModel.Id, reservationModel.CarId,
+                    reservationModel.ClientId, reservationModel.ReservationCode, reservationModel.Status, reservationModel.ReservationDate,
                     reservationModel.ExpirationDate, parkingSpaceViewModel);
 
                 result.Add(reservation);
@@ -34,8 +34,8 @@ public class ListReservationsQueryHandler(IRepository<ReservationModel> reposito
 
             foreach (var reservationModel in reservations)
             {
-                ReservationSimplifiedViewModel reservation = new(reservationModel.CarId, reservationModel.ClientId,
-                    reservationModel.ReservationCode, reservationModel.Status, reservationModel.ReservationDate,
+                ReservationSimplifiedViewModel reservation = new(reservationModel.Id, reservationModel.CarId,
+                    reservationModel.ClientId, reservationModel.ReservationCode, reservationModel.Status, reservationModel.ReservationDate,
                     reservationModel.ExpirationDate);
 
                 result.Add(reservation);

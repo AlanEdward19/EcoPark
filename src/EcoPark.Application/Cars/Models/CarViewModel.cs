@@ -1,7 +1,8 @@
 ﻿namespace EcoPark.Application.Cars.Models;
 
-public class CarViewModel(string plate, ECarType type, string brand, string model, string color, int year)
+public class CarViewModel(Guid id, string plate, ECarType type, string brand, string model, string color, int year)
 {
+    public Guid Id { get; private set; } = id;
     public string Plate { get; private set; } = plate;
     public string Type { get; private set; } = type.ToString();
     public string Brand { get; private set; } = brand;
