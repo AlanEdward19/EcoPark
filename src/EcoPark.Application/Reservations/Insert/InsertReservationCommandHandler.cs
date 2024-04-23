@@ -9,23 +9,29 @@ public class InsertReservationCommandHandler(IRepository<ReservationModel> repos
 
         try
         {
-            await repository.UnitOfWork.StartAsync(cancellationToken);
-
-            var databaseOperationResult = await repository.AddAsync(command, cancellationToken);
-
-            if (databaseOperationResult)
+            if (await repository.CheckChangePermissionAsync(command, cancellationToken))
             {
-                await repository.UnitOfWork.SaveEntitiesAsync(cancellationToken);
-                await repository.UnitOfWork.CommitAsync(cancellationToken);
+                await repository.UnitOfWork.StartAsync(cancellationToken);
 
-                result = new DatabaseOperationResponseViewModel("Post", EOperationStatus.Successful,
-                    "Reservation was inserted successfully!");
+                var databaseOperationResult = await repository.AddAsync(command, cancellationToken);
+
+                if (databaseOperationResult)
+                {
+                    await repository.UnitOfWork.SaveEntitiesAsync(cancellationToken);
+                    await repository.UnitOfWork.CommitAsync(cancellationToken);
+
+                    result = new DatabaseOperationResponseViewModel("Post", EOperationStatus.Successful,
+                        "Reservation was inserted successfully!");
+                }
+                else
+                {
+                    await repository.UnitOfWork.RollbackAsync(cancellationToken);
+                    result = new DatabaseOperationResponseViewModel("Post", EOperationStatus.Failed, "Reservation was not inserted!");
+                }
             }
             else
-            {
-                await repository.UnitOfWork.RollbackAsync(cancellationToken);
-                result = new DatabaseOperationResponseViewModel("Post", EOperationStatus.Failed, "Reservation was not inserted!");
-            }
+                result = new("Post", EOperationStatus.NotAuthorized, "This Card id doesn't match the current user cars");
+
         }
         catch (Exception e)
         {

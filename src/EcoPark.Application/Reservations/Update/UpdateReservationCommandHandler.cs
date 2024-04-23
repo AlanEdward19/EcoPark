@@ -9,22 +9,27 @@ public class UpdateReservationCommandHandler(IRepository<ReservationModel> repos
 
         try
         {
-            await repository.UnitOfWork.StartAsync(cancellationToken);
-
-            var databaseOperationResult = await repository.UpdateAsync(command, cancellationToken);
-
-            if (databaseOperationResult)
+            if (await repository.CheckChangePermissionAsync(command, cancellationToken))
             {
-                await repository.UnitOfWork.SaveEntitiesAsync(cancellationToken);
-                await repository.UnitOfWork.CommitAsync(cancellationToken);
+                await repository.UnitOfWork.StartAsync(cancellationToken);
 
-                result = new("Patch", EOperationStatus.Successful, "Reservation updated successfully");
+                var databaseOperationResult = await repository.UpdateAsync(command, cancellationToken);
+
+                if (databaseOperationResult)
+                {
+                    await repository.UnitOfWork.SaveEntitiesAsync(cancellationToken);
+                    await repository.UnitOfWork.CommitAsync(cancellationToken);
+
+                    result = new("Patch", EOperationStatus.Successful, "Reservation updated successfully");
+                }
+                else
+                {
+                    await repository.UnitOfWork.RollbackAsync(cancellationToken);
+                    result = new("Patch", EOperationStatus.Failed, "No Reservations were found with this id");
+                }
             }
             else
-            {
-                await repository.UnitOfWork.RollbackAsync(cancellationToken);
-                result = new("Patch", EOperationStatus.Failed, "No Reservations were found with this id");
-            }
+                result = new("Patch", EOperationStatus.NotAuthorized, "You have no permission to update this reservation");
         }
         catch (Exception e)
         {
