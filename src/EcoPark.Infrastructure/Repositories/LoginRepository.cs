@@ -33,12 +33,12 @@ public class LoginRepository(DatabaseDbContext databaseDbContext, IAuthenticatio
         if (parsedQuery.IsEmployee)
             return await databaseDbContext.Employees
                 .AsNoTracking()
-                .FirstOrDefaultAsync(e => e.Email == parsedQuery.Email && e.Password == hashedPassword,
+                .FirstOrDefaultAsync(e => e.Email == parsedQuery.Email.ToLower() && e.Password == hashedPassword,
                     cancellationToken);
 
         return await databaseDbContext.Clients
             .AsNoTracking()
-            .FirstOrDefaultAsync(c => c.Email == parsedQuery.Email && c.Password == hashedPassword, cancellationToken);
+            .FirstOrDefaultAsync(c => c.Email == parsedQuery.Email.ToLower() && c.Password == hashedPassword, cancellationToken);
     }
 
     public async Task<IEnumerable<UserModel>> ListAsync(IQuery query, CancellationToken cancellationToken)
