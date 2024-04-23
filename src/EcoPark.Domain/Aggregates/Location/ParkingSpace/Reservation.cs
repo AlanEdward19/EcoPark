@@ -4,7 +4,7 @@ public class Reservation(ReservationModel reservationModel)
 {
     public Guid Id { get; private set; } = reservationModel.Id;
     public Guid ClientId { get; private set; } = reservationModel.ClientId;
-    public Guid CardId { get; private set; } = reservationModel.CardId;
+    public Guid CarId { get; private set; } = reservationModel.CarId;
     public string ReservationCode { get; private set; } = string.IsNullOrWhiteSpace(reservationModel.ReservationCode) ? GenerateReservationCode() : reservationModel.ReservationCode;
     public EReservationStatus Status { get; private set; } = reservationModel.Status;
     public DateTime ReservationDate { get; private set; } = reservationModel.ReservationDate;
@@ -12,8 +12,18 @@ public class Reservation(ReservationModel reservationModel)
 
     public static string GenerateReservationCode()
     {
-        return "";
+        Random random = new Random();
+        const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+
+        return new string(Enumerable.Repeat(chars, 6)
+            .Select(s => s[random.Next(s.Length)]).ToArray());
     }
 
     public void ChangeStatus(EReservationStatus status) => Status = status;
+
+    public void ChangeReservationDate(DateTime reservationDate)
+    {
+        ReservationDate = reservationDate;
+        ExpirationDate = reservationDate.AddMinutes(15);
+    }
 }
