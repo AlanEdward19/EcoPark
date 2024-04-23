@@ -12,9 +12,10 @@ public class InsertEmployeeCommand(string? email, string? password, string? firs
     {
         string hashedPassword = authenticationService.ComputeSha256Hash(this.Password!);
 
-        return new(Email!, hashedPassword, FirstName!, LastName!, UserType!.Value);
+        return new(Email!.ToLower(), hashedPassword, FirstName!, LastName!, UserType!.Value);
     }
 
+    [JsonIgnore]
     public (string Email, string UserType) RequestUserInfo { get; private set; }
     public void SetRequestUserInfo((string email, string userType) information)
     {

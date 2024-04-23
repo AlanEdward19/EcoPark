@@ -12,9 +12,10 @@ public class InsertClientCommand(string email, string password, string firstName
     {
         string hashedPassword = authenticationService.ComputeSha256Hash(Password);
 
-        return new(Email, hashedPassword, FirstName, LastName);
+        return new(Email.ToLower(), hashedPassword, FirstName, LastName);
     }
 
+    [JsonIgnore]
     public (string Email, string UserType) RequestUserInfo { get; private set; }
 
     public void SetRequestUserInfo((string email, string userType) information)

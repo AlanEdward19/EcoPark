@@ -8,6 +8,7 @@ public class UpdateLocationCommand(string name, string address) : ICommand
 
     public void SetLocationId(Guid locationId) => LocationId = locationId;
 
+    [JsonIgnore]
     public (string Email, string UserType) RequestUserInfo { get; private set; }
     public void SetRequestUserInfo((string email, string userType) information)
     {

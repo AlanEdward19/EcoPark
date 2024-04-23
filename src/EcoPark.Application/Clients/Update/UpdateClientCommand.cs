@@ -9,6 +9,7 @@ public class UpdateClientCommand(string? email, string? password, string? firstN
     public string? FirstName { get; private set; } = firstName;
     public string? LastName { get; private set; } = lastName;
 
+    [JsonIgnore]
     public (string Email, string UserType) RequestUserInfo { get; private set; }
 
     public void SetClientId(Guid clientId)
