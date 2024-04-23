@@ -6,6 +6,8 @@ public class ClientModel(string email, string password, string firstName, string
 {
     public virtual ICollection<CarModel>? Cars { get; set; }
 
+    public virtual ReservationModel? Reservation { get; set; }
+
     public void UpdateBasedOnAggregate(ClientAggregateRoot clientAggregateRoot)
     {
         Id = clientAggregateRoot.Id;
