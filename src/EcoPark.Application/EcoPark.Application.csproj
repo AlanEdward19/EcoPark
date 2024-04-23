@@ -8,10 +8,8 @@
 
   <ItemGroup>
     <Folder Include="Authentication\Models\" />
-    <Folder Include="Cars\Get\" />
-    <Folder Include="Cars\Insert\" />
     <Folder Include="Cars\Models\" />
-    <Folder Include="Cars\Update\" />
+    <Folder Include="Cars\List\" />
     <Folder Include="Employees\Delete\" />
     <Folder Include="Employees\Insert\" />
     <Folder Include="Employees\Models\" />
