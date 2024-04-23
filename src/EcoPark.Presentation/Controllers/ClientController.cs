@@ -78,7 +78,7 @@ public class ClientController(ILogger<ClientController> logger) : ControllerBase
         {
             EOperationStatus.Successful => Created(Request.GetDisplayUrl(), result),
 
-            EOperationStatus.Failed => BadRequest(result),
+            EOperationStatus.Failed => NotFound(result),
 
             EOperationStatus.NotAuthorized => Unauthorized(result)
         };
@@ -99,7 +99,7 @@ public class ClientController(ILogger<ClientController> logger) : ControllerBase
         {
             EOperationStatus.Successful => Created(Request.GetDisplayUrl(), result),
 
-            EOperationStatus.Failed => BadRequest(result),
+            EOperationStatus.Failed => NotFound(result),
 
             EOperationStatus.NotAuthorized => Unauthorized(result)
         };

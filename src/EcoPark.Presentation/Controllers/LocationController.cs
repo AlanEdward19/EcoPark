@@ -4,6 +4,7 @@ using EcoPark.Application.Locations.Insert;
 using EcoPark.Application.Locations.List;
 using EcoPark.Application.Locations.Models;
 using EcoPark.Application.Locations.Update;
+using EcoPark.Domain.Commons.Enums;
 
 namespace EcoPark.Presentation.Controllers;
 
@@ -53,7 +54,15 @@ public class LocationController(ILogger<LocationController> logger) : Controller
             $"Method Call: UpdateLocation with parameters: \n{string.Join("\n", EntityPropertiesUtilities.GetEntityPropertiesAndValueAsIEnumerable(command))}");
 
         command.SetLocationId(id);
-        return Created(Request.GetDisplayUrl(), await handler.HandleAsync(command, cancellationToken));
+        var result = await handler.HandleAsync(command, cancellationToken);
+        var status = Enum.Parse<EOperationStatus>(result.Status);
+
+        return status switch
+        {
+            EOperationStatus.Successful => Created(Request.GetDisplayUrl(), result),
+            EOperationStatus.Failed => NotFound(result),
+            EOperationStatus.NotAuthorized => Unauthorized(result)
+        };
     }
 
     [HttpDelete]
@@ -65,13 +74,13 @@ public class LocationController(ILogger<LocationController> logger) : Controller
             $"Method Call: DeleteLocation with parameters: \n{string.Join("\n", EntityPropertiesUtilities.GetEntityPropertiesAndValueAsIEnumerable(command))}");
 
         var result = await handler.HandleAsync(command, cancellationToken);
+        var status = Enum.Parse<EOperationStatus>(result.Status);
 
-        if (result.Status == "Successful")
-            return Accepted(Request.GetDisplayUrl(), result);
-
-        if (result.Message == "No Location were found with this id")
-            return NotFound(result);
-
-        return BadRequest(result);
+        return status switch
+        {
+            EOperationStatus.Successful => Accepted(Request.GetDisplayUrl(), result),
+            EOperationStatus.Failed => NotFound(result),
+            EOperationStatus.NotAuthorized => Unauthorized(result)
+        };
     }
 }

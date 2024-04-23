@@ -4,6 +4,7 @@ using EcoPark.Application.ParkingSpaces.Insert;
 using EcoPark.Application.ParkingSpaces.List;
 using EcoPark.Application.ParkingSpaces.Models;
 using EcoPark.Application.ParkingSpaces.Update;
+using EcoPark.Domain.Commons.Enums;
 
 namespace EcoPark.Presentation.Controllers;
 
@@ -53,7 +54,15 @@ public class ParkingSpaceController(ILogger<ParkingSpaceController> logger) : Co
             $"Method Call: UpdateParkingSpace with parameters: \n{string.Join("\n", EntityPropertiesUtilities.GetEntityPropertiesAndValueAsIEnumerable(command))}");
 
         command.SetParkingSpaceId(Id);
-        return Created(Request.GetDisplayUrl(), await handler.HandleAsync(command, cancellationToken));
+        var result = await handler.HandleAsync(command, cancellationToken);
+        var status = Enum.Parse<EOperationStatus>(result.Status);
+
+        return status switch
+        {
+            EOperationStatus.Successful => Created(Request.GetDisplayUrl(), result),
+            EOperationStatus.Failed => NotFound(result),
+            EOperationStatus.NotAuthorized => Unauthorized(result)
+        };
     }
 
     [HttpDelete]
@@ -65,13 +74,13 @@ public class ParkingSpaceController(ILogger<ParkingSpaceController> logger) : Co
             $"Method Call: DeleteParkingSpace with parameters: \n{string.Join("\n", EntityPropertiesUtilities.GetEntityPropertiesAndValueAsIEnumerable(command))}");
 
         var result = await handler.HandleAsync(command, cancellationToken);
+        var status = Enum.Parse<EOperationStatus>(result.Status);
 
-        if (result.Status == "Successful")
-            return Accepted(Request.GetDisplayUrl(), result);
-
-        if(result.Message == "No Parking space were found with this id")
-            return NotFound(result);
-
-        return BadRequest(result);
+        return status switch
+        {
+            EOperationStatus.Successful => Accepted(Request.GetDisplayUrl(), result),
+            EOperationStatus.Failed => NotFound(result),
+            EOperationStatus.NotAuthorized => Unauthorized(result)
+        };
     }
 }
