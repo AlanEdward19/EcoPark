@@ -20,7 +20,8 @@ public class ListLocationsQueryHandler(IAggregateRepository<LocationModel> repos
                         new ParkingSpaceSimplifiedViewModel(x.Floor, x.ParkingSpaceName, x.IsOccupied,
                             x.ParkingSpaceType)).ToList();
 
-                LocationViewModel location = new(locationModel.Name, locationModel.Address, parkingSpaces);
+                LocationViewModel location = new(locationModel.Name, locationModel.Address, locationModel.ReservationGraceInMinutes,
+                    locationModel.CancellationFeeRate, locationModel.ReservationFeeRate, locationModel.HourlyParkingRate, parkingSpaces);
 
                 result.Add(location);
             }
@@ -33,7 +34,8 @@ public class ListLocationsQueryHandler(IAggregateRepository<LocationModel> repos
 
             foreach (var locationModel in locations)
             {
-                LocationSimplifiedViewModel location = new(locationModel.Name, locationModel.Address);
+                LocationSimplifiedViewModel location = new(locationModel.Name, locationModel.Address, locationModel.ReservationGraceInMinutes,
+                    locationModel.CancellationFeeRate, locationModel.ReservationFeeRate, locationModel.HourlyParkingRate);
 
                 result.Add(location);
             }

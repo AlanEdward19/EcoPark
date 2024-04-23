@@ -5,7 +5,9 @@ public class Reservation(ReservationModel reservationModel)
     public Guid Id { get; private set; } = reservationModel.Id;
     public Guid ClientId { get; private set; } = reservationModel.ClientId;
     public Guid CarId { get; private set; } = reservationModel.CarId;
-    public string ReservationCode { get; private set; } = string.IsNullOrWhiteSpace(reservationModel.ReservationCode) ? GenerateReservationCode() : reservationModel.ReservationCode;
+    public string ReservationCode { get; private set; } = string.IsNullOrWhiteSpace(reservationModel.ReservationCode)
+        ? GenerateReservationCode()
+        : reservationModel.ReservationCode;
     public EReservationStatus Status { get; private set; } = reservationModel.Status;
     public DateTime ReservationDate { get; private set; } = reservationModel.ReservationDate;
     public DateTime ExpirationDate { get; private set; } = reservationModel.ExpirationDate;
@@ -21,9 +23,9 @@ public class Reservation(ReservationModel reservationModel)
 
     public void ChangeStatus(EReservationStatus status) => Status = status;
 
-    public void ChangeReservationDate(DateTime reservationDate)
+    public void ChangeReservationDate(DateTime reservationDate, int reservationGraceInMinutes)
     {
         ReservationDate = reservationDate;
-        ExpirationDate = reservationDate.AddMinutes(15);
+        ExpirationDate = reservationDate.AddMinutes(reservationGraceInMinutes);
     }
 }

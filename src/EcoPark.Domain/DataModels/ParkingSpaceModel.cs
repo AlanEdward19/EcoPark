@@ -26,7 +26,7 @@ public class ParkingSpaceModel(Guid locationId, int floor, string parkingSpaceNa
             Reservations = parkingSpaceAggregate.Reservations
                 .Select(reservation =>
                 new ReservationModel(parkingSpaceAggregate.Id, reservation.ClientId, reservation.CarId,
-                    reservation.ReservationDate, reservation.ReservationCode))
+                    reservation.ReservationDate, reservation.ReservationCode, 0))
                 .ToList();
     }
 }

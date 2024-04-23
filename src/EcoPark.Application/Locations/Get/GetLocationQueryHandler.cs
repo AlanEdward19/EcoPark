@@ -15,9 +15,11 @@ public class GetLocationQueryHandler(IAggregateRepository<LocationModel> reposit
                     new ParkingSpaceSimplifiedViewModel(x.Floor, x.ParkingSpaceName, x.IsOccupied,
                         x.ParkingSpaceType));
 
-            return new LocationViewModel(location.Name, location.Address, parkingSpace);
+            return new LocationViewModel(location.Name, location.Address, location.ReservationGraceInMinutes,
+                location.CancellationFeeRate, location.ReservationFeeRate, location.HourlyParkingRate, parkingSpace);
         }
 
-        return new LocationSimplifiedViewModel(location.Name, location.Address);
+        return new LocationSimplifiedViewModel(location.Name, location.Address, location.ReservationGraceInMinutes,
+            location.CancellationFeeRate, location.ReservationFeeRate, location.HourlyParkingRate);
     }
 }

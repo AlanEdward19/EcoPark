@@ -91,10 +91,16 @@ public class ReservationRepository(DatabaseDbContext databaseDbContext, IUnitOfW
             .FirstOrDefaultAsync(e => e.Email.Equals(requestUserInfo.Email),
                 cancellationToken);
 
-        if (clientModel == null) return false;
+        ParkingSpaceModel? parkingSpaceModel = await databaseDbContext.ParkingSpaces
+            .AsNoTracking()
+            .AsSplitQuery()
+            .Include(x => x.Location)
+            .FirstOrDefaultAsync(e => e.Id == parsedCommand.ParkingSpaceId, cancellationToken);
+
+        if (clientModel == null || parkingSpaceModel == null) return false;
 
         ReservationModel reservationModel = new(parsedCommand.ParkingSpaceId, clientModel.Id,
-            parsedCommand.CarId, parsedCommand.ReservationDate, Reservation.GenerateReservationCode());
+            parsedCommand.CarId, parsedCommand.ReservationDate, Reservation.GenerateReservationCode(), parkingSpaceModel.Location.ReservationGraceInMinutes);
 
         await databaseDbContext.Reservations.AddAsync(reservationModel, cancellationToken);
 
@@ -106,13 +112,17 @@ public class ReservationRepository(DatabaseDbContext databaseDbContext, IUnitOfW
         var parsedCommand = command as UpdateReservationCommand;
 
         ReservationModel? reservationModel = await databaseDbContext.Reservations
+            .AsSplitQuery()
+            .Include(x => x.ParkingSpace)
+            .ThenInclude(parkingSpaceModel => parkingSpaceModel.Location)
             .FirstOrDefaultAsync(r => r.Id == parsedCommand.ReservationId, cancellationToken);
 
         if (reservationModel != null)
         {
             Reservation reservation = new(reservationModel);
 
-            reservation.ChangeReservationDate(parsedCommand.ReservationDate);
+            reservation.ChangeReservationDate(parsedCommand.ReservationDate,
+                reservationModel.ParkingSpace.Location.ReservationGraceInMinutes);
 
             reservationModel.UpdateBasedOnValueObject(reservation);
 
@@ -187,13 +197,15 @@ public class ReservationRepository(DatabaseDbContext databaseDbContext, IUnitOfW
 
             if (clientModel == null) return Enumerable.Empty<ReservationModel>();
 
-
             reservationQuery = reservationQuery
                 .Where(x => x.ClientId.Equals(clientModel.Id));
         }
         
         if (parsedQuery.IncludeParkingSpace)
             reservationQuery = reservationQuery.Include(r => r.ParkingSpace);
+
+        if (parsedQuery.ReservationIds != null && parsedQuery.ReservationIds.Any())
+            reservationQuery = reservationQuery.Where(x => parsedQuery.ReservationIds.Contains(x.Id));
 
         return await reservationQuery.ToListAsync(cancellationToken);
     }

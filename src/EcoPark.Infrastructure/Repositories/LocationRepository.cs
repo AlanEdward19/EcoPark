@@ -20,7 +20,9 @@ public class LocationRepository(DatabaseDbContext databaseDbContext, IUnitOfWork
     {
         var parsedCommand = command as InsertLocationCommand;
 
-        LocationModel locationModel = new(parsedCommand.Name, parsedCommand.Address);
+        LocationModel locationModel = new(parsedCommand.Name, parsedCommand.Address,
+            parsedCommand.ReservationGraceInMinutes!.Value, parsedCommand.CancellationFeeRate!.Value,
+            parsedCommand.ReservationFeeRate!.Value, parsedCommand.HourlyParkingRate!.Value);
 
         await databaseDbContext.Locations.AddAsync(locationModel, cancellationToken);
 
@@ -40,6 +42,10 @@ public class LocationRepository(DatabaseDbContext databaseDbContext, IUnitOfWork
 
             locationAggregate.UpdateName(parsedCommand.Name);
             locationAggregate.UpdateAddress(parsedCommand.Address);
+            locationAggregate.UpdateReservationGraceInMinutes(parsedCommand.ReservationGraceInMinutes);
+            locationAggregate.UpdateCancellationFeeRate(parsedCommand.CancellationFeeRate);
+            locationAggregate.UpdateReservationFeeRate(parsedCommand.ReservationFeeRate);
+            locationAggregate.UpdateHourlyParkingRate(parsedCommand.HourlyParkingRate);
 
             locationModel.UpdateBasedOnAggregate(locationAggregate);
 
