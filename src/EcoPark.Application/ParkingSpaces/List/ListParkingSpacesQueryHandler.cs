@@ -14,7 +14,7 @@ public class ListParkingSpacesQueryHandler(IAggregateRepository<ParkingSpaceMode
             foreach (var parkingSpaceModel in parkingSpaces)
             {
                 IEnumerable<ReservationSimplifiedViewModel>? reservations = parkingSpaceModel.Reservations?.Select(x =>
-                    new ReservationSimplifiedViewModel(x.CardId, x.ClientId, x.ReservationCode, x.Status,
+                    new ReservationSimplifiedViewModel(x.CarId, x.ClientId, x.ReservationCode, x.Status,
                         x.ReservationDate, x.ExpirationDate));
 
                 ParkingSpaceViewModel parkingSpace = new(parkingSpaceModel.Floor,
