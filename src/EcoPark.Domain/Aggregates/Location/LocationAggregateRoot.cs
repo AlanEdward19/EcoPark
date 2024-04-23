@@ -30,6 +30,10 @@ public class LocationAggregateRoot
         Id = locationModel.Id;
         Name = locationModel.Name;
         Address = locationModel.Address;
+        ReservationGraceInMinutes = locationModel.ReservationGraceInMinutes;
+        CancellationFeeRate = locationModel.CancellationFeeRate;
+        ReservationFeeRate = locationModel.ReservationFeeRate;
+        HourlyParkingRate = locationModel.HourlyParkingRate;
 
         _parkingSpaces = locationModel.ParkingSpaces?
             .Select(parkingSpaceModel => new ParkingSpaceAggregate(parkingSpaceModel)).ToList() ?? new();
