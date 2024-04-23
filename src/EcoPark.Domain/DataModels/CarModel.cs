@@ -1,4 +1,6 @@
-﻿namespace EcoPark.Domain.DataModels;
+﻿using EcoPark.Domain.Aggregates.Client;
+
+namespace EcoPark.Domain.DataModels;
 
 public class CarModel(Guid clientId, string plate, ECarType type, string model, string color, string brand, int year)
     : BaseDataModel
@@ -13,4 +15,16 @@ public class CarModel(Guid clientId, string plate, ECarType type, string model, 
 
     [ForeignKey(nameof(ClientId))]
     public virtual ClientModel Client { get; set; }
+
+    public virtual ReservationModel? Reservation { get; set; }
+
+    public void UpdateBasedOnValueObject(Car car)
+    {
+        Plate = car.Plate;
+        Type = car.Type;
+        Model = car.Model;
+        Color = car.Color;
+        Brand = car.Brand;
+        Year = car.Year;
+    }
 }
