@@ -33,6 +33,7 @@ public static class InfrastructureModule
         services.AddScoped<IRepository<ReservationModel>, ReservationRepository>();
         services.AddScoped<IRepository<UserModel>, LoginRepository>();
         services.AddScoped<IAggregateRepository<ClientModel>, ClientRepository>();
+        services.AddScoped<IRepository<CarModel>, CarRepository>();
 
         return services;
     }
