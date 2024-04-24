@@ -4,6 +4,7 @@ using EcoPark.Application.Reservations.Insert;
 using EcoPark.Application.Reservations.List;
 using EcoPark.Application.Reservations.Update;
 using EcoPark.Domain.Aggregates.Location.ParkingSpace;
+using EcoPark.Domain.Commons.Enums;
 
 namespace EcoPark.Infrastructure.Repositories;
 
@@ -51,6 +52,21 @@ public class ReservationRepository(DatabaseDbContext databaseDbContext, IUnitOfW
 
             case nameof(InsertReservationCommand):
                 var parsedInsertCommand = command as InsertReservationCommand;
+
+                ReservationModel? reservation = await databaseDbContext.Reservations
+                    .AsNoTracking()
+                    .AsSplitQuery()
+                    .Include(x => x.ParkingSpace)
+                    .Where(x => !x.ParkingSpace.IsOccupied &&
+                                (x.Status != EReservationStatus.Completed &&
+                                 x.Status != EReservationStatus.Cancelled &&
+                                 x.Status != EReservationStatus.Expired) &&
+                                x.ParkingSpaceId.Equals(parsedInsertCommand.ParkingSpaceId) &&
+                                x.ReservationDate.Equals(parsedInsertCommand.ReservationDate) ||
+                                x.ExpirationDate >= parsedInsertCommand.ReservationDate)
+                    .FirstOrDefaultAsync(cancellationToken);
+
+                if (reservation != null) return false;
 
                 client =
                     await databaseDbContext.Clients
