@@ -33,19 +33,19 @@ public class ParkingSpaceAggregate
 
     public void UpdateFloor(int? floor)
     {
-        if(floor != null)
+        if(floor != null && floor.Value != Floor)
             Floor = floor.Value;
     }
 
     public void UpdateParkingSpaceName(string? parkingSpaceName)
     {
-        if(!string.IsNullOrWhiteSpace(parkingSpaceName))
+        if(!string.IsNullOrWhiteSpace(parkingSpaceName) && !parkingSpaceName.Equals(Name))
             Name = parkingSpaceName;
     }
 
     public void UpdateParkingSpaceType(EParkingSpaceType? parkingSpaceType)
     {
-        if(parkingSpaceType != null)
+        if(parkingSpaceType != null && parkingSpaceType.Value != Type)
             Type = parkingSpaceType.Value;
     }
 

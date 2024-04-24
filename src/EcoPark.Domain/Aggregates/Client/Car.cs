@@ -12,7 +12,7 @@ public class Car(CarModel carModel)
 
     public void UpdatePlate(string? plate)
     {
-        if (!string.IsNullOrWhiteSpace(plate) && plate.Equals(Plate, StringComparison.InvariantCultureIgnoreCase))
+        if (!string.IsNullOrWhiteSpace(plate) && !plate.Equals(Plate, StringComparison.InvariantCultureIgnoreCase))
             Plate = plate;
     }
 
@@ -24,19 +24,19 @@ public class Car(CarModel carModel)
 
     public void UpdateModel(string? model)
     {
-        if(!string.IsNullOrWhiteSpace(model) && model.Equals(Model, StringComparison.InvariantCultureIgnoreCase)) 
+        if(!string.IsNullOrWhiteSpace(model) && !model.Equals(Model, StringComparison.InvariantCultureIgnoreCase)) 
             Model = model;
     }
 
     public void UpdateColor(string? color)
     {
-        if (!string.IsNullOrWhiteSpace(color) && color.Equals(Color, StringComparison.InvariantCultureIgnoreCase))
+        if (!string.IsNullOrWhiteSpace(color) && !color.Equals(Color, StringComparison.InvariantCultureIgnoreCase))
             Color = color;
     }
 
     public void UpdateBrand(string? brand)
     {
-        if (!string.IsNullOrWhiteSpace(brand) && brand.Equals(Brand, StringComparison.InvariantCultureIgnoreCase))
+        if (!string.IsNullOrWhiteSpace(brand) && !brand.Equals(Brand, StringComparison.InvariantCultureIgnoreCase))
             Brand = brand;
     }
 

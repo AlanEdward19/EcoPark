@@ -1,15 +1,16 @@
-﻿using FluentValidation;
+﻿using EcoPark.Application.Clients.Update;
 using EcoPark.Application.Utils;
+using FluentValidation;
 
-namespace EcoPark.Application.Employees.Validators;
+namespace EcoPark.Application.Clients.Validators;
 
-public class UpdateEmployeeCommandValidator : AbstractValidator<UpdateEmployeeCommand>
+public class UpdateClientCommandValidator : AbstractValidator<UpdateClientCommand>
 {
-    public UpdateEmployeeCommandValidator()
+    public UpdateClientCommandValidator()
     {
         RuleFor(x => x.Email)
             .EmailAddress()
-            .WithMessage("Email must a valid email address")
+            .WithMessage("Email must be a valid email address")
             .When(x => !string.IsNullOrWhiteSpace(x.Email));
 
         RuleFor(x => x.Password)

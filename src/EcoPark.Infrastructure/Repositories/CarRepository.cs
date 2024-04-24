@@ -61,7 +61,7 @@ public class CarRepository(DatabaseDbContext databaseDbContext, IUnitOfWork unit
 
         if (clientModel == null) return false;
 
-        CarModel carModel = parsedCommand.ToModel(clientModel.Id);
+        CarModel carModel = parsedCommand!.ToModel(clientModel.Id);
 
         await databaseDbContext.Cars.AddAsync(carModel, cancellationToken);
 

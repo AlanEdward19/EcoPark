@@ -115,8 +115,8 @@ public class ReservationRepository(DatabaseDbContext databaseDbContext, IUnitOfW
 
         if (clientModel == null || parkingSpaceModel == null) return false;
 
-        ReservationModel reservationModel = new(parsedCommand.ParkingSpaceId, clientModel.Id,
-            parsedCommand.CarId, parsedCommand.ReservationDate, Reservation.GenerateReservationCode(), parkingSpaceModel.Location.ReservationGraceInMinutes);
+        ReservationModel reservationModel = new(parsedCommand!.ParkingSpaceId!.Value, clientModel.Id,
+            parsedCommand.CarId!.Value, parsedCommand.ReservationDate!.Value, Reservation.GenerateReservationCode(), parkingSpaceModel.Location.ReservationGraceInMinutes);
 
         await databaseDbContext.Reservations.AddAsync(reservationModel, cancellationToken);
 
@@ -137,7 +137,7 @@ public class ReservationRepository(DatabaseDbContext databaseDbContext, IUnitOfW
         {
             Reservation reservation = new(reservationModel);
 
-            reservation.ChangeReservationDate(parsedCommand.ReservationDate,
+            reservation.ChangeReservationDate(parsedCommand!.ReservationDate!.Value,
                 reservationModel.ParkingSpace.Location.ReservationGraceInMinutes);
 
             reservationModel.UpdateBasedOnValueObject(reservation);
