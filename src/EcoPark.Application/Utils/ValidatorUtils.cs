@@ -13,4 +13,11 @@ public static class ValidatorUtils
 
         return regex.IsMatch(password);
     }
+
+    public static bool ValidateLicensePlate(string licensePlate)
+    {
+        var regex = new Regex(@"^[A-Z]{3}-\d{4}$|^[A-Z]{3}-\d[A-Z]\d{2}$");
+        return regex.IsMatch(licensePlate);
+    }
+
 }
