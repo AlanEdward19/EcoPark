@@ -41,13 +41,13 @@ public class LocationAggregateRoot
 
     public void UpdateName(string? name)
     {
-        if (!string.IsNullOrWhiteSpace(name))
+        if (!string.IsNullOrWhiteSpace(name) && !name.Equals(Name))
             Name = name;
     }
 
     public void UpdateAddress(string? address)
     {
-        if (!string.IsNullOrWhiteSpace(address))
+        if (!string.IsNullOrWhiteSpace(address) && !address.Equals(Address))
             Address = address;
     }
 
