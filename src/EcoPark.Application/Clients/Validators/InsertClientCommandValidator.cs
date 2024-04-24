@@ -1,11 +1,12 @@
-﻿using FluentValidation;
+﻿using EcoPark.Application.Clients.Insert;
 using EcoPark.Application.Utils;
+using FluentValidation;
 
-namespace EcoPark.Application.Employees.Validators;
+namespace EcoPark.Application.Clients.Validators;
 
-public class InsertEmployeeCommandValidator : AbstractValidator<InsertEmployeeCommand>
+public class InsertClientCommandValidator : AbstractValidator<InsertClientCommand>
 {
-    public InsertEmployeeCommandValidator()
+    public InsertClientCommandValidator()
     {
         RuleFor(x => x.Email)
             .NotNull()
@@ -15,7 +16,7 @@ public class InsertEmployeeCommandValidator : AbstractValidator<InsertEmployeeCo
             .WithMessage("Email can't be empty");
         RuleFor(x => x.Email)
             .EmailAddress()
-            .WithMessage("Email must a valid email address");
+            .WithMessage("Email must be a valid email address");
 
         RuleFor(x => x.FirstName)
             .NotNull()
@@ -39,11 +40,6 @@ public class InsertEmployeeCommandValidator : AbstractValidator<InsertEmployeeCo
             .WithMessage("Password can't be empty");
         RuleFor(x => x.Password)
             .Must(ValidatorUtils.ValidPassword)
-            .WithMessage(
-            "Password must contain at least 8 characters, a number, an uppercase letter, a lowercase letter, and a special character");
-
-        RuleFor(x => x.UserType)
-            .NotNull()
-            .WithMessage("UserType is Required");
+            .WithMessage("Password must contain at least 8 characters, a number, an uppercase letter, a lowercase letter, and a special character");
     }
 }
