@@ -30,7 +30,8 @@ public class InsertReservationCommandHandler(IRepository<ReservationModel> repos
                 }
             }
             else
-                result = new("Post", EOperationStatus.NotAuthorized, "This Card id doesn't match the current user cars");
+                result = new("Post", EOperationStatus.NotAuthorized, "This Car id doesn't match the current user cars" +
+                                                                     " or This ParkingSpace isn't available at this time");
 
         }
         catch (Exception e)
