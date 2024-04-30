@@ -5,7 +5,8 @@ global using Microsoft.AspNetCore.Authorization;
 #region Domain
 
 global using EcoPark.Domain.Interfaces.Services;
-global using EcoPark.Domain.DataModels;
+global using EcoPark.Domain.Commons.Enums;
+global using EcoPark.Domain.ValueObjects;
 
 #endregion
 

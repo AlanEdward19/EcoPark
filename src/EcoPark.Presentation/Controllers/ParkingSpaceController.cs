@@ -4,15 +4,28 @@ using EcoPark.Application.ParkingSpaces.Insert;
 using EcoPark.Application.ParkingSpaces.List;
 using EcoPark.Application.ParkingSpaces.Models;
 using EcoPark.Application.ParkingSpaces.Update;
-using EcoPark.Domain.Commons.Enums;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace EcoPark.Presentation.Controllers;
 
+/// <summary>
+/// Endpoints para Operações relacionadas a Vagas de Estacionamento
+/// </summary>
+/// <param name="logger"></param>
 [Route("[controller]")]
 [ApiController]
 public class ParkingSpaceController(ILogger<ParkingSpaceController> logger) : ControllerBase
 {
+    /// <summary>
+    /// Método para ocupar uma vaga de estacionamento
+    /// </summary>
+    /// <param name="handler"></param>
+    /// <param name="id"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns>Mensagem sobre resultado da operação</returns>
+    [Tags("Operações da Vaga de Estacionamento")]
+    [ProducesResponseType(typeof(DatabaseOperationResponseViewModel), StatusCodes.Status201Created)]
+    [ProducesResponseType(typeof(DatabaseOperationResponseViewModel), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(DatabaseOperationResponseViewModel), StatusCodes.Status401Unauthorized)]
     [HttpPut("occupy")]
     [Authorize(Roles = "System")]
     public async Task<IActionResult> Occupy([FromServices] IHandler<UpdateParkingSpaceStatusCommand, DatabaseOperationResponseViewModel> handler,
@@ -36,6 +49,17 @@ public class ParkingSpaceController(ILogger<ParkingSpaceController> logger) : Co
         };
     }
 
+    /// <summary>
+    /// Método para desocupar uma vaga de estacionamento
+    /// </summary>
+    /// <param name="handler"></param>
+    /// <param name="id"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns>Mensagem sobre resultado da operação</returns>
+    [Tags("Operações da Vaga de Estacionamento")]
+    [ProducesResponseType(typeof(DatabaseOperationResponseViewModel), StatusCodes.Status201Created)]
+    [ProducesResponseType(typeof(DatabaseOperationResponseViewModel), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(DatabaseOperationResponseViewModel), StatusCodes.Status401Unauthorized)]
     [HttpPut("vacate")]
     [Authorize(Roles = "System")]
     public async Task<IActionResult> Vacate([FromServices] IHandler<UpdateParkingSpaceStatusCommand, DatabaseOperationResponseViewModel> handler,
@@ -59,7 +83,14 @@ public class ParkingSpaceController(ILogger<ParkingSpaceController> logger) : Co
         };
     }
 
-
+    /// <summary>
+    /// Método para listar todas as vagas de estacionamento, limitadas pelo escopo de permissão do funcionário ou administrador
+    /// </summary>
+    /// <param name="handler"></param>
+    /// <param name="query"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns>Lista de vagas de estacionamento</returns>
+    [Tags("Operações da Vaga de Estacionamento")]
     [HttpPost("list")]
     [Authorize(Roles = "PlataformAdministrator, Administrator, Employee")]
     public async Task<IActionResult> GetList([FromServices] IHandler<ListParkingSpacesQuery, IEnumerable<ParkingSpaceSimplifiedViewModel>> handler,
@@ -74,6 +105,16 @@ public class ParkingSpaceController(ILogger<ParkingSpaceController> logger) : Co
         return Ok(await handler.HandleAsync(query, cancellationToken));
     }
 
+    /// <summary>
+    /// Método para buscar uma vaga de estacionamento pelo seu Id, limitado pelo escopo de permissão do funcionário ou administrador
+    /// </summary>
+    /// <param name="handler"></param>
+    /// <param name="query"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns>Vaga de estacionamento</returns>
+    [Tags("Informações da Vaga de Estacionamento")]
+    [ProducesResponseType(typeof(ParkingSpaceSimplifiedViewModel), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(EntityNotFoundValueObject), StatusCodes.Status404NotFound)]
     [HttpGet]
     [Authorize(Roles = "PlataformAdministrator, Administrator, Employee")]
     public async Task<IActionResult> GetById([FromServices] IHandler<GetParkingSpaceQuery, ParkingSpaceSimplifiedViewModel> handler,
@@ -85,9 +126,22 @@ public class ParkingSpaceController(ILogger<ParkingSpaceController> logger) : Co
         var requestUserInfo = EntityPropertiesUtilities.GetUserInfo(HttpContext.User);
         query.SetRequestUserInfo(requestUserInfo);
 
-        return Ok(await handler.HandleAsync(query, cancellationToken));
+        var result = await handler.HandleAsync(query, cancellationToken);
+
+        return result is not null ? Ok(result) : NotFound(new EntityNotFoundValueObject($"Client not found"));
     }
 
+    /// <summary>
+    /// Método para inserir uma nova vaga de estacionamento
+    /// </summary>
+    /// <param name="handler"></param>
+    /// <param name="command"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns>Mensagem sobre resultado da operação</returns>
+    [Tags("Operações da Vaga de Estacionamento")]
+    [ProducesResponseType(typeof(DatabaseOperationResponseViewModel), StatusCodes.Status201Created)]
+    [ProducesResponseType(typeof(DatabaseOperationResponseViewModel), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(DatabaseOperationResponseViewModel), StatusCodes.Status401Unauthorized)]
     [HttpPost]
     [Authorize(Roles = "Administrator, Employee")]
     public async Task<IActionResult> Insert([FromServices] IHandler<InsertParkingSpaceCommand, DatabaseOperationResponseViewModel> handler,
@@ -99,9 +153,29 @@ public class ParkingSpaceController(ILogger<ParkingSpaceController> logger) : Co
         var requestUserInfo = EntityPropertiesUtilities.GetUserInfo(HttpContext.User);
         command.SetRequestUserInfo(requestUserInfo);
 
-        return Created(Request.GetDisplayUrl(), await handler.HandleAsync(command, cancellationToken));
+        var result = await handler.HandleAsync(command, cancellationToken);
+        var status = Enum.Parse<EOperationStatus>(result.Status);
+
+        return status switch
+        {
+            EOperationStatus.Successful => Created(Request.GetDisplayUrl(), result),
+            EOperationStatus.Failed => BadRequest(result),
+            EOperationStatus.NotAuthorized => Unauthorized(result)
+        };
     }
 
+    /// <summary>
+    /// Método para atualizar uma vaga de estacionamento
+    /// </summary>
+    /// <param name="handler"></param>
+    /// <param name="command"></param>
+    /// <param name="Id"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns>Mensagem sobre resultado da operação</returns>
+    [Tags("Operações da Vaga de Estacionamento")]
+    [ProducesResponseType(typeof(DatabaseOperationResponseViewModel), StatusCodes.Status201Created)]
+    [ProducesResponseType(typeof(DatabaseOperationResponseViewModel), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(DatabaseOperationResponseViewModel), StatusCodes.Status401Unauthorized)]
     [HttpPatch]
     [Authorize(Roles = "Administrator, Employee")]
     public async Task<IActionResult> Update([FromServices] IHandler<UpdateParkingSpaceCommand, DatabaseOperationResponseViewModel> handler,
@@ -125,6 +199,17 @@ public class ParkingSpaceController(ILogger<ParkingSpaceController> logger) : Co
         };
     }
 
+    /// <summary>
+    /// Método para deletar uma vaga de estacionamento
+    /// </summary>
+    /// <param name="handler"></param>
+    /// <param name="command"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns>Mensagem sobre resultado da operação</returns>
+    [Tags("Operações da Vaga de Estacionamento")]
+    [ProducesResponseType(typeof(DatabaseOperationResponseViewModel), StatusCodes.Status201Created)]
+    [ProducesResponseType(typeof(DatabaseOperationResponseViewModel), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(DatabaseOperationResponseViewModel), StatusCodes.Status401Unauthorized)]
     [HttpDelete]
     [Authorize(Roles = "Administrator, Employee")]
     public async Task<IActionResult> Delete([FromServices] IHandler<DeleteParkingSpaceCommand, DatabaseOperationResponseViewModel> handler,
