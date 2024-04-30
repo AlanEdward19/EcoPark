@@ -3,7 +3,11 @@
 FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
 USER app
 WORKDIR /app
+
+# HTTP/1 - Restful API
 EXPOSE 5000
+
+ENV ASPNETCORE_URLS=https://+:5000
 
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 ARG BUILD_CONFIGURATION=Release

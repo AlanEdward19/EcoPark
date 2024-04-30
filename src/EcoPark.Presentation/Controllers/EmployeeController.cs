@@ -4,15 +4,25 @@ using EcoPark.Application.Employees.Insert;
 using EcoPark.Application.Employees.List;
 using EcoPark.Application.Employees.Models;
 using EcoPark.Application.Employees.Update;
-using EcoPark.Domain.Commons.Enums;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
 namespace EcoPark.Presentation.Controllers;
 
+/// <summary>
+/// Endpoints para Operações relacionadas a Funcionários
+/// </summary>
+/// <param name="logger"></param>
 [Route("[controller]")]
 [ApiController]
 public class EmployeeController(ILogger<EmployeeController> logger) : ControllerBase
 {
+    /// <summary>
+    /// Método para listar todos os funcionários cadastrados atrelados a um administrador
+    /// </summary>
+    /// <param name="handler"></param>
+    /// <param name="query"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns>Lista de funcionarios</returns>
+    [Tags("Informações do Funcionário")]
     [HttpPost("list")]
     [Authorize(Roles = "Administrator")]
     public async Task<IActionResult> GetList([FromServices] IHandler<ListEmployeesQuery, IEnumerable<EmployeeViewModel>> handler,
@@ -27,6 +37,16 @@ public class EmployeeController(ILogger<EmployeeController> logger) : Controller
         return Ok(await handler.HandleAsync(query, cancellationToken));
     }
 
+    /// <summary>
+    /// Método para buscar um funcionário pelo Id
+    /// </summary>
+    /// <param name="handler"></param>
+    /// <param name="query"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns>Funcionario</returns>
+    [Tags("Informações do Funcionário")]
+    [ProducesResponseType(typeof(EmployeeViewModel), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(EntityNotFoundValueObject), StatusCodes.Status404NotFound)]
     [HttpGet]
     [Authorize(Roles = "Administrator")]
     public async Task<IActionResult> GetById([FromServices] IHandler<GetEmployeeQuery, EmployeeViewModel?> handler, 
@@ -40,12 +60,20 @@ public class EmployeeController(ILogger<EmployeeController> logger) : Controller
 
         var result = await handler.HandleAsync(query, cancellationToken);
 
-        if (result == null)
-            return NotFound(new {Message = "Employee not Found"});
-
-        return Ok(result);
+        return result is not null ? Ok(result) : NotFound(new EntityNotFoundValueObject($"Employee not found"));
     }
 
+    /// <summary>
+    /// Método para inserir um novo funcionário
+    /// </summary>
+    /// <param name="handler"></param>
+    /// <param name="command"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns>Mensagem sobre resultado da operação</returns>
+    [Tags("Operações do Funcionário")]
+    [ProducesResponseType(typeof(DatabaseOperationResponseViewModel), StatusCodes.Status201Created)]
+    [ProducesResponseType(typeof(DatabaseOperationResponseViewModel), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(DatabaseOperationResponseViewModel), StatusCodes.Status401Unauthorized)]
     [HttpPost]
     [Authorize(Roles = "PlataformAdministrator, Administrator")]
     public async Task<IActionResult> Insert([FromServices] IHandler<InsertEmployeeCommand, DatabaseOperationResponseViewModel> handler,
@@ -70,6 +98,18 @@ public class EmployeeController(ILogger<EmployeeController> logger) : Controller
         };
     }
 
+    /// <summary>
+    /// Método para atualizar um funcionário
+    /// </summary>
+    /// <param name="handler"></param>
+    /// <param name="command"></param>
+    /// <param name="id"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns>Mensagem sobre resultado da operação</returns>
+    [Tags("Operações do Funcionário")]
+    [ProducesResponseType(typeof(DatabaseOperationResponseViewModel), StatusCodes.Status201Created)]
+    [ProducesResponseType(typeof(DatabaseOperationResponseViewModel), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(DatabaseOperationResponseViewModel), StatusCodes.Status401Unauthorized)]
     [HttpPatch]
     [Authorize(Roles = "Administrator, Employee")]
     public async Task<IActionResult> Update([FromServices] IHandler<UpdateEmployeeCommand, DatabaseOperationResponseViewModel> handler,
@@ -89,12 +129,23 @@ public class EmployeeController(ILogger<EmployeeController> logger) : Controller
         {
             EOperationStatus.Successful => Created(Request.GetDisplayUrl(), result),
 
-            EOperationStatus.Failed => BadRequest(result),
+            EOperationStatus.Failed => NotFound(result),
 
             EOperationStatus.NotAuthorized => Unauthorized(result)
         };
     }
 
+    /// <summary>
+    /// Método para deletar um funcionário
+    /// </summary>
+    /// <param name="handler"></param>
+    /// <param name="command"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns>Mensagem sobre resultado da operação</returns>
+    [Tags("Operações do Funcionário")]
+    [ProducesResponseType(typeof(DatabaseOperationResponseViewModel), StatusCodes.Status201Created)]
+    [ProducesResponseType(typeof(DatabaseOperationResponseViewModel), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(DatabaseOperationResponseViewModel), StatusCodes.Status401Unauthorized)]
     [HttpDelete]
     [Authorize(Roles = "PlataformAdministrator, Administrator")]
     public async Task<IActionResult> Delete([FromServices] IHandler<DeleteEmployeeCommand, DatabaseOperationResponseViewModel> handler, 
@@ -113,7 +164,7 @@ public class EmployeeController(ILogger<EmployeeController> logger) : Controller
         {
             EOperationStatus.Successful => Accepted(Request.GetDisplayUrl(), result),
 
-            EOperationStatus.Failed => BadRequest(result),
+            EOperationStatus.Failed => NotFound(result),
 
             EOperationStatus.NotAuthorized => Unauthorized(result)
         };
