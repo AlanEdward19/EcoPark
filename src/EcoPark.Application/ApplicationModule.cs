@@ -44,7 +44,7 @@ public static class ApplicationModule
 
         services.AddScoped<IHandler<GetReservationQuery, ReservationSimplifiedViewModel?>, GetReservationQueryHandler>();
         services.AddScoped<IHandler<ListReservationQuery, IEnumerable<ReservationSimplifiedViewModel>>, ListReservationsQueryHandler>();
-        
+
         services.AddScoped<IHandler<GetEmployeeQuery, EmployeeViewModel?>, GetEmployeeQueryHandler>();
         services.AddScoped<IHandler<ListEmployeesQuery, IEnumerable<EmployeeViewModel>>, ListEmployeesQueryHandler>();
 
@@ -78,6 +78,9 @@ public static class ApplicationModule
             .AddScoped<IHandler<UpdateParkingSpaceCommand, DatabaseOperationResponseViewModel>,
                 UpdateParkingSpaceCommandHandler>();
         services
+            .AddScoped<IHandler<UpdateParkingSpaceStatusCommand, DatabaseOperationResponseViewModel>,
+                UpdateParkingSpaceStatusCommandHandler>();
+        services
             .AddScoped<IHandler<DeleteParkingSpaceCommand, DatabaseOperationResponseViewModel>,
                 DeleteParkingSpaceCommandHandler>();
 
@@ -87,6 +90,9 @@ public static class ApplicationModule
         services
             .AddScoped<IHandler<UpdateReservationCommand, DatabaseOperationResponseViewModel>,
                 UpdateReservationCommandHandler>();
+        services
+            .AddScoped<IHandler<UpdateReservationStatusCommand, DatabaseOperationResponseViewModel>, 
+                UpdateReservationStatusCommandHandler>();
         services
             .AddScoped<IHandler<DeleteReservationCommand, DatabaseOperationResponseViewModel>,
                 DeleteReservationCommandHandler>();

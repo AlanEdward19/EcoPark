@@ -16,7 +16,7 @@ public class CarModel(Guid clientId, string plate, ECarType type, string model, 
     [ForeignKey(nameof(ClientId))]
     public virtual ClientModel Client { get; set; }
 
-    public virtual ReservationModel? Reservation { get; set; }
+    public virtual ICollection<ReservationModel>? Reservations { get; set; }
 
     public void UpdateBasedOnValueObject(Car car)
     {

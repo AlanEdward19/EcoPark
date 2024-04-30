@@ -18,7 +18,8 @@ public class ListClientsQueryHandler(IAggregateRepository<ClientModel> repositor
                 IEnumerable<CarViewModel> cars = client.Cars.Select(car =>
                     new CarViewModel(car.Id, car.Plate, car.Type, car.Brand, car.Model, car.Color, car.Year));
 
-                ClientViewModel model = new(client.Id, client.Email, client.FirstName, client.LastName, cars);
+                ClientViewModel model = new(client.Credentials.Id, client.Credentials.Email,
+                    client.Credentials.FirstName, client.Credentials.LastName, cars);
 
                 result.Add(model);
             }
@@ -31,7 +32,8 @@ public class ListClientsQueryHandler(IAggregateRepository<ClientModel> repositor
 
             foreach (var client in clients)
             {
-                ClientSimplifiedViewModel model = new(client.Id, client.Email, client.FirstName, client.LastName);
+                ClientSimplifiedViewModel model = new(client.Credentials.Id, client.Credentials.Email,
+                    client.Credentials.FirstName, client.Credentials.LastName);
 
                 result.Add(model);
             }

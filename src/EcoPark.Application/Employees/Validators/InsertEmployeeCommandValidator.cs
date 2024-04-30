@@ -45,5 +45,9 @@ public class InsertEmployeeCommandValidator : AbstractValidator<InsertEmployeeCo
         RuleFor(x => x.UserType)
             .NotNull()
             .WithMessage("UserType is Required");
+
+        RuleFor(x => x.UserType)
+            .Must(x => x != EUserType.Client)
+            .WithMessage("A User can't be created in this route");
     }
 }

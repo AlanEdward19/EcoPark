@@ -4,6 +4,7 @@ using EcoPark.Application.Clients.Insert;
 using EcoPark.Application.Clients.List;
 using EcoPark.Application.Clients.Update;
 using EcoPark.Domain.Aggregates.Client;
+using EcoPark.Domain.Commons.Enums;
 
 namespace EcoPark.Infrastructure.Repositories;
 
@@ -14,7 +15,7 @@ public class ClientRepository(DatabaseDbContext databaseDbContext, IAuthenticati
 
     public async Task<bool> CheckChangePermissionAsync(ICommand command, CancellationToken cancellationToken)
     {
-        if (!command.RequestUserInfo.UserType.Equals("client", StringComparison.InvariantCultureIgnoreCase))
+        if (command.RequestUserInfo.UserType == EUserType.PlataformAdministrator)
             return true;
 
         ClientModel? clientModel = null;
@@ -24,16 +25,18 @@ public class ClientRepository(DatabaseDbContext databaseDbContext, IAuthenticati
             case nameof(UpdateClientCommand):
                 var parsedUpdateCommand = command as UpdateClientCommand;
                 clientModel = await databaseDbContext.Clients
+                    .Include(x => x.Credentials)
                     .FirstOrDefaultAsync(
-                        e => e.Email.Equals(parsedUpdateCommand.RequestUserInfo.Email) &&
+                        e => e.Credentials.Email.Equals(parsedUpdateCommand.RequestUserInfo.Email) &&
                              e.Id == parsedUpdateCommand.ClientId, cancellationToken);
                 break;
 
             case nameof(DeleteClientCommand):
                 var parsedDeleteCommand = command as DeleteClientCommand;
                 clientModel = await databaseDbContext.Clients
+                    .Include(x => x.Credentials)
                     .FirstOrDefaultAsync(
-                        e => e.Email.Equals(parsedDeleteCommand.RequestUserInfo.Email) &&
+                        e => e.Credentials.Email.Equals(parsedDeleteCommand.RequestUserInfo.Email) &&
                              e.Id == parsedDeleteCommand.Id, cancellationToken);
                 break;
         }
@@ -57,6 +60,7 @@ public class ClientRepository(DatabaseDbContext databaseDbContext, IAuthenticati
         var parsedCommand = command as UpdateClientCommand;
 
         ClientModel? clientModel = await databaseDbContext.Clients
+            .Include(x => x.Credentials)
             .FirstOrDefaultAsync(e => e.Id == parsedCommand.ClientId, cancellationToken);
 
         if (clientModel != null)
@@ -83,11 +87,13 @@ public class ClientRepository(DatabaseDbContext databaseDbContext, IAuthenticati
         var parsedCommand = command as DeleteClientCommand;
 
         ClientModel? clientModel = await databaseDbContext.Clients
+            .Include(x => x.Credentials)
             .FirstOrDefaultAsync(e => e.Id == parsedCommand.Id, cancellationToken);
 
         if (clientModel == null) return false;
 
         databaseDbContext.Clients.Remove(clientModel);
+        databaseDbContext.Credentials.Remove(clientModel.Credentials);
         return true;
     }
 
@@ -95,7 +101,10 @@ public class ClientRepository(DatabaseDbContext databaseDbContext, IAuthenticati
     {
         var parsedQuery = query as GetClientQuery;
 
-        IQueryable<ClientModel> databaseQuery = databaseDbContext.Clients.AsNoTracking().AsQueryable();
+        IQueryable<ClientModel> databaseQuery =
+            databaseDbContext.Clients
+                .AsNoTracking()
+                .AsQueryable();
 
         if (parsedQuery.IncludeCars)
             databaseQuery = databaseQuery.Include(c => c.Cars);
@@ -109,7 +118,8 @@ public class ClientRepository(DatabaseDbContext databaseDbContext, IAuthenticati
 
         bool hasClientIds = parsedQuery.ClientIds != null && parsedQuery.ClientIds.Any();
 
-        IQueryable<ClientModel> databaseQuery = databaseDbContext.Clients.AsNoTracking().AsQueryable();
+        IQueryable<ClientModel> databaseQuery =
+            databaseDbContext.Clients.AsNoTracking().AsQueryable();
 
         if (parsedQuery.IncludeCars)
             databaseQuery = databaseQuery.Include(c => c.Cars);

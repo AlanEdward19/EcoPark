@@ -12,13 +12,18 @@ public class InsertClientCommand(string email, string password, string firstName
     {
         string hashedPassword = authenticationService.ComputeSha256Hash(Password);
 
-        return new(Email.ToLower(), hashedPassword, FirstName, LastName);
+        CredentialsModel credentials = new(Email.ToLower(), hashedPassword, FirstName, LastName, EUserType.Client, null);
+
+        ClientModel clientModel = new(credentials.Id);
+        clientModel.SetCredentials(credentials);
+
+        return clientModel;
     }
 
     [JsonIgnore]
-    public (string Email, string UserType) RequestUserInfo { get; private set; }
+    public (string Email, EUserType UserType) RequestUserInfo { get; private set; }
 
-    public void SetRequestUserInfo((string email, string userType) information)
+    public void SetRequestUserInfo((string email, EUserType userType) information)
     {
         RequestUserInfo = information;
     }

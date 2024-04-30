@@ -3,8 +3,8 @@
 public class Reservation(ReservationModel reservationModel)
 {
     public Guid Id { get; private set; } = reservationModel.Id;
-    public Guid ClientId { get; private set; } = reservationModel.ClientId;
-    public Guid CarId { get; private set; } = reservationModel.CarId;
+    public Guid ClientId { get; private set; } = reservationModel.ClientId!.Value;
+    public Guid CarId { get; private set; } = reservationModel.CarId!.Value;
     public string ReservationCode { get; private set; } = string.IsNullOrWhiteSpace(reservationModel.ReservationCode)
         ? GenerateReservationCode()
         : reservationModel.ReservationCode;

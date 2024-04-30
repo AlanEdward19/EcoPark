@@ -1,6 +1,6 @@
 ﻿namespace EcoPark.Infrastructure.Repositories;
 
-public class LoginRepository(DatabaseDbContext databaseDbContext, IAuthenticationService authenticationService, IUnitOfWork unitOfWork) : IRepository<UserModel>
+public class LoginRepository(DatabaseDbContext databaseDbContext, IAuthenticationService authenticationService, IUnitOfWork unitOfWork) : IRepository<CredentialsModel>
 {
     public IUnitOfWork UnitOfWork { get; } = unitOfWork;
 
@@ -24,24 +24,18 @@ public class LoginRepository(DatabaseDbContext databaseDbContext, IAuthenticatio
         throw new NotImplementedException();
     }
 
-    public async Task<UserModel?> GetByIdAsync(IQuery query, CancellationToken cancellationToken)
+    public async Task<CredentialsModel?> GetByIdAsync(IQuery query, CancellationToken cancellationToken)
     {
         var parsedQuery = query as LoginQuery;
 
         string hashedPassword = authenticationService.ComputeSha256Hash(parsedQuery.Password);
 
-        if (parsedQuery.IsEmployee)
-            return await databaseDbContext.Employees
-                .AsNoTracking()
-                .FirstOrDefaultAsync(e => e.Email == parsedQuery.Email.ToLower() && e.Password == hashedPassword,
-                    cancellationToken);
-
-        return await databaseDbContext.Clients
+        return await databaseDbContext.Credentials
             .AsNoTracking()
             .FirstOrDefaultAsync(c => c.Email == parsedQuery.Email.ToLower() && c.Password == hashedPassword, cancellationToken);
     }
 
-    public async Task<IEnumerable<UserModel>> ListAsync(IQuery query, CancellationToken cancellationToken)
+    public async Task<IEnumerable<CredentialsModel>> ListAsync(IQuery query, CancellationToken cancellationToken)
     {
         throw new NotImplementedException();
     }

@@ -12,39 +12,30 @@ namespace EcoPark.Presentation.Controllers;
 [ApiController]
 public class ClientController(ILogger<ClientController> logger) : ControllerBase
 {
-    [HttpPut("login")]
-    public async Task<IActionResult> Login([FromServices] IHandler<LoginQuery, LoginViewModel> handler, [FromBody] LoginQuery query, CancellationToken cancellationToken)
-    {
-        logger.LogInformation(
-            $"Method Call: Login [Clients] with email: {query.Email}");
-
-        query.SetIsEmployee(false);
-        var result = await handler.HandleAsync(query, cancellationToken);
-
-        if(result == null)
-            return NotFound(new { Message = "User not found" });
-
-        return Ok(result);
-    }
-
     [HttpPost("list")]
-    [Authorize(Roles = "Administrator, Employee")]
+    [Authorize(Roles = "PlataformAdministrator")]
     public async Task<IActionResult> GetList([FromServices] IHandler<ListClientsQuery, IEnumerable<ClientSimplifiedViewModel>> handler,
         [FromBody] ListClientsQuery query, CancellationToken cancellationToken)
     {
         logger.LogInformation(
             $"Method Call: ListClients with parameters: \n{string.Join("\n", EntityPropertiesUtilities.GetEntityPropertiesAndValueAsIEnumerable(query))}");
 
+        var requestUserInfo = EntityPropertiesUtilities.GetUserInfo(HttpContext.User);
+        query.SetRequestUserInfo(requestUserInfo);
+
         return Ok(await handler.HandleAsync(query, cancellationToken));
     }
 
     [HttpGet]
-    [Authorize(Roles = "Administrator, Employee")]
+    [Authorize(Roles = "PlataformAdministrator")]
     public async Task<IActionResult> GetById([FromServices] IHandler<GetClientQuery, ClientSimplifiedViewModel> handler, 
         [FromQuery] GetClientQuery query, CancellationToken cancellationToken)
     {
         logger.LogInformation(
             $"Method Call: GetClient with parameters: \n{string.Join("\n", EntityPropertiesUtilities.GetEntityPropertiesAndValueAsIEnumerable(query))}");
+
+        var requestUserInfo = EntityPropertiesUtilities.GetUserInfo(HttpContext.User);
+        query.SetRequestUserInfo(requestUserInfo);
 
         return Ok(await handler.HandleAsync(query, cancellationToken));
     }
@@ -60,7 +51,7 @@ public class ClientController(ILogger<ClientController> logger) : ControllerBase
     }
 
     [HttpPatch]
-    [Authorize(Roles = "Administrator, Employee, Client")]
+    [Authorize(Roles = "PlataformAdministrator, Client")]
     public async Task<IActionResult> Update([FromServices] IHandler<UpdateClientCommand, DatabaseOperationResponseViewModel> handler,
         [FromQuery] Guid id, [FromBody] UpdateClientCommand command, CancellationToken cancellationToken)
     {
@@ -85,12 +76,15 @@ public class ClientController(ILogger<ClientController> logger) : ControllerBase
     }
 
     [HttpDelete]
-    [Authorize(Roles = "Administrator")]
+    [Authorize(Roles = "PlataformAdministrator, Client")]
     public async Task<IActionResult> Delete([FromServices] IHandler<DeleteClientCommand, DatabaseOperationResponseViewModel> handler, 
         [FromQuery] DeleteClientCommand command, CancellationToken cancellationToken)
     {
         logger.LogInformation(
             $"Method Call: DeleteClient with parameters: \n{string.Join("\n", EntityPropertiesUtilities.GetEntityPropertiesAndValueAsIEnumerable(command))}");
+
+        var requestUserInfo = EntityPropertiesUtilities.GetUserInfo(HttpContext.User);
+        command.SetRequestUserInfo(requestUserInfo);
 
         var result = await handler.HandleAsync(command, cancellationToken);
         var status = Enum.Parse<EOperationStatus>(result.Status);

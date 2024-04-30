@@ -5,6 +5,7 @@ using EcoPark.Application.Locations.List;
 using EcoPark.Application.Locations.Models;
 using EcoPark.Application.Locations.Update;
 using EcoPark.Domain.Commons.Enums;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace EcoPark.Presentation.Controllers;
 
@@ -13,23 +14,29 @@ namespace EcoPark.Presentation.Controllers;
 public class LocationController(ILogger<LocationController> logger) : ControllerBase
 {
     [HttpPost("list")]
-    [Authorize(Roles = "Administrator, Employee, Client")]
+    [Authorize(Roles = "PlataformAdministrator, Administrator, Employee, Client")]
     public async Task<IActionResult> GetList([FromServices] IHandler<ListLocationQuery, IEnumerable<LocationSimplifiedViewModel>> handler,
         [FromBody] ListLocationQuery query, CancellationToken cancellationToken)
     {
         logger.LogInformation(
             $"Method Call: ListLocations with parameters: \n{string.Join("\n", EntityPropertiesUtilities.GetEntityPropertiesAndValueAsIEnumerable(query))}");
 
+        var requestUserInfo = EntityPropertiesUtilities.GetUserInfo(HttpContext.User);
+        query.SetRequestUserInfo(requestUserInfo);
+
         return Ok(await handler.HandleAsync(query, cancellationToken));
     }
 
     [HttpGet]
-    [Authorize(Roles = "Administrator, Employee")]
+    [Authorize(Roles = "PlataformAdministrator, Administrator, Employee")]
     public async Task<IActionResult> GetById([FromServices] IHandler<GetLocationQuery, LocationSimplifiedViewModel> handler, 
         [FromQuery] GetLocationQuery query, CancellationToken cancellationToken)
     {
         logger.LogInformation(
             $"Method Call: GetLocation with parameters: \n{string.Join("\n", EntityPropertiesUtilities.GetEntityPropertiesAndValueAsIEnumerable(query))}");
+
+        var requestUserInfo = EntityPropertiesUtilities.GetUserInfo(HttpContext.User);
+        query.SetRequestUserInfo(requestUserInfo);
 
         return Ok(await handler.HandleAsync(query, cancellationToken));
     }
@@ -42,6 +49,9 @@ public class LocationController(ILogger<LocationController> logger) : Controller
         logger.LogInformation(
             $"Method Call: InsertLocation with parameters: \n{string.Join("\n", EntityPropertiesUtilities.GetEntityPropertiesAndValueAsIEnumerable(command))}");
 
+        var requestUserInfo = EntityPropertiesUtilities.GetUserInfo(HttpContext.User);
+        command.SetRequestUserInfo(requestUserInfo);
+
         return Created(Request.GetDisplayUrl(), await handler.HandleAsync(command, cancellationToken));
     }
 
@@ -53,7 +63,10 @@ public class LocationController(ILogger<LocationController> logger) : Controller
         logger.LogInformation(
             $"Method Call: UpdateLocation with parameters: \n{string.Join("\n", EntityPropertiesUtilities.GetEntityPropertiesAndValueAsIEnumerable(command))}");
 
+        var requestUserInfo = EntityPropertiesUtilities.GetUserInfo(HttpContext.User);
+        command.SetRequestUserInfo(requestUserInfo);
         command.SetLocationId(id);
+
         var result = await handler.HandleAsync(command, cancellationToken);
         var status = Enum.Parse<EOperationStatus>(result.Status);
 
@@ -72,6 +85,9 @@ public class LocationController(ILogger<LocationController> logger) : Controller
     {
         logger.LogInformation(
             $"Method Call: DeleteLocation with parameters: \n{string.Join("\n", EntityPropertiesUtilities.GetEntityPropertiesAndValueAsIEnumerable(command))}");
+
+        var requestUserInfo = EntityPropertiesUtilities.GetUserInfo(HttpContext.User);
+        command.SetRequestUserInfo(requestUserInfo);
 
         var result = await handler.HandleAsync(command, cancellationToken);
         var status = Enum.Parse<EOperationStatus>(result.Status);

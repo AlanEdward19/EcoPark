@@ -5,7 +5,7 @@ using EcoPark.Application.Reservations.List;
 using EcoPark.Application.Reservations.Models;
 using EcoPark.Application.Reservations.Update;
 using EcoPark.Domain.Commons.Enums;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace EcoPark.Presentation.Controllers;
 
@@ -25,6 +25,53 @@ public class ReservationController(ILogger<ReservationController> logger) : Cont
         query.SetRequestUserInfo(requestUserInfo);
 
         return Ok(await handler.HandleAsync(query, cancellationToken));
+    }
+
+    [HttpPut("arrived")]
+    [Authorize(Roles = "System")]
+    public async Task<IActionResult> Arrived([FromServices] IHandler<UpdateReservationStatusCommand, DatabaseOperationResponseViewModel> handler,
+        [FromQuery] string reservationCode, CancellationToken cancellationToken)
+    {
+        UpdateReservationStatusCommand command = new();
+        var requestUserInfo = EntityPropertiesUtilities.GetUserInfo(HttpContext.User);
+        command.SetRequestUserInfo(requestUserInfo);
+
+        command.SetReservationCode(reservationCode);
+        command.SetReservationStatus(EReservationStatus.Arrived);
+
+        var result = await handler.HandleAsync(command, cancellationToken);
+        var status = Enum.Parse<EOperationStatus>(result.Status);
+
+        return status switch
+        {
+            EOperationStatus.Successful => Created(Request.GetDisplayUrl(), result),
+            EOperationStatus.Failed => NotFound(result),
+            EOperationStatus.NotAuthorized => Unauthorized(result)
+        };
+    }
+
+    [HttpPut("cancel")]
+    [Authorize(Roles = "System")]
+    public async Task<IActionResult> Cancel([FromServices] IHandler<UpdateReservationStatusCommand, DatabaseOperationResponseViewModel> handler,
+        [FromQuery] Guid id, CancellationToken cancellationToken)
+    {
+        UpdateReservationStatusCommand command = new();
+
+        var requestUserInfo = EntityPropertiesUtilities.GetUserInfo(HttpContext.User);
+        command.SetRequestUserInfo(requestUserInfo);
+
+        command.SetReservationId(id);
+        command.SetReservationStatus(EReservationStatus.Cancelled);
+
+        var result = await handler.HandleAsync(command, cancellationToken);
+        var status = Enum.Parse<EOperationStatus>(result.Status);
+
+        return status switch
+        {
+            EOperationStatus.Successful => Created(Request.GetDisplayUrl(), result),
+            EOperationStatus.Failed => NotFound(result),
+            EOperationStatus.NotAuthorized => Unauthorized(result)
+        };
     }
 
     [HttpGet]
@@ -89,7 +136,7 @@ public class ReservationController(ILogger<ReservationController> logger) : Cont
     }
 
     [HttpDelete]
-    [Authorize(Roles = "Administrator, Employee, Client")]
+    [Authorize(Roles = "PlataformAdministrator, Administrator, Employee, Client")]
     public async Task<IActionResult> Delete([FromServices] IHandler<DeleteReservationCommand, DatabaseOperationResponseViewModel> handler,
         [FromQuery] DeleteReservationCommand command, CancellationToken cancellationToken)
     {

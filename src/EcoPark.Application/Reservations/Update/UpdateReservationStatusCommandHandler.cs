@@ -1,11 +1,10 @@
-﻿namespace EcoPark.Application.Locations.Update;
+﻿namespace EcoPark.Application.Reservations.Update;
 
-public class UpdateLocationCommandHandler(IAggregateRepository<LocationModel> repository) : IHandler<UpdateLocationCommand, DatabaseOperationResponseViewModel>
+public class UpdateReservationStatusCommandHandler(IRepository<ReservationModel> repository) : IHandler<UpdateReservationStatusCommand, DatabaseOperationResponseViewModel>
 {
-    public async Task<DatabaseOperationResponseViewModel> HandleAsync(UpdateLocationCommand command,
-        CancellationToken cancellationToken)
+    public async Task<DatabaseOperationResponseViewModel> HandleAsync(UpdateReservationStatusCommand command, CancellationToken cancellationToken)
     {
-        DatabaseOperationResponseViewModel result;
+       DatabaseOperationResponseViewModel result;
 
         try
         {
@@ -20,16 +19,16 @@ public class UpdateLocationCommandHandler(IAggregateRepository<LocationModel> re
                     await repository.UnitOfWork.SaveEntitiesAsync(cancellationToken);
                     await repository.UnitOfWork.CommitAsync(cancellationToken);
 
-                    result = new("Patch", EOperationStatus.Successful, "Location updated successfully");
+                    result = new("Patch", EOperationStatus.Successful, "Reservation status updated successfully");
                 }
                 else
                 {
                     await repository.UnitOfWork.RollbackAsync(cancellationToken);
-                    result = new("Patch", EOperationStatus.Failed, "No Location were found with this id");
+                    result = new("Patch", EOperationStatus.Failed, "No Reservations were found with this id");
                 }
             }
             else
-                result = new("Patch", EOperationStatus.NotAuthorized, "You have no permission to update this location");
+                result = new("Patch", EOperationStatus.NotAuthorized, "You have no permission to update this reservation status");
         }
         catch (Exception e)
         {

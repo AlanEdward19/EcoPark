@@ -10,8 +10,8 @@ public class ListEmployeesQueryHandler(IRepository<EmployeeModel> repository) : 
 
         foreach (var employeeModel in employees)
         {
-            EmployeeViewModel employee = new(employeeModel.Id, employeeModel.Email, employeeModel.FirstName, 
-                employeeModel.LastName, employeeModel.UserType);
+            EmployeeViewModel employee = new(employeeModel.Id, employeeModel.Credentials.Email, employeeModel.Credentials.FirstName, 
+                employeeModel.Credentials.LastName, employeeModel.Credentials.UserType);
 
             result.Add(employee);
         }

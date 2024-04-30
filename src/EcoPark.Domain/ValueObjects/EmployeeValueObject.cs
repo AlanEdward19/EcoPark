@@ -24,12 +24,12 @@ public class EmployeeValueObject
 
     public EmployeeValueObject(EmployeeModel employeeModel)
     {
-        Id = employeeModel.Id;
-        Email = employeeModel.Email;
-        Password = employeeModel.Password;
-        FirstName = employeeModel.FirstName;
-        LastName = employeeModel.LastName;
-        UserType = employeeModel.UserType;
+        Id = employeeModel.Credentials.Id;
+        Email = employeeModel.Credentials.Email;
+        Password = employeeModel.Credentials.Password;
+        FirstName = employeeModel.Credentials.FirstName;
+        LastName = employeeModel.Credentials.LastName;
+        UserType = employeeModel.Credentials.UserType;
     }
 
     public void UpdateFirstName(string? firstName)

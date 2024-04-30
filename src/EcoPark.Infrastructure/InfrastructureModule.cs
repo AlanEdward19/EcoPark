@@ -1,4 +1,5 @@
 ﻿using EcoPark.Infrastructure.Repositories;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
 
 namespace EcoPark.Infrastructure;
@@ -31,7 +32,7 @@ public static class InfrastructureModule
         services.AddScoped<IAggregateRepository<ParkingSpaceModel>, ParkingSpaceRepository>();
         services.AddScoped<IRepository<EmployeeModel>, EmployeeRepository>();
         services.AddScoped<IRepository<ReservationModel>, ReservationRepository>();
-        services.AddScoped<IRepository<UserModel>, LoginRepository>();
+        services.AddScoped<IRepository<CredentialsModel>, LoginRepository>();
         services.AddScoped<IAggregateRepository<ClientModel>, ClientRepository>();
         services.AddScoped<IRepository<CarModel>, CarRepository>();
 
@@ -44,5 +45,30 @@ public static class InfrastructureModule
             .AddSignalR();
 
         return services;
+    }
+
+    public static IApplicationBuilder UpdateMigrations(this IApplicationBuilder app)
+    {
+        using var serviceScope = app.ApplicationServices.GetService<IServiceScopeFactory>()?.CreateScope();
+
+        var context = serviceScope?.ServiceProvider.GetRequiredService<DatabaseDbContext>();
+
+        if (context != null)
+        {
+            try
+            {
+                var pendingMigrations = context.Database.GetPendingMigrations();
+                if (pendingMigrations != null && pendingMigrations.Any())
+                {
+                    context.Database.Migrate();
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
+        return app;
     }
 }

@@ -10,14 +10,14 @@ public class UpdateClientCommand(string? email, string? password, string? firstN
     public string? LastName { get; private set; } = lastName;
 
     [JsonIgnore]
-    public (string Email, string UserType) RequestUserInfo { get; private set; }
+    public (string Email, EUserType UserType) RequestUserInfo { get; private set; }
 
     public void SetClientId(Guid clientId)
     {
         ClientId = clientId;
     }
 
-    public void SetRequestUserInfo((string email, string userType) information)
+    public void SetRequestUserInfo((string email, EUserType userType) information)
     {
         RequestUserInfo = information;
     }

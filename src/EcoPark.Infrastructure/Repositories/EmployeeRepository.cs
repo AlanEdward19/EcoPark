@@ -3,6 +3,7 @@ using EcoPark.Application.Employees.Get;
 using EcoPark.Application.Employees.Insert;
 using EcoPark.Application.Employees.List;
 using EcoPark.Application.Employees.Update;
+using EcoPark.Domain.Commons.Enums;
 
 namespace EcoPark.Infrastructure.Repositories;
 
@@ -12,25 +13,54 @@ public class EmployeeRepository(DatabaseDbContext databaseDbContext, IAuthentica
 
     public async Task<bool> CheckChangePermissionAsync(ICommand command, CancellationToken cancellationToken)
     {
-        if (command.RequestUserInfo.UserType.Equals("Administrator", StringComparison.InvariantCultureIgnoreCase))
-            return true;
-
         EmployeeModel? employeeModel = null;
+        EmployeeModel? administratorModel = null;
+        var requesterUserType = command.RequestUserInfo.UserType;
 
-        switch (command.GetType().Name)
+        switch (command)
         {
-            case nameof(UpdateEmployeeCommand):
-                var parsedUpdateCommand = command as UpdateEmployeeCommand;
+            case InsertEmployeeCommand insertCommand:
+
+                if (requesterUserType != EUserType.PlataformAdministrator)
+                    return (int)requesterUserType >= (int)insertCommand.UserType!.Value;
+
+                return true;
+
+            case UpdateEmployeeCommand updateCommand:
                 employeeModel = await databaseDbContext.Employees
-                    .FirstOrDefaultAsync(e => e.Email.Equals(parsedUpdateCommand.RequestUserInfo.Email) &&
-                                              e.Id == parsedUpdateCommand.EmployeeId, cancellationToken);
+                    .Include(x => x.Credentials)
+                    .FirstOrDefaultAsync(e => e.Credentials.Email.Equals(updateCommand.RequestUserInfo.Email)
+                                              &&
+                                              e.Id == updateCommand.EmployeeId, cancellationToken);
+
+                if (employeeModel == null)
+                {
+                    administratorModel = await databaseDbContext.Employees
+                        .AsNoTracking()
+                        .Include(x => x.Credentials)
+                        .Include(x => x.Employees)
+                        .FirstOrDefaultAsync(x =>
+                            x.Credentials.Email.Equals(command.RequestUserInfo.Email) &&
+                            x.Credentials.UserType == EUserType.Administrator, cancellationToken);
+
+                    if (administratorModel != null)
+                        employeeModel =
+                            administratorModel.Employees.FirstOrDefault(x => x.Id == updateCommand.EmployeeId);
+                }
                 break;
 
-            case nameof(DeleteEmployeeCommand):
-                var parsedDeleteCommand = command as DeleteEmployeeCommand;
-                employeeModel = await databaseDbContext.Employees
-                    .FirstOrDefaultAsync(e => e.Email.Equals(parsedDeleteCommand.RequestUserInfo.Email) &&
-                                              e.Id == parsedDeleteCommand.Id, cancellationToken);
+            case DeleteEmployeeCommand deleteCommand:
+                administratorModel = await databaseDbContext.Employees
+                    .AsNoTracking()
+                    .Include(x => x.Credentials)
+                    .Include(x => x.Employees)
+                    .FirstOrDefaultAsync(x =>
+                        x.Credentials.Email.Equals(command.RequestUserInfo.Email) &&
+                        x.Credentials.UserType == EUserType.Administrator, cancellationToken);
+
+                if (administratorModel != null)
+                    employeeModel = administratorModel.Employees.FirstOrDefault(x => x.Id == deleteCommand.Id);
+
                 break;
         }
 
@@ -53,6 +83,7 @@ public class EmployeeRepository(DatabaseDbContext databaseDbContext, IAuthentica
         var parsedCommand = command as UpdateEmployeeCommand;
 
         EmployeeModel? employeeModel = await databaseDbContext.Employees
+            .Include(x => x.Credentials)
             .FirstOrDefaultAsync(e => e.Id == parsedCommand.EmployeeId, cancellationToken);
 
         if (employeeModel != null)
@@ -80,11 +111,13 @@ public class EmployeeRepository(DatabaseDbContext databaseDbContext, IAuthentica
         var parsedCommand = command as DeleteEmployeeCommand;
 
         EmployeeModel? employeeModel = await databaseDbContext.Employees
+            .Include(x => x.Credentials)
             .FirstOrDefaultAsync(e => e.Id == parsedCommand.Id, cancellationToken);
 
         if (employeeModel == null) return false;
 
         databaseDbContext.Employees.Remove(employeeModel);
+        databaseDbContext.Credentials.Remove(employeeModel.Credentials);
         return true;
     }
 
@@ -92,8 +125,17 @@ public class EmployeeRepository(DatabaseDbContext databaseDbContext, IAuthentica
     {
         var parsedQuery = query as GetEmployeeQuery;
 
-        return await databaseDbContext.Employees.FirstOrDefaultAsync(e => e.Id == parsedQuery.EmployeeId,
-            cancellationToken);
+        EmployeeModel? administratorModel = await databaseDbContext.Employees
+            .AsQueryable()
+            .Include(x => x.Credentials)
+            .Include(x => x.Employees)
+            .FirstOrDefaultAsync(
+                e => e.Credentials.Email.Equals(query.RequestUserInfo.Email) &&
+                     e.Credentials.UserType == EUserType.Administrator, cancellationToken);
+
+        if (administratorModel == null) return null;
+
+        return administratorModel.Employees.FirstOrDefault(x => x.Id == parsedQuery.EmployeeId);
     }
 
     public async Task<IEnumerable<EmployeeModel>> ListAsync(IQuery query, CancellationToken cancellationToken)
@@ -102,7 +144,21 @@ public class EmployeeRepository(DatabaseDbContext databaseDbContext, IAuthentica
 
         bool hasEmployeeIds = parsedQuery.EmployeeIds != null && parsedQuery.EmployeeIds.Any();
 
-        IQueryable<EmployeeModel> databaseQuery = databaseDbContext.Employees.AsNoTracking().AsQueryable();
+        EmployeeModel? administratorModel = await databaseDbContext.Employees
+            .AsQueryable()
+            .Include(x => x.Credentials)
+            .FirstOrDefaultAsync(
+                e => e.Credentials.Email.Equals(query.RequestUserInfo.Email) &&
+                     e.Credentials.UserType == EUserType.Administrator, cancellationToken);
+
+        if (administratorModel == null) return Enumerable.Empty<EmployeeModel>();
+
+        IQueryable<EmployeeModel> databaseQuery =
+            databaseDbContext.Employees
+                .AsNoTracking()
+                .Include(x => x.Credentials)
+                .AsQueryable()
+                .Where(x => x.AdministratorId.Equals(administratorModel.Id));
 
         if (hasEmployeeIds)
             databaseQuery = databaseQuery.Where(e => parsedQuery.EmployeeIds!.Contains(e.Id));

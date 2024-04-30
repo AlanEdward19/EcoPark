@@ -8,22 +8,27 @@ public class InsertEmployeeCommandHandler(IRepository<EmployeeModel> repository)
 
         try
         {
-            await repository.UnitOfWork.StartAsync(cancellationToken);
-
-            var databaseOperationResult = await repository.AddAsync(command, cancellationToken);
-
-            if (databaseOperationResult)
+            if (await repository.CheckChangePermissionAsync(command, CancellationToken.None))
             {
-                await repository.UnitOfWork.SaveEntitiesAsync(cancellationToken);
-                await repository.UnitOfWork.CommitAsync(cancellationToken);
+                await repository.UnitOfWork.StartAsync(cancellationToken);
 
-                result = new DatabaseOperationResponseViewModel("Post", EOperationStatus.Successful, "Employee was inserted successfully!");
+                var databaseOperationResult = await repository.AddAsync(command, cancellationToken);
+
+                if (databaseOperationResult)
+                {
+                    await repository.UnitOfWork.SaveEntitiesAsync(cancellationToken);
+                    await repository.UnitOfWork.CommitAsync(cancellationToken);
+
+                    result = new DatabaseOperationResponseViewModel("Post", EOperationStatus.Successful, "Employee was inserted successfully!");
+                }
+                else
+                {
+                    await repository.UnitOfWork.RollbackAsync(cancellationToken);
+                    result = new DatabaseOperationResponseViewModel("Post", EOperationStatus.Failed, "Employee was not inserted!");
+                }
             }
             else
-            {
-                await repository.UnitOfWork.RollbackAsync(cancellationToken);
-                result = new DatabaseOperationResponseViewModel("Post", EOperationStatus.Failed, "Employee was not inserted!");
-            }
+                result = new DatabaseOperationResponseViewModel("Post", EOperationStatus.Failed, "You don't have permission to insert an employee with this UserType!");
         }
         catch (Exception e)
         {

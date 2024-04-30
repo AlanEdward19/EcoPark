@@ -14,10 +14,12 @@ public class GetClientQueryHandler(IAggregateRepository<ClientModel> repository)
                 IEnumerable<CarViewModel> cars = client.Cars.Select(car =>
                     new CarViewModel(car.Id, car.Plate, car.Type, car.Brand, car.Model, car.Color, car.Year));
 
-                result = new ClientViewModel(client.Id, client.Email, client.FirstName, client.LastName, cars);
+                result = new ClientViewModel(client.Credentials.Id, client.Credentials.Email,
+                    client.Credentials.FirstName, client.Credentials.LastName, cars);
             }
             else
-                result = new ClientSimplifiedViewModel(client.Id, client.Email, client.FirstName, client.LastName);
+                result = new ClientSimplifiedViewModel(client.Credentials.Id, client.Credentials.Email,
+                    client.Credentials.FirstName, client.Credentials.LastName);
         }
 
         return result;

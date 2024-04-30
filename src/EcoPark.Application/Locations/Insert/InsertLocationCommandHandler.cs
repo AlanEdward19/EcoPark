@@ -8,22 +8,27 @@ public class InsertLocationCommandHandler(IAggregateRepository<LocationModel> re
         DatabaseOperationResponseViewModel result;
         try
         {
-            await repository.UnitOfWork.StartAsync(cancellationToken);
-
-            var databaseOperationResult = await repository.AddAsync(command, cancellationToken);
-
-            if (databaseOperationResult)
+            if (await repository.CheckChangePermissionAsync(command, cancellationToken))
             {
-                await repository.UnitOfWork.SaveEntitiesAsync(cancellationToken);
-                await repository.UnitOfWork.CommitAsync(cancellationToken);
+                await repository.UnitOfWork.StartAsync(cancellationToken);
 
-                result = new DatabaseOperationResponseViewModel("Post", EOperationStatus.Successful, "Location was inserted successfully!");
+                var databaseOperationResult = await repository.AddAsync(command, cancellationToken);
+
+                if (databaseOperationResult)
+                {
+                    await repository.UnitOfWork.SaveEntitiesAsync(cancellationToken);
+                    await repository.UnitOfWork.CommitAsync(cancellationToken);
+
+                    result = new DatabaseOperationResponseViewModel("Post", EOperationStatus.Successful, "Location was inserted successfully!");
+                }
+                else
+                {
+                    await repository.UnitOfWork.RollbackAsync(cancellationToken);
+                    result = new DatabaseOperationResponseViewModel("Post", EOperationStatus.Failed, "Location was not inserted!");
+                }
             }
             else
-            {
-                await repository.UnitOfWork.RollbackAsync(cancellationToken);
-                result = new DatabaseOperationResponseViewModel("Post", EOperationStatus.Failed, "Location was not inserted!");
-            }
+                result = new DatabaseOperationResponseViewModel("Post", EOperationStatus.NotAuthorized, "You have no permission to insert this location");
         }
         catch (Exception e)
         {

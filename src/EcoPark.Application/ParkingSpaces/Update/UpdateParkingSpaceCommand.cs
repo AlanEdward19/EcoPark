@@ -11,8 +11,8 @@ public class UpdateParkingSpaceCommand(int? floor, string? parkingSpaceName, EPa
     public void SetParkingSpaceId(Guid parkingSpaceId) => ParkingSpaceId = parkingSpaceId;
 
     [JsonIgnore]
-    public (string Email, string UserType) RequestUserInfo { get; private set; }
-    public void SetRequestUserInfo((string email, string userType) information)
+    public (string Email, EUserType UserType) RequestUserInfo { get; private set; }
+    public void SetRequestUserInfo((string email, EUserType userType) information)
     {
         RequestUserInfo = information;
     }

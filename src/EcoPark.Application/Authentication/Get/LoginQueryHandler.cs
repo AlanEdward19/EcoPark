@@ -2,7 +2,7 @@
 
 namespace EcoPark.Application.Authentication.Get;
 
-public class LoginQueryHandler(IRepository<UserModel> repository, IAuthenticationService authenticationService) : IHandler<LoginQuery, LoginViewModel?>
+public class LoginQueryHandler(IRepository<CredentialsModel> repository, IAuthenticationService authenticationService) : IHandler<LoginQuery, LoginViewModel?>
 {
     public async Task<LoginViewModel?> HandleAsync(LoginQuery command, CancellationToken cancellationToken)
     {
@@ -11,8 +11,7 @@ public class LoginQueryHandler(IRepository<UserModel> repository, IAuthenticatio
         if (user == null)
             return null;
 
-        string token = authenticationService.GenerateJwtToken(command.Email,
-            command.IsEmployee ? (user as EmployeeModel).UserType.ToString() : "Client");
+        string token = authenticationService.GenerateJwtToken(command.Email, user.UserType);
 
         return new LoginViewModel(user.Email, token);
     }

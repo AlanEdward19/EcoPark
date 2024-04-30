@@ -2,18 +2,29 @@
 
 namespace EcoPark.Domain.DataModels;
 
-public class ClientModel(string email, string password, string firstName, string lastName) : UserModel(email, password, firstName, lastName)
+public class ClientModel(Guid credentialsId)
 {
-    public virtual ICollection<CarModel>? Cars { get; set; }
+    [Key]
+    public Guid Id { get; set; } = Guid.NewGuid();
+    public Guid CredentialsId { get; set; } = credentialsId;
 
-    public virtual ReservationModel? Reservation { get; set; }
+    [ForeignKey(nameof(CredentialsId))]
+    public virtual CredentialsModel Credentials { get; set; }
+
+    public virtual ICollection<CarModel> Cars { get; set; }
+
+    public virtual ICollection<ReservationModel> Reservations { get; set; }
+
+    public void SetCredentials(CredentialsModel credentials)
+    {
+        Credentials = credentials;
+    }
 
     public void UpdateBasedOnAggregate(ClientAggregateRoot clientAggregateRoot)
     {
-        Id = clientAggregateRoot.Id;
-        Email = clientAggregateRoot.Email;
-        Password = clientAggregateRoot.Password;
-        FirstName = clientAggregateRoot.FirstName;
-        LastName = clientAggregateRoot.LastName;
+        Credentials.Email = clientAggregateRoot.Email;
+        Credentials.Password = clientAggregateRoot.Password;
+        Credentials.FirstName = clientAggregateRoot.FirstName;
+        Credentials.LastName = clientAggregateRoot.LastName;
     }
 }

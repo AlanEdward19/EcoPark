@@ -1,3 +1,4 @@
+using EcoPark.Infrastructure;
 using EcoPark.Presentation.Configurations;
 using Microsoft.OpenApi.Models;
 
@@ -53,6 +54,7 @@ if (app.Environment.IsDevelopment())
 
 app
     .UseCors("CorsPolicy")
+    .UpdateMigrations()
     .ConfigureMiddleware()
     .UseHttpsRedirection()
     .UseRouting()

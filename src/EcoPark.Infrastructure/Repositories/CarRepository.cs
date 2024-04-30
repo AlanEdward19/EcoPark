@@ -25,8 +25,9 @@ public class CarRepository(DatabaseDbContext databaseDbContext, IUnitOfWork unit
                     .AsNoTracking()
                     .AsSplitQuery()
                     .Include(x => x.Client)
-                    .FirstOrDefaultAsync(
-                        e => e.Id == parsedUpdateCommand.CarId && e.Client.Email.Equals(requestUserInfo.Email),
+                    .ThenInclude(x => x.Credentials)
+                    .FirstOrDefaultAsync(e => e.Id == parsedUpdateCommand.CarId &&
+                                              e.Client.Credentials.Email.Equals(requestUserInfo.Email),
                         cancellationToken);
 
                 break;
@@ -38,8 +39,9 @@ public class CarRepository(DatabaseDbContext databaseDbContext, IUnitOfWork unit
                     .AsNoTracking()
                     .AsSplitQuery()
                     .Include(x => x.Client)
-                    .FirstOrDefaultAsync(
-                        e => e.Id == parsedDeleteCommand.Id && e.Client.Email.Equals(requestUserInfo.Email),
+                    .ThenInclude(x => x.Credentials)
+                    .FirstOrDefaultAsync(e => e.Id == parsedDeleteCommand.Id &&
+                                              e.Client.Credentials.Email.Equals(requestUserInfo.Email),
                         cancellationToken);
 
                 break;
@@ -56,7 +58,8 @@ public class CarRepository(DatabaseDbContext databaseDbContext, IUnitOfWork unit
 
         ClientModel? clientModel = await databaseDbContext.Clients
             .AsNoTracking()
-            .FirstOrDefaultAsync(e => e.Email.Equals(requestUserInfo.Email),
+            .Include(x => x.Credentials)
+            .FirstOrDefaultAsync(e => e.Credentials.Email.Equals(requestUserInfo.Email),
                 cancellationToken);
 
         if (clientModel == null) return false;
@@ -116,14 +119,16 @@ public class CarRepository(DatabaseDbContext databaseDbContext, IUnitOfWork unit
         var requestUserInfo = parsedQuery.RequestUserInfo;
 
         ClientModel? clientModel = await databaseDbContext.Clients
-            .FirstOrDefaultAsync(e => e.Email.Equals(requestUserInfo.Email), cancellationToken);
+            .Include(x => x.Credentials)
+            .FirstOrDefaultAsync(e => e.Credentials.Email.Equals(requestUserInfo.Email), cancellationToken);
 
         if (clientModel == null) return null;
 
         return await databaseDbContext.Cars
             .AsNoTracking()
             .AsSplitQuery()
-            .FirstOrDefaultAsync(e => e.Id == parsedQuery.CarId && e.ClientId.Equals(clientModel.Id), cancellationToken);
+            .FirstOrDefaultAsync(e => e.Id == parsedQuery.CarId && e.ClientId.Equals(clientModel.Id),
+                cancellationToken);
     }
 
     public async Task<IEnumerable<CarModel>> ListAsync(IQuery query, CancellationToken cancellationToken)
@@ -135,11 +140,14 @@ public class CarRepository(DatabaseDbContext databaseDbContext, IUnitOfWork unit
         var requestUserInfo = parsedQuery.RequestUserInfo;
 
         ClientModel? clientModel = await databaseDbContext.Clients
-            .FirstOrDefaultAsync(e => e.Email.Equals(requestUserInfo.Email), cancellationToken);
+            .Include(x => x.Credentials)
+            .FirstOrDefaultAsync(e => e.Credentials.Email.Equals(requestUserInfo.Email), cancellationToken);
 
         if (clientModel == null) return Enumerable.Empty<CarModel>();
 
-        IQueryable<CarModel> databaseQuery = databaseDbContext.Cars.AsNoTracking().AsQueryable();
+        IQueryable<CarModel> databaseQuery = databaseDbContext.Cars
+            .AsNoTracking()
+            .AsQueryable();
 
         databaseQuery = databaseQuery
             .Where(c => c.ClientId.Equals(clientModel.Id));

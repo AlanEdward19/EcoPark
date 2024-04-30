@@ -1,8 +1,9 @@
-﻿namespace EcoPark.Application.Locations.Update;
+﻿namespace EcoPark.Application.ParkingSpaces.Update;
 
-public class UpdateLocationCommandHandler(IAggregateRepository<LocationModel> repository) : IHandler<UpdateLocationCommand, DatabaseOperationResponseViewModel>
+public class UpdateParkingSpaceStatusCommandHandler(IAggregateRepository<ParkingSpaceModel> repository)
+    : IHandler<UpdateParkingSpaceStatusCommand, DatabaseOperationResponseViewModel>
 {
-    public async Task<DatabaseOperationResponseViewModel> HandleAsync(UpdateLocationCommand command,
+    public async Task<DatabaseOperationResponseViewModel> HandleAsync(UpdateParkingSpaceStatusCommand command,
         CancellationToken cancellationToken)
     {
         DatabaseOperationResponseViewModel result;
@@ -20,16 +21,16 @@ public class UpdateLocationCommandHandler(IAggregateRepository<LocationModel> re
                     await repository.UnitOfWork.SaveEntitiesAsync(cancellationToken);
                     await repository.UnitOfWork.CommitAsync(cancellationToken);
 
-                    result = new("Patch", EOperationStatus.Successful, "Location updated successfully");
+                    result = new("Patch", EOperationStatus.Successful, "Parking space status updated successfully");
                 }
                 else
                 {
                     await repository.UnitOfWork.RollbackAsync(cancellationToken);
-                    result = new("Patch", EOperationStatus.Failed, "No Location were found with this id");
+                    result = new("Patch", EOperationStatus.Failed, "No Parking space were found with this id");
                 }
             }
             else
-                result = new("Patch", EOperationStatus.NotAuthorized, "You have no permission to update this location");
+                result = new("Patch", EOperationStatus.NotAuthorized, "You have no permission to update this parking space");
         }
         catch (Exception e)
         {

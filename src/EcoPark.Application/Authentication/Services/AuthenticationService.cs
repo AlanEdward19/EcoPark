@@ -9,7 +9,7 @@ namespace EcoPark.Application.Authentication.Services;
 
 public class AuthenticationService(IConfiguration configuration) : IAuthenticationService
 {
-    public string GenerateJwtToken(string email, string role)
+    public string GenerateJwtToken(string email, EUserType role)
     {
         var issuer = configuration["Jwt:Issuer"];
         var audience = configuration["Jwt:Audience"];
@@ -20,7 +20,7 @@ public class AuthenticationService(IConfiguration configuration) : IAuthenticati
         var claims = new List<Claim>
         {
             new ("userName", email),
-            new (ClaimTypes.Role, role)
+            new (ClaimTypes.Role, role.ToString())
         };
 
         var token = new JwtSecurityToken(

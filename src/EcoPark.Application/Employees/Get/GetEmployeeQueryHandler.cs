@@ -9,8 +9,8 @@ public class GetEmployeeQueryHandler(IRepository<EmployeeModel> repository) : IH
         var employee = await repository.GetByIdAsync(command, cancellationToken);
 
         if (employee != null)
-            result = new EmployeeViewModel(employee.Id, employee.Email, employee.FirstName, employee.LastName,
-                employee.UserType);
+            result = new EmployeeViewModel(employee.Id, employee.Credentials.Email, employee.Credentials.FirstName, employee.Credentials.LastName,
+                employee.Credentials.UserType);
 
         return result;
     }
