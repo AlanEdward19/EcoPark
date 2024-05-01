@@ -19,6 +19,33 @@ public class EmployeeRepository(DatabaseDbContext databaseDbContext, IAuthentica
 
         switch (command)
         {
+            case InsertEmployeeGroupAccessCommand insertEmployeeGroupAccessCommand:
+
+                EmployeeModel? requester = await databaseDbContext.Employees
+                    .Include(x => x.Credentials)
+                    .FirstOrDefaultAsync(e => e.Credentials.Email.Equals(command.RequestUserInfo.Email), cancellationToken);
+
+                if (requester == null) return false;
+
+                employeeModel = await databaseDbContext.Employees
+                    .Include(x => x.Credentials)
+                    .FirstOrDefaultAsync(e => e.Id == insertEmployeeGroupAccessCommand.EmployeeId, cancellationToken);
+
+                if (employeeModel == null) return false;
+
+                LocationModel? locationModel = await databaseDbContext.Locations
+                    .FirstOrDefaultAsync(x => x.Id == insertEmployeeGroupAccessCommand.LocationId, cancellationToken);
+
+                if (locationModel == null) return false;
+
+                bool canGivePermission = requester.Credentials.UserType == EUserType.Administrator &&
+                                         (requester.AdministratorId == employeeModel.AdministratorId ||
+                                          requester.Id == employeeModel.AdministratorId) &&
+                                         (locationModel.OwnerId == requester.Id ||
+                                          locationModel.OwnerId == requester.AdministratorId);
+
+                return canGivePermission;
+
             case InsertEmployeeCommand insertCommand:
 
                 if (requesterUserType != EUserType.PlataformAdministrator)
@@ -67,16 +94,11 @@ public class EmployeeRepository(DatabaseDbContext databaseDbContext, IAuthentica
         return employeeModel != null;
     }
 
-    public async Task<bool> AddAsync(ICommand command, CancellationToken cancellationToken)
+    public async Task<bool> AddAsync(ICommand command, CancellationToken cancellationToken) => command switch
     {
-        var parsedCommand = command as InsertEmployeeCommand;
-
-        EmployeeModel employeeModel = parsedCommand.ToModel(authenticationService);
-
-        await databaseDbContext.Employees.AddAsync(employeeModel, cancellationToken);
-
-        return true;
-    }
+        InsertEmployeeCommand insertCommand => await InsertEmployeeAsync(insertCommand, cancellationToken),
+        InsertEmployeeGroupAccessCommand insertEmployeeGroupAccessCommand => await InsertEmployeeGroupAccessAsync(insertEmployeeGroupAccessCommand, cancellationToken),
+    };
 
     public async Task<bool> UpdateAsync(ICommand command, CancellationToken cancellationToken)
     {
@@ -164,5 +186,22 @@ public class EmployeeRepository(DatabaseDbContext databaseDbContext, IAuthentica
             databaseQuery = databaseQuery.Where(e => parsedQuery.EmployeeIds!.Contains(e.Id));
 
         return await databaseQuery.ToListAsync(cancellationToken);
+    }
+
+    private async Task<bool> InsertEmployeeAsync(InsertEmployeeCommand command, CancellationToken cancellationToken)
+    {
+        EmployeeModel employeeModel = command.ToModel(authenticationService);
+
+        await databaseDbContext.Employees.AddAsync(employeeModel, cancellationToken);
+
+        return true;
+    }
+
+    private async Task<bool> InsertEmployeeGroupAccessAsync(InsertEmployeeGroupAccessCommand command, CancellationToken cancellationToken)
+    {
+        await databaseDbContext.GroupAccesses
+            .AddAsync(new GroupAccessModel(command.LocationId, command.EmployeeId), cancellationToken);
+
+        return true;
     }
 }
