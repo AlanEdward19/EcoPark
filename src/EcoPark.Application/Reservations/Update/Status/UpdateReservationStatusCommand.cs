@@ -20,6 +20,7 @@ public class UpdateReservationStatusCommand : ICommand
         ReservationCode = reservationCode.ToUpper();
     }
 
+    [JsonIgnore]
     public (string Email, EUserType UserType) RequestUserInfo { get; private set; }
     public void SetRequestUserInfo((string email, EUserType userType) information)
     {
