@@ -11,7 +11,6 @@
     <Folder Include="Cars\Models\" />
     <Folder Include="Cars\List\" />
     <Folder Include="Employees\Delete\" />
-    <Folder Include="Employees\Insert\" />
     <Folder Include="Employees\Models\" />
     <Folder Include="Employees\List\" />
     <Folder Include="Employees\Update\" />
