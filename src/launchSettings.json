@@ -4,8 +4,8 @@
       "commandName": "DockerCompose",
       "commandVersion": "1.0",
       "serviceActions": {
-        "ecopark": "StartDebugging",
-        "ecopark.presentation": "StartDebugging"
+        "database": "StartWithoutDebugging",
+        "ecopark.presentation": "DoNotStart"
       }
     }
   }

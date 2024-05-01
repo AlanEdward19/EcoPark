@@ -11,6 +11,10 @@ using EcoPark.Application.Clients.Get;
 using EcoPark.Application.Clients.Insert;
 using EcoPark.Application.Clients.List;
 using EcoPark.Application.Clients.Update;
+using EcoPark.Application.Employees.Delete.GroupAccess;
+using EcoPark.Application.Employees.Insert.GroupAccess;
+using EcoPark.Application.ParkingSpaces.Update.Status;
+using EcoPark.Application.Reservations.Update.Status;
 using EcoPark.Domain.Interfaces.Services;
 
 namespace EcoPark.Application;
@@ -61,28 +65,43 @@ public static class ApplicationModule
 
     public static IServiceCollection ConfigureCommands(this IServiceCollection services)
     {
+        #region Location
+
         services
             .AddScoped<IHandler<InsertLocationCommand, DatabaseOperationResponseViewModel>,
                 InsertLocationCommandHandler>();
+
         services
             .AddScoped<IHandler<UpdateLocationCommand, DatabaseOperationResponseViewModel>,
                 UpdateLocationCommandHandler>();
+
         services
             .AddScoped<IHandler<DeleteLocationCommand, DatabaseOperationResponseViewModel>,
                 DeleteLocationCommandHandler>();
 
+        #endregion
+
+        #region ParkingSpace
+
         services
             .AddScoped<IHandler<InsertParkingSpaceCommand, DatabaseOperationResponseViewModel>,
                 InsertParkingSpaceCommandHandler>();
+
         services
             .AddScoped<IHandler<UpdateParkingSpaceCommand, DatabaseOperationResponseViewModel>,
                 UpdateParkingSpaceCommandHandler>();
+
         services
             .AddScoped<IHandler<UpdateParkingSpaceStatusCommand, DatabaseOperationResponseViewModel>,
                 UpdateParkingSpaceStatusCommandHandler>();
+
         services
             .AddScoped<IHandler<DeleteParkingSpaceCommand, DatabaseOperationResponseViewModel>,
                 DeleteParkingSpaceCommandHandler>();
+
+        #endregion
+
+        #region Reservation
 
         services
             .AddScoped<IHandler<InsertReservationCommand, DatabaseOperationResponseViewModel>,
@@ -97,26 +116,54 @@ public static class ApplicationModule
             .AddScoped<IHandler<DeleteReservationCommand, DatabaseOperationResponseViewModel>,
                 DeleteReservationCommandHandler>();
 
+        #endregion
+
+        #region Employee
+
         services
             .AddScoped<IHandler<InsertEmployeeCommand, DatabaseOperationResponseViewModel>,
                 InsertEmployeeCommandHandler>();
+
+        services
+            .AddScoped<IHandler<InsertEmployeeGroupAccessCommand, DatabaseOperationResponseViewModel>,
+                           InsertEmployeeGroupAccessCommandHandler>();
+
         services
             .AddScoped<IHandler<UpdateEmployeeCommand, DatabaseOperationResponseViewModel>,
                 UpdateEmployeeCommandHandler>();
+
         services
             .AddScoped<IHandler<DeleteEmployeeCommand, DatabaseOperationResponseViewModel>,
                 DeleteEmployeeCommandHandler>();
 
         services
+            .AddScoped<IHandler<DeleteEmployeeGroupAccessCommand, DatabaseOperationResponseViewModel>,
+                           DeleteEmployeeGroupAccessCommandHandler>();
+
+        #endregion
+
+        #region Client
+
+        services
             .AddScoped<IHandler<InsertClientCommand, DatabaseOperationResponseViewModel>, InsertClientCommandHandler>();
+
         services
             .AddScoped<IHandler<UpdateClientCommand, DatabaseOperationResponseViewModel>, UpdateClientCommandHandler>();
+
         services
             .AddScoped<IHandler<DeleteClientCommand, DatabaseOperationResponseViewModel>, DeleteClientCommandHandler>();
 
+        #endregion
+
+        #region Car
+
         services.AddScoped<IHandler<InsertCarCommand, DatabaseOperationResponseViewModel>, InsertCarCommandHandler>();
+
         services.AddScoped<IHandler<UpdateCarCommand, DatabaseOperationResponseViewModel>, UpdateCarCommandHandler>();
+
         services.AddScoped<IHandler<DeleteCarCommand, DatabaseOperationResponseViewModel>, DeleteCarCommandHandler>();
+
+        #endregion
 
         return services;
     }

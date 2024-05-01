@@ -4,6 +4,7 @@ using EcoPark.Application.ParkingSpaces.Insert;
 using EcoPark.Application.ParkingSpaces.List;
 using EcoPark.Application.ParkingSpaces.Models;
 using EcoPark.Application.ParkingSpaces.Update;
+using EcoPark.Application.ParkingSpaces.Update.Status;
 
 namespace EcoPark.Presentation.Controllers;
 

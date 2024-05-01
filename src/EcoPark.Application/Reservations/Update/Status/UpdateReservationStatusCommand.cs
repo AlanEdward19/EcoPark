@@ -1,4 +1,4 @@
-﻿namespace EcoPark.Application.Reservations.Update;
+﻿namespace EcoPark.Application.Reservations.Update.Status;
 public class UpdateReservationStatusCommand : ICommand
 {
     public string? ReservationCode { get; private set; }
@@ -20,6 +20,7 @@ public class UpdateReservationStatusCommand : ICommand
         ReservationCode = reservationCode.ToUpper();
     }
 
+    [JsonIgnore]
     public (string Email, EUserType UserType) RequestUserInfo { get; private set; }
     public void SetRequestUserInfo((string email, EUserType userType) information)
     {

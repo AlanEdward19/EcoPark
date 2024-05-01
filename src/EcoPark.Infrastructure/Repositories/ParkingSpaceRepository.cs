@@ -3,10 +3,10 @@ using EcoPark.Application.ParkingSpaces.Get;
 using EcoPark.Application.ParkingSpaces.Insert;
 using EcoPark.Application.ParkingSpaces.List;
 using EcoPark.Application.ParkingSpaces.Update;
-using EcoPark.Application.Reservations.Update;
+using EcoPark.Application.ParkingSpaces.Update.Status;
+using EcoPark.Application.Reservations.Update.Status;
 using EcoPark.Domain.Aggregates.Location.ParkingSpace;
 using EcoPark.Domain.Commons.Enums;
-using EcoPark.Domain.DataModels;
 
 namespace EcoPark.Infrastructure.Repositories;
 

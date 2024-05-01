@@ -1,10 +1,12 @@
-﻿namespace EcoPark.Application.Reservations.Update;
+﻿namespace EcoPark.Application.ParkingSpaces.Update.Status;
 
-public class UpdateReservationStatusCommandHandler(IRepository<ReservationModel> repository) : IHandler<UpdateReservationStatusCommand, DatabaseOperationResponseViewModel>
+public class UpdateParkingSpaceStatusCommandHandler(IAggregateRepository<ParkingSpaceModel> repository)
+    : IHandler<UpdateParkingSpaceStatusCommand, DatabaseOperationResponseViewModel>
 {
-    public async Task<DatabaseOperationResponseViewModel> HandleAsync(UpdateReservationStatusCommand command, CancellationToken cancellationToken)
+    public async Task<DatabaseOperationResponseViewModel> HandleAsync(UpdateParkingSpaceStatusCommand command,
+        CancellationToken cancellationToken)
     {
-       DatabaseOperationResponseViewModel result;
+        DatabaseOperationResponseViewModel result;
 
         try
         {
@@ -19,16 +21,16 @@ public class UpdateReservationStatusCommandHandler(IRepository<ReservationModel>
                     await repository.UnitOfWork.SaveEntitiesAsync(cancellationToken);
                     await repository.UnitOfWork.CommitAsync(cancellationToken);
 
-                    result = new("Patch", EOperationStatus.Successful, "Reservation status updated successfully");
+                    result = new("Patch", EOperationStatus.Successful, "Parking space status updated successfully");
                 }
                 else
                 {
                     await repository.UnitOfWork.RollbackAsync(cancellationToken);
-                    result = new("Patch", EOperationStatus.Failed, "No Reservations were found with this id");
+                    result = new("Patch", EOperationStatus.Failed, "No Parking space were found with this id");
                 }
             }
             else
-                result = new("Patch", EOperationStatus.NotAuthorized, "You have no permission to update this reservation status");
+                result = new("Patch", EOperationStatus.NotAuthorized, "You have no permission to update this parking space");
         }
         catch (Exception e)
         {

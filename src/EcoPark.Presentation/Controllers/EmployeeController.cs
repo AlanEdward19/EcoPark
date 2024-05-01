@@ -1,6 +1,8 @@
 ﻿using EcoPark.Application.Employees.Delete;
+using EcoPark.Application.Employees.Delete.GroupAccess;
 using EcoPark.Application.Employees.Get;
 using EcoPark.Application.Employees.Insert;
+using EcoPark.Application.Employees.Insert.GroupAccess;
 using EcoPark.Application.Employees.List;
 using EcoPark.Application.Employees.Models;
 using EcoPark.Application.Employees.Update;
@@ -81,6 +83,76 @@ public class EmployeeController(ILogger<EmployeeController> logger) : Controller
     {
         logger.LogInformation(
             $"Method Call: InsertEmployee with parameters: \n{string.Join("\n", EntityPropertiesUtilities.GetEntityPropertiesAndValueAsIEnumerable(command))}");
+
+        var requestUserInfo = EntityPropertiesUtilities.GetUserInfo(HttpContext.User);
+        command.SetRequestUserInfo(requestUserInfo);
+
+        var result = await handler.HandleAsync(command, cancellationToken);
+        var status = Enum.Parse<EOperationStatus>(result.Status);
+
+        return status switch
+        {
+            EOperationStatus.Successful => Created(Request.GetDisplayUrl(), result),
+
+            EOperationStatus.Failed => BadRequest(result),
+
+            EOperationStatus.NotAuthorized => Unauthorized(result)
+        };
+    }
+
+    /// <summary>
+    /// Método para adicionar permissão de acesso a uma localização para um funcionario
+    /// </summary>
+    /// <param name="handler"></param>
+    /// <param name="command"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns>Mensagem sobre resultado da operação</returns>
+    [Tags("Operações do Funcionário")]
+    [ProducesResponseType(typeof(DatabaseOperationResponseViewModel), StatusCodes.Status201Created)]
+    [ProducesResponseType(typeof(DatabaseOperationResponseViewModel), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(DatabaseOperationResponseViewModel), StatusCodes.Status401Unauthorized)]
+    [HttpPost("GroupAccess")]
+    [Authorize(Roles = "Administrator")]
+    public async Task<IActionResult> InsertGroupAccess([FromServices] IHandler<InsertEmployeeGroupAccessCommand, DatabaseOperationResponseViewModel> handler,
+        [FromQuery] InsertEmployeeGroupAccessCommand command, CancellationToken cancellationToken)
+    {
+        logger.LogInformation(
+            $"Method Call: InsertGroupAccess with parameters: \n{string.Join("\n", EntityPropertiesUtilities.GetEntityPropertiesAndValueAsIEnumerable(command))}");
+
+        var requestUserInfo = EntityPropertiesUtilities.GetUserInfo(HttpContext.User);
+        command.SetRequestUserInfo(requestUserInfo);
+
+        var result = await handler.HandleAsync(command, cancellationToken);
+        var status = Enum.Parse<EOperationStatus>(result.Status);
+
+        return status switch
+        {
+            EOperationStatus.Successful => Created(Request.GetDisplayUrl(), result),
+
+            EOperationStatus.Failed => BadRequest(result),
+
+            EOperationStatus.NotAuthorized => Unauthorized(result)
+        };
+    }
+
+    /// <summary>
+    /// Método para deletar permissão de acesso a uma localização para um funcionario
+    /// </summary>
+    /// <param name="handler"></param>
+    /// <param name="command"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns>Mensagem sobre resultado da operação</returns>
+    [Tags("Operações do Funcionário")]
+    [ProducesResponseType(typeof(DatabaseOperationResponseViewModel), StatusCodes.Status201Created)]
+    [ProducesResponseType(typeof(DatabaseOperationResponseViewModel), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(DatabaseOperationResponseViewModel), StatusCodes.Status401Unauthorized)]
+    [HttpDelete("GroupAccess")]
+    [Authorize(Roles = "Administrator")]
+    public async Task<IActionResult> DeleteGroupAccess([FromServices] IHandler<DeleteEmployeeGroupAccessCommand, DatabaseOperationResponseViewModel> handler,
+        [FromQuery] DeleteEmployeeGroupAccessCommand command, CancellationToken cancellationToken)
+    {
+        logger.LogInformation(
+            $"Method Call: DeleteGroupAccess with parameters: \n{string.Join("\n", EntityPropertiesUtilities.GetEntityPropertiesAndValueAsIEnumerable(command))}");
 
         var requestUserInfo = EntityPropertiesUtilities.GetUserInfo(HttpContext.User);
         command.SetRequestUserInfo(requestUserInfo);
