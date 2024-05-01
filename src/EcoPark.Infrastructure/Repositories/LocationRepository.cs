@@ -169,9 +169,10 @@ public class LocationRepository(DatabaseDbContext databaseDbContext, IUnitOfWork
 
             if (employeeModel == null) return null;
 
+            var validIds = employeeModel.GroupAccesses.Select(x => x.LocationId).ToList();
+
             databaseQuery = databaseQuery
-                .Where(x => employeeModel.GroupAccesses
-                    .Any(y => y.LocationId.Equals(x.Id)));
+                .Where(x => validIds.Contains(x.Id));
         }
 
         if (parsedQuery.IncludeParkingSpaces!.Value)
@@ -217,9 +218,10 @@ public class LocationRepository(DatabaseDbContext databaseDbContext, IUnitOfWork
 
             if (employeeModel == null) return Enumerable.Empty<LocationModel>();
 
+            var validIds = employeeModel.GroupAccesses.Select(x => x.LocationId).ToList();
+
             databaseQuery = databaseQuery
-                .Where(x => employeeModel.GroupAccesses
-                    .Any(y => y.LocationId.Equals(x.Id)));
+                .Where(x => validIds.Contains(x.Id));
         }
 
         bool hasLocationIds = parsedQuery.LocationIds != null && parsedQuery.LocationIds.Any();
