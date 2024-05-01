@@ -159,9 +159,18 @@
             <param name="cancellationToken"></param>
             <returns>Mensagem sobre resultado da operação</returns>
         </member>
-        <member name="M:EcoPark.Presentation.Controllers.EmployeeController.InsertGroupAccess(EcoPark.Domain.Interfaces.Services.IHandler{EcoPark.Application.Employees.Insert.InsertEmployeeGroupAccessCommand,EcoPark.Application.Commons.Models.DatabaseOperationResponseViewModel},EcoPark.Application.Employees.Insert.InsertEmployeeGroupAccessCommand,System.Threading.CancellationToken)">
+        <member name="M:EcoPark.Presentation.Controllers.EmployeeController.InsertGroupAccess(EcoPark.Domain.Interfaces.Services.IHandler{EcoPark.Application.Employees.Insert.GroupAccess.InsertEmployeeGroupAccessCommand,EcoPark.Application.Commons.Models.DatabaseOperationResponseViewModel},EcoPark.Application.Employees.Insert.GroupAccess.InsertEmployeeGroupAccessCommand,System.Threading.CancellationToken)">
             <summary>
             Método para adicionar permissão de acesso a uma localização para um funcionario
+            </summary>
+            <param name="handler"></param>
+            <param name="command"></param>
+            <param name="cancellationToken"></param>
+            <returns>Mensagem sobre resultado da operação</returns>
+        </member>
+        <member name="M:EcoPark.Presentation.Controllers.EmployeeController.DeleteGroupAccess(EcoPark.Domain.Interfaces.Services.IHandler{EcoPark.Application.Employees.Delete.GroupAccess.DeleteEmployeeGroupAccessCommand,EcoPark.Application.Commons.Models.DatabaseOperationResponseViewModel},EcoPark.Application.Employees.Delete.GroupAccess.DeleteEmployeeGroupAccessCommand,System.Threading.CancellationToken)">
+            <summary>
+            Método para deletar permissão de acesso a uma localização para um funcionario
             </summary>
             <param name="handler"></param>
             <param name="command"></param>
@@ -278,7 +287,7 @@
             </summary>
             <param name="logger"></param>
         </member>
-        <member name="M:EcoPark.Presentation.Controllers.ParkingSpaceController.Occupy(EcoPark.Domain.Interfaces.Services.IHandler{EcoPark.Application.ParkingSpaces.Update.UpdateParkingSpaceStatusCommand,EcoPark.Application.Commons.Models.DatabaseOperationResponseViewModel},System.Guid,System.Threading.CancellationToken)">
+        <member name="M:EcoPark.Presentation.Controllers.ParkingSpaceController.Occupy(EcoPark.Domain.Interfaces.Services.IHandler{EcoPark.Application.ParkingSpaces.Update.Status.UpdateParkingSpaceStatusCommand,EcoPark.Application.Commons.Models.DatabaseOperationResponseViewModel},System.Guid,System.Threading.CancellationToken)">
             <summary>
             Método para ocupar uma vaga de estacionamento
             </summary>
@@ -287,7 +296,7 @@
             <param name="cancellationToken"></param>
             <returns>Mensagem sobre resultado da operação</returns>
         </member>
-        <member name="M:EcoPark.Presentation.Controllers.ParkingSpaceController.Vacate(EcoPark.Domain.Interfaces.Services.IHandler{EcoPark.Application.ParkingSpaces.Update.UpdateParkingSpaceStatusCommand,EcoPark.Application.Commons.Models.DatabaseOperationResponseViewModel},System.Guid,System.Threading.CancellationToken)">
+        <member name="M:EcoPark.Presentation.Controllers.ParkingSpaceController.Vacate(EcoPark.Domain.Interfaces.Services.IHandler{EcoPark.Application.ParkingSpaces.Update.Status.UpdateParkingSpaceStatusCommand,EcoPark.Application.Commons.Models.DatabaseOperationResponseViewModel},System.Guid,System.Threading.CancellationToken)">
             <summary>
             Método para desocupar uma vaga de estacionamento
             </summary>
@@ -363,7 +372,7 @@
             <param name="cancellationToken"></param>
             <returns>Lista de reservas</returns>
         </member>
-        <member name="M:EcoPark.Presentation.Controllers.ReservationController.Arrived(EcoPark.Domain.Interfaces.Services.IHandler{EcoPark.Application.Reservations.Update.UpdateReservationStatusCommand,EcoPark.Application.Commons.Models.DatabaseOperationResponseViewModel},System.String,System.Threading.CancellationToken)">
+        <member name="M:EcoPark.Presentation.Controllers.ReservationController.Arrived(EcoPark.Domain.Interfaces.Services.IHandler{EcoPark.Application.Reservations.Update.Status.UpdateReservationStatusCommand,EcoPark.Application.Commons.Models.DatabaseOperationResponseViewModel},System.String,System.Threading.CancellationToken)">
             <summary>
             Método para alterar status de uma reserva para "Chegou"
             </summary>
@@ -372,7 +381,7 @@
             <param name="cancellationToken"></param>
             <returns>Mensagem sobre resultado da operação</returns>
         </member>
-        <member name="M:EcoPark.Presentation.Controllers.ReservationController.Cancel(EcoPark.Domain.Interfaces.Services.IHandler{EcoPark.Application.Reservations.Update.UpdateReservationStatusCommand,EcoPark.Application.Commons.Models.DatabaseOperationResponseViewModel},System.Guid,System.Threading.CancellationToken)">
+        <member name="M:EcoPark.Presentation.Controllers.ReservationController.Cancel(EcoPark.Domain.Interfaces.Services.IHandler{EcoPark.Application.Reservations.Update.Status.UpdateReservationStatusCommand,EcoPark.Application.Commons.Models.DatabaseOperationResponseViewModel},System.Guid,System.Threading.CancellationToken)">
             <summary>
             Método para alterar status de uma reserva para "Cancelado"
             </summary>
