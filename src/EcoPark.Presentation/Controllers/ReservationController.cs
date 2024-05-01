@@ -4,6 +4,7 @@ using EcoPark.Application.Reservations.Insert;
 using EcoPark.Application.Reservations.List;
 using EcoPark.Application.Reservations.Models;
 using EcoPark.Application.Reservations.Update;
+using EcoPark.Application.Reservations.Update.Status;
 
 namespace EcoPark.Presentation.Controllers;
 
