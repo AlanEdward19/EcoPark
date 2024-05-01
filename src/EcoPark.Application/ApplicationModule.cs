@@ -11,6 +11,10 @@ using EcoPark.Application.Clients.Get;
 using EcoPark.Application.Clients.Insert;
 using EcoPark.Application.Clients.List;
 using EcoPark.Application.Clients.Update;
+using EcoPark.Application.Employees.Delete.GroupAccess;
+using EcoPark.Application.Employees.Insert.GroupAccess;
+using EcoPark.Application.ParkingSpaces.Update.Status;
+using EcoPark.Application.Reservations.Update.Status;
 using EcoPark.Domain.Interfaces.Services;
 
 namespace EcoPark.Application;
@@ -131,6 +135,10 @@ public static class ApplicationModule
         services
             .AddScoped<IHandler<DeleteEmployeeCommand, DatabaseOperationResponseViewModel>,
                 DeleteEmployeeCommandHandler>();
+
+        services
+            .AddScoped<IHandler<DeleteEmployeeGroupAccessCommand, DatabaseOperationResponseViewModel>,
+                           DeleteEmployeeGroupAccessCommandHandler>();
 
         #endregion
 
