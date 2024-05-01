@@ -1,4 +1,4 @@
-﻿namespace EcoPark.Application.Employees.Insert;
+﻿namespace EcoPark.Application.Employees.Insert.GroupAccess;
 
 public class InsertEmployeeGroupAccessCommand : ICommand
 {

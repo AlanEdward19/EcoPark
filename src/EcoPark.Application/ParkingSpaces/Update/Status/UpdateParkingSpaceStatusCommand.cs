@@ -1,4 +1,4 @@
-﻿namespace EcoPark.Application.ParkingSpaces.Update;
+﻿namespace EcoPark.Application.ParkingSpaces.Update.Status;
 
 public class UpdateParkingSpaceStatusCommand : ICommand
 {

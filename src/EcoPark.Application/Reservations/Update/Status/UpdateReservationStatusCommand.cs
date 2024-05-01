@@ -1,4 +1,4 @@
-﻿namespace EcoPark.Application.Reservations.Update;
+﻿namespace EcoPark.Application.Reservations.Update.Status;
 public class UpdateReservationStatusCommand : ICommand
 {
     public string? ReservationCode { get; private set; }
