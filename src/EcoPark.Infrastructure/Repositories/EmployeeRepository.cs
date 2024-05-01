@@ -1,9 +1,11 @@
 ﻿using EcoPark.Application.Employees.Delete;
 using EcoPark.Application.Employees.Get;
 using EcoPark.Application.Employees.Insert;
+using EcoPark.Application.Employees.Insert.GroupAccess;
 using EcoPark.Application.Employees.List;
 using EcoPark.Application.Employees.Update;
 using EcoPark.Domain.Commons.Enums;
+using EcoPark.Application.Employees.Delete.GroupAccess;
 
 namespace EcoPark.Infrastructure.Repositories;
 
@@ -15,17 +17,18 @@ public class EmployeeRepository(DatabaseDbContext databaseDbContext, IAuthentica
     {
         EmployeeModel? employeeModel = null;
         EmployeeModel? administratorModel = null;
+        LocationModel? locationModel = null;
         var requesterUserType = command.RequestUserInfo.UserType;
 
         switch (command)
         {
             case InsertEmployeeGroupAccessCommand insertEmployeeGroupAccessCommand:
 
-                EmployeeModel? requester = await databaseDbContext.Employees
+                administratorModel = await databaseDbContext.Employees
                     .Include(x => x.Credentials)
                     .FirstOrDefaultAsync(e => e.Credentials.Email.Equals(command.RequestUserInfo.Email), cancellationToken);
 
-                if (requester == null) return false;
+                if (administratorModel == null) return false;
 
                 employeeModel = await databaseDbContext.Employees
                     .Include(x => x.Credentials)
@@ -33,16 +36,16 @@ public class EmployeeRepository(DatabaseDbContext databaseDbContext, IAuthentica
 
                 if (employeeModel == null) return false;
 
-                LocationModel? locationModel = await databaseDbContext.Locations
+                locationModel = await databaseDbContext.Locations
                     .FirstOrDefaultAsync(x => x.Id == insertEmployeeGroupAccessCommand.LocationId, cancellationToken);
 
                 if (locationModel == null) return false;
 
-                bool canGivePermission = requester.Credentials.UserType == EUserType.Administrator &&
-                                         (requester.AdministratorId == employeeModel.AdministratorId ||
-                                          requester.Id == employeeModel.AdministratorId) &&
-                                         (locationModel.OwnerId == requester.Id ||
-                                          locationModel.OwnerId == requester.AdministratorId);
+                bool canGivePermission = administratorModel.Credentials.UserType == EUserType.Administrator &&
+                                         (administratorModel.AdministratorId == employeeModel.AdministratorId ||
+                                          administratorModel.Id == employeeModel.AdministratorId) &&
+                                         (locationModel.OwnerId == administratorModel.Id ||
+                                          locationModel.OwnerId == administratorModel.AdministratorId);
 
                 return canGivePermission;
 
@@ -89,6 +92,33 @@ public class EmployeeRepository(DatabaseDbContext databaseDbContext, IAuthentica
                     employeeModel = administratorModel.Employees.FirstOrDefault(x => x.Id == deleteCommand.Id);
 
                 break;
+
+            case DeleteEmployeeGroupAccessCommand deleteEmployeeGroupAccessCommand:
+
+                administratorModel = await databaseDbContext.Employees
+                    .Include(x => x.Credentials)
+                    .FirstOrDefaultAsync(e => e.Credentials.Email.Equals(command.RequestUserInfo.Email), cancellationToken);
+
+                if (administratorModel == null) return false;
+
+                employeeModel = await databaseDbContext.Employees
+                    .Include(x => x.Credentials)
+                    .FirstOrDefaultAsync(e => e.Id == deleteEmployeeGroupAccessCommand.EmployeeId, cancellationToken);
+
+                if (employeeModel == null) return false;
+
+                locationModel = await databaseDbContext.Locations
+                    .FirstOrDefaultAsync(x => x.Id == deleteEmployeeGroupAccessCommand.LocationId, cancellationToken);
+
+                if (locationModel == null) return false;
+
+                bool canRemovePermission = administratorModel.Credentials.UserType == EUserType.Administrator &&
+                                           (administratorModel.AdministratorId == employeeModel.AdministratorId ||
+                                            administratorModel.Id == employeeModel.AdministratorId) &&
+                                           (locationModel.OwnerId == administratorModel.Id ||
+                                            locationModel.OwnerId == administratorModel.AdministratorId);
+
+                return canRemovePermission;
         }
 
         return employeeModel != null;
@@ -128,20 +158,11 @@ public class EmployeeRepository(DatabaseDbContext databaseDbContext, IAuthentica
         return false;
     }
 
-    public async Task<bool> DeleteAsync(ICommand command, CancellationToken cancellationToken)
+    public async Task<bool> DeleteAsync(ICommand command, CancellationToken cancellationToken) => command switch
     {
-        var parsedCommand = command as DeleteEmployeeCommand;
-
-        EmployeeModel? employeeModel = await databaseDbContext.Employees
-            .Include(x => x.Credentials)
-            .FirstOrDefaultAsync(e => e.Id == parsedCommand.Id, cancellationToken);
-
-        if (employeeModel == null) return false;
-
-        databaseDbContext.Employees.Remove(employeeModel);
-        databaseDbContext.Credentials.Remove(employeeModel.Credentials);
-        return true;
-    }
+        DeleteEmployeeCommand deleteEmployeeCommand => await DeleteEmployeeAsync(deleteEmployeeCommand, cancellationToken),
+        DeleteEmployeeGroupAccessCommand deleteEmployeeGroupAccessCommand => await DeleteEmployeeGroupAccessAsync(deleteEmployeeGroupAccessCommand, cancellationToken),
+    };
 
     public async Task<EmployeeModel?> GetByIdAsync(IQuery query, CancellationToken cancellationToken)
     {
@@ -201,6 +222,32 @@ public class EmployeeRepository(DatabaseDbContext databaseDbContext, IAuthentica
     {
         await databaseDbContext.GroupAccesses
             .AddAsync(new GroupAccessModel(command.LocationId, command.EmployeeId), cancellationToken);
+        return true;
+    }
+
+    private async Task<bool> DeleteEmployeeAsync(DeleteEmployeeCommand command, CancellationToken cancellationToken)
+    {
+        EmployeeModel? employeeModel = await databaseDbContext.Employees
+            .Include(x => x.Credentials)
+            .FirstOrDefaultAsync(e => e.Id == command.Id, cancellationToken);
+
+        if (employeeModel == null) return false;
+
+        databaseDbContext.Employees.Remove(employeeModel);
+        databaseDbContext.Credentials.Remove(employeeModel.Credentials);
+
+        return true;
+    }
+
+    private async Task<bool> DeleteEmployeeGroupAccessAsync(DeleteEmployeeGroupAccessCommand command, CancellationToken cancellationToken)
+    {
+        GroupAccessModel? groupAccessModel = await databaseDbContext.GroupAccesses
+            .FirstOrDefaultAsync(x => x.EmployeeId == command.EmployeeId && x.LocationId == command.LocationId,
+                cancellationToken);
+        
+        if (groupAccessModel == null) return false;
+
+        databaseDbContext.GroupAccesses.Remove(groupAccessModel);
 
         return true;
     }
