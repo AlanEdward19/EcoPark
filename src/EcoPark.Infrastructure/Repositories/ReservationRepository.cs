@@ -3,6 +3,7 @@ using EcoPark.Application.Reservations.Get;
 using EcoPark.Application.Reservations.Insert;
 using EcoPark.Application.Reservations.List;
 using EcoPark.Application.Reservations.Update;
+using EcoPark.Application.Reservations.Update.Status;
 using EcoPark.Domain.Aggregates.Location.ParkingSpace;
 using EcoPark.Domain.Commons.Enums;
 using Microsoft.Extensions.Logging;
