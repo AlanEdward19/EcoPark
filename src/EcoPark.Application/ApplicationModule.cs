@@ -14,11 +14,12 @@ using EcoPark.Application.Clients.Update;
 using EcoPark.Application.Employees.Delete.GroupAccess;
 using EcoPark.Application.Employees.Insert.GroupAccess;
 using EcoPark.Application.ParkingSpaces.Update.Status;
-using EcoPark.Application.Punctuation.Get;
-using EcoPark.Application.Punctuation.List;
-using EcoPark.Application.Punctuation.Models;
+using EcoPark.Application.Punctuations.Get;
+using EcoPark.Application.Punctuations.List;
+using EcoPark.Application.Punctuations.Models;
 using EcoPark.Application.Reservations.Update.Status;
-using EcoPark.Domain.Interfaces.Services;
+using EcoPark.Application.Rewards.Insert;
+using EcoPark.Application.Rewards.Update;
 
 namespace EcoPark.Application;
 
@@ -168,6 +169,13 @@ public static class ApplicationModule
         services.AddScoped<IHandler<UpdateCarCommand, DatabaseOperationResponseViewModel>, UpdateCarCommandHandler>();
 
         services.AddScoped<IHandler<DeleteCarCommand, DatabaseOperationResponseViewModel>, DeleteCarCommandHandler>();
+
+        #endregion
+
+        #region Reward
+
+        services.AddScoped<IHandler<InsertRewardCommand, DatabaseOperationResponseViewModel>, InsertRewardCommandHandler>();
+        services.AddScoped<IHandler<UpdateRewardCommand, DatabaseOperationResponseViewModel>, UpdateRewardCommandHandler>();
 
         #endregion
 

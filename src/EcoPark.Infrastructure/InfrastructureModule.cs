@@ -1,6 +1,9 @@
-﻿using EcoPark.Infrastructure.Repositories;
+﻿using EcoPark.Domain.Interfaces.Providers;
+using EcoPark.Infrastructure.Providers;
+using EcoPark.Infrastructure.Repositories;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 
 namespace EcoPark.Infrastructure;
 
@@ -11,6 +14,7 @@ public static class InfrastructureModule
         services
             .ConfigureDatabase(configuration)
             .ConfigureWebSocket()
+            .AddProviders(configuration)
             .ConfigureRepositories();
 
         return services;
@@ -36,6 +40,7 @@ public static class InfrastructureModule
         services.AddScoped<IAggregateRepository<ClientModel>, ClientRepository>();
         services.AddScoped<IRepository<CarModel>, CarRepository>();
         services.AddScoped<IRepository<PunctuationModel>, PunctuationRepository>();
+        services.AddScoped<IRepository<RewardModel>, RewardRepository>();
 
         return services;
     }
@@ -44,6 +49,14 @@ public static class InfrastructureModule
     {
         services
             .AddSignalR();
+
+        return services;
+    }
+
+    private static IServiceCollection AddProviders(this IServiceCollection services, IConfiguration configuration)
+    {
+        services.AddScoped<IStorageProvider>(_ =>
+            new StorageProvider(configuration.GetConnectionString("StorageAccount"), new Logger<StorageProvider>(new LoggerFactory())));
 
         return services;
     }
