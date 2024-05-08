@@ -29,5 +29,6 @@ public class EmployeeModel(Guid? administratorId, Guid credentialsId)
         Credentials.FirstName = employeeValueObject.FirstName;
         Credentials.LastName = employeeValueObject.LastName;
         Credentials.UserType = employeeValueObject.UserType;
+        Credentials.UpdatedAt = DateTime.Now;
     }
 }

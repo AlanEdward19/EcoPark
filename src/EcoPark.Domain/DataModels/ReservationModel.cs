@@ -6,6 +6,7 @@ public class ReservationModel : BaseDataModel
     public Guid? ClientId { get; private set; }
     public Guid? CarId { get; private set; }
     public string ReservationCode { get; private set; }
+    public double Punctuation { get; private set; }
     public EReservationStatus Status { get; private set; }
     public DateTime ReservationDate { get; private set; }
     public DateTime ExpirationDate { get; private set; }
@@ -21,7 +22,7 @@ public class ReservationModel : BaseDataModel
 
     public ReservationModel() { }
 
-    public ReservationModel(Guid parkingSpaceId, Guid clientId, Guid carId, DateTime reservationDate, string reservationCode, int reservationGraceInMinutes)
+    public ReservationModel(Guid parkingSpaceId, Guid clientId, Guid carId, DateTime reservationDate, string reservationCode, int reservationGraceInMinutes, double punctuation)
     {
         ParkingSpaceId = parkingSpaceId;
         ClientId = clientId;
@@ -30,9 +31,10 @@ public class ReservationModel : BaseDataModel
         Status = EReservationStatus.Created;
         ReservationDate = reservationDate;
         ExpirationDate = reservationDate.AddMinutes(reservationGraceInMinutes);
+        Punctuation = punctuation;
     }
 
-    public ReservationModel(Guid parkingSpaceId, Guid clientId, Guid carId, DateTime reservationDate, string reservationCode, int reservationGraceInMinutes, EReservationStatus status)
+    public ReservationModel(Guid parkingSpaceId, Guid clientId, Guid carId, DateTime reservationDate, string reservationCode, int reservationGraceInMinutes, EReservationStatus status, double punctuation)
     {
         ParkingSpaceId = parkingSpaceId;
         ClientId = clientId;
@@ -41,6 +43,7 @@ public class ReservationModel : BaseDataModel
         Status = status;
         ReservationDate = reservationDate;
         ExpirationDate = reservationDate.AddMinutes(reservationGraceInMinutes);
+        Punctuation = punctuation;
     }
 
     public void UpdateBasedOnValueObject(Reservation reservation)
@@ -48,5 +51,6 @@ public class ReservationModel : BaseDataModel
         Status = reservation.Status;
         ReservationDate = reservation.ReservationDate;
         ExpirationDate = reservation.ExpirationDate;
+        UpdatedAt = DateTime.Now;
     }
 }

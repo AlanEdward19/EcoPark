@@ -26,5 +26,6 @@ public class CarModel(Guid clientId, string plate, ECarType type, string model, 
         Color = car.Color;
         Brand = car.Brand;
         Year = car.Year;
+        UpdatedAt = DateTime.Now;
     }
 }
