@@ -21,6 +21,18 @@ public class Reservation(ReservationModel reservationModel)
             .Select(s => s[random.Next(s.Length)]).ToArray());
     }
 
+    public static double CalculatePunctuation(DateTime reservationDate, DateTime? lastReservationDate, ECarType carType, double reservationTax)
+    {
+        double frequency = 1;
+
+        if (lastReservationDate != null)
+            frequency = 100d/((reservationDate - lastReservationDate.Value).TotalDays);
+
+        double sustainability = carType is ECarType.Electric or ECarType.Hybrid ? 20d : 0;
+
+        return double.Round(((reservationTax == 0 ? 1 : reservationTax) * frequency) + sustainability, 2);
+    }
+
     public void ChangeStatus(EReservationStatus status) => Status = status;
 
     public void ChangeReservationDate(DateTime reservationDate, int reservationGraceInMinutes)
