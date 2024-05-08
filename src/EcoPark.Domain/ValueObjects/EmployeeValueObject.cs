@@ -1,4 +1,5 @@
 ﻿using System.Security.Cryptography;
+using EcoPark.Domain.DataModels.Employee;
 
 namespace EcoPark.Domain.ValueObjects;
 
