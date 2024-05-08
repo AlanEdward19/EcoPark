@@ -1,6 +1,4 @@
-﻿using EcoPark.Domain.Aggregates.Client;
-
-namespace EcoPark.Domain.DataModels;
+﻿namespace EcoPark.Domain.DataModels.Client;
 
 public class ClientModel(Guid credentialsId)
 {
@@ -16,6 +14,7 @@ public class ClientModel(Guid credentialsId)
     public virtual ICollection<ReservationModel> Reservations { get; set; }
 
     public virtual ICollection<PunctuationModel> Punctuations { get; set; }
+    public virtual ICollection<ClientClaimedRewardModel> ClaimedRewards { get; set; }
 
     public void SetCredentials(CredentialsModel credentials)
     {

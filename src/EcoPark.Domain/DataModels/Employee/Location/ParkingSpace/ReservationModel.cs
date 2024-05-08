@@ -1,4 +1,4 @@
-﻿namespace EcoPark.Domain.DataModels;
+﻿namespace EcoPark.Domain.DataModels.Employee.Location.ParkingSpace;
 
 public class ReservationModel : BaseDataModel
 {

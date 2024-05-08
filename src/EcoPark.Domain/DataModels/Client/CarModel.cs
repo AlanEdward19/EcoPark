@@ -1,6 +1,4 @@
-﻿using EcoPark.Domain.Aggregates.Client;
-
-namespace EcoPark.Domain.DataModels;
+﻿namespace EcoPark.Domain.DataModels.Client;
 
 public class CarModel(Guid clientId, string plate, ECarType type, string model, string color, string brand, int year)
     : BaseDataModel

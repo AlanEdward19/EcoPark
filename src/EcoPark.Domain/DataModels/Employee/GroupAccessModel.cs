@@ -1,4 +1,4 @@
-﻿namespace EcoPark.Domain.DataModels;
+﻿namespace EcoPark.Domain.DataModels.Employee;
 
 public class GroupAccessModel(Guid locationId, Guid employeeId) : BaseDataModel
 {

@@ -1,6 +1,6 @@
 ﻿using EcoPark.Domain.ValueObjects;
 
-namespace EcoPark.Domain.DataModels;
+namespace EcoPark.Domain.DataModels.Employee;
 
 public class EmployeeModel(Guid? administratorId, Guid credentialsId)
 {

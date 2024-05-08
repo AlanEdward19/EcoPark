@@ -1,6 +1,6 @@
 ﻿using EcoPark.Domain.Aggregates.Location;
 
-namespace EcoPark.Domain.DataModels;
+namespace EcoPark.Domain.DataModels.Employee.Location;
 
 public class LocationModel(Guid ownerId, string name, string address, int reservationGraceInMinutes, double cancellationFeeRate,
     double reservationFeeRate, double hourlyParkingRate) : BaseDataModel
@@ -29,7 +29,7 @@ public class LocationModel(Guid ownerId, string name, string address, int reserv
         HourlyParkingRate = locationAggregate.HourlyParkingRate;
         UpdatedAt = DateTime.Now;
 
-        if(locationAggregate.ParkingSpaces.Any())
+        if (locationAggregate.ParkingSpaces.Any())
             ParkingSpaces = locationAggregate.ParkingSpaces.Select(parkingSpace =>
                            new ParkingSpaceModel(locationAggregate.Id, parkingSpace.Floor, parkingSpace.Name,
                                               parkingSpace.IsOccupied, parkingSpace.Type)).ToList();

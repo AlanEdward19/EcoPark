@@ -1,4 +1,4 @@
-﻿namespace EcoPark.Domain.DataModels;
+﻿namespace EcoPark.Domain.DataModels.Client;
 
 public class PunctuationModel : BaseDataModel
 {
