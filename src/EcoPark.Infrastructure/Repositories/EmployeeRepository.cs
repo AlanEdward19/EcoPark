@@ -4,7 +4,6 @@ using EcoPark.Application.Employees.Insert;
 using EcoPark.Application.Employees.Insert.GroupAccess;
 using EcoPark.Application.Employees.List;
 using EcoPark.Application.Employees.Update;
-using EcoPark.Domain.Commons.Enums;
 using EcoPark.Application.Employees.Delete.GroupAccess;
 
 namespace EcoPark.Infrastructure.Repositories;

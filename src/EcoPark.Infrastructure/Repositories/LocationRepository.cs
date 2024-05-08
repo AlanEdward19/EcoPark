@@ -3,8 +3,6 @@ using EcoPark.Application.Locations.Get;
 using EcoPark.Application.Locations.Insert;
 using EcoPark.Application.Locations.List;
 using EcoPark.Application.Locations.Update;
-using EcoPark.Domain.Aggregates.Location;
-using EcoPark.Domain.Commons.Enums;
 
 namespace EcoPark.Infrastructure.Repositories;
 

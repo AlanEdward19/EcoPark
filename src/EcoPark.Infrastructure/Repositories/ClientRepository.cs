@@ -3,8 +3,6 @@ using EcoPark.Application.Clients.Get;
 using EcoPark.Application.Clients.Insert;
 using EcoPark.Application.Clients.List;
 using EcoPark.Application.Clients.Update;
-using EcoPark.Domain.Aggregates.Client;
-using EcoPark.Domain.Commons.Enums;
 
 namespace EcoPark.Infrastructure.Repositories;
 

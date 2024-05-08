@@ -1,12 +1,13 @@
-﻿using EcoPark.Application.Punctuation;
-using EcoPark.Application.Punctuation.Get;
-using EcoPark.Application.Punctuation.List;
+﻿using EcoPark.Application.Punctuations;
+using EcoPark.Application.Punctuations.Get;
+using EcoPark.Application.Punctuations.List;
 
 namespace EcoPark.Infrastructure.Repositories
 {
-    public class PunctuationRepository(DatabaseDbContext databaseDbContext) : IRepository<PunctuationModel>
+    public class PunctuationRepository(DatabaseDbContext databaseDbContext, IUnitOfWork unitOfWork) : IRepository<PunctuationModel>
     {
-        public IUnitOfWork UnitOfWork { get; }
+        public IUnitOfWork UnitOfWork { get; } = unitOfWork;
+
         public async Task<bool> CheckChangePermissionAsync(ICommand command, CancellationToken cancellationToken)
         {
             throw new NotImplementedException();
