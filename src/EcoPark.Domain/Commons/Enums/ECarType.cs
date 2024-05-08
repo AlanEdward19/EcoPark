@@ -4,5 +4,6 @@ public enum ECarType
 {
     Electric,
     Combustion,
-    Pcd
+    Pcd,
+    Hybrid
 }
