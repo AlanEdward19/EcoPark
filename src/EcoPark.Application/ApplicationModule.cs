@@ -14,6 +14,9 @@ using EcoPark.Application.Clients.Update;
 using EcoPark.Application.Employees.Delete.GroupAccess;
 using EcoPark.Application.Employees.Insert.GroupAccess;
 using EcoPark.Application.ParkingSpaces.Update.Status;
+using EcoPark.Application.Punctuation.Get;
+using EcoPark.Application.Punctuation.List;
+using EcoPark.Application.Punctuation.Models;
 using EcoPark.Application.Reservations.Update.Status;
 using EcoPark.Domain.Interfaces.Services;
 
@@ -59,6 +62,9 @@ public static class ApplicationModule
 
         services.AddScoped<IHandler<GetCarQuery, CarViewModel?>, GetCarQueryHandler>();
         services.AddScoped<IHandler<ListCarQuery, IEnumerable<CarViewModel>>, ListCarQueryHandler>();
+
+        services.AddScoped<IHandler<GetPunctuationQuery, PunctuationViewModel?>, GetPunctuationQueryHandler>();
+        services.AddScoped<IHandler<ListPunctuationsQuery, IEnumerable<PunctuationViewModel>?>, ListPunctuationsQueryHandler>();
 
         return services;
     }
