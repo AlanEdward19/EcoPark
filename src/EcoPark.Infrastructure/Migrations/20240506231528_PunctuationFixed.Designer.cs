@@ -4,6 +4,7 @@ using EcoPark.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace EcoPark.Infrastructure.Migrations
 {
     [DbContext(typeof(DatabaseDbContext))]
-    partial class DatabaseDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240506231528_PunctuationFixed")]
+    partial class PunctuationFixed
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -297,9 +300,6 @@ namespace EcoPark.Infrastructure.Migrations
 
                     b.Property<Guid>("ParkingSpaceId")
                         .HasColumnType("uniqueidentifier");
-
-                    b.Property<double>("Punctuation")
-                        .HasColumnType("float");
 
                     b.Property<string>("ReservationCode")
                         .IsRequired()

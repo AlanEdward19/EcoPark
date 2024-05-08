@@ -5,7 +5,7 @@ public class ListParkingSpacesQueryHandler(IAggregateRepository<ParkingSpaceMode
 {
     public async Task<IEnumerable<ParkingSpaceSimplifiedViewModel>?> HandleAsync(ListParkingSpacesQuery command, CancellationToken cancellationToken)
     {
-        var parkingSpaces =  await repository.ListAsync(command, cancellationToken);
+        var parkingSpaces = await repository.ListAsync(command, cancellationToken);
 
         if (command.IncludeReservations!.Value)
         {
@@ -14,7 +14,7 @@ public class ListParkingSpacesQueryHandler(IAggregateRepository<ParkingSpaceMode
             foreach (var parkingSpaceModel in parkingSpaces)
             {
                 IEnumerable<ReservationSimplifiedViewModel>? reservations = parkingSpaceModel.Reservations?.Select(x =>
-                    new ReservationSimplifiedViewModel(x.Id, x.CarId, x.ClientId, x.ReservationCode, x.Status,
+                    new ReservationSimplifiedViewModel(x.Id, x.CarId, x.ClientId, x.ReservationCode, x.Punctuation, x.Status,
                         x.ReservationDate, x.ExpirationDate));
 
                 ParkingSpaceViewModel parkingSpace = new(parkingSpaceModel.Id, parkingSpaceModel.Floor,

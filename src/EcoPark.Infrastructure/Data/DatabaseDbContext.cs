@@ -18,6 +18,12 @@ public partial class DatabaseDbContext : DbContext
             .HasOne(ga => ga.Employee)
             .WithMany(e => e.GroupAccesses)
             .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<PunctuationModel>()
+            .HasOne(p => p.Client)
+            .WithMany(c => c.Punctuations)
+            .HasForeignKey(p => p.ClientId)
+            .OnDelete(DeleteBehavior.NoAction);
     }
 
 }

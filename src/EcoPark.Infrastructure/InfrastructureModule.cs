@@ -35,6 +35,7 @@ public static class InfrastructureModule
         services.AddScoped<IRepository<CredentialsModel>, LoginRepository>();
         services.AddScoped<IAggregateRepository<ClientModel>, ClientRepository>();
         services.AddScoped<IRepository<CarModel>, CarRepository>();
+        services.AddScoped<IRepository<PunctuationModel>, PunctuationRepository>();
 
         return services;
     }

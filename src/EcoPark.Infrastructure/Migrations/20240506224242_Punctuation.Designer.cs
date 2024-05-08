@@ -4,6 +4,7 @@ using EcoPark.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace EcoPark.Infrastructure.Migrations
 {
     [DbContext(typeof(DatabaseDbContext))]
-    partial class DatabaseDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240506224242_Punctuation")]
+    partial class Punctuation
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -253,7 +256,7 @@ namespace EcoPark.Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid>("ClientId")
+                    b.Property<Guid?>("ClientModelId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime>("CreatedAt")
@@ -270,7 +273,7 @@ namespace EcoPark.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ClientId");
+                    b.HasIndex("ClientModelId");
 
                     b.HasIndex("LocationId");
 
@@ -297,9 +300,6 @@ namespace EcoPark.Infrastructure.Migrations
 
                     b.Property<Guid>("ParkingSpaceId")
                         .HasColumnType("uniqueidentifier");
-
-                    b.Property<double>("Punctuation")
-                        .HasColumnType("float");
 
                     b.Property<string>("ReservationCode")
                         .IsRequired()
@@ -407,19 +407,15 @@ namespace EcoPark.Infrastructure.Migrations
 
             modelBuilder.Entity("EcoPark.Domain.DataModels.PunctuationModel", b =>
                 {
-                    b.HasOne("EcoPark.Domain.DataModels.ClientModel", "Client")
+                    b.HasOne("EcoPark.Domain.DataModels.ClientModel", null)
                         .WithMany("Punctuations")
-                        .HasForeignKey("ClientId")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
+                        .HasForeignKey("ClientModelId");
 
                     b.HasOne("EcoPark.Domain.DataModels.LocationModel", "Location")
                         .WithMany()
                         .HasForeignKey("LocationId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("Client");
 
                     b.Navigation("Location");
                 });

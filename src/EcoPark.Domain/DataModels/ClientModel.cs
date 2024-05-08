@@ -15,6 +15,8 @@ public class ClientModel(Guid credentialsId)
 
     public virtual ICollection<ReservationModel> Reservations { get; set; }
 
+    public virtual ICollection<PunctuationModel> Punctuations { get; set; }
+
     public void SetCredentials(CredentialsModel credentials)
     {
         Credentials = credentials;
@@ -26,5 +28,6 @@ public class ClientModel(Guid credentialsId)
         Credentials.Password = clientAggregateRoot.Password;
         Credentials.FirstName = clientAggregateRoot.FirstName;
         Credentials.LastName = clientAggregateRoot.LastName;
+        Credentials.UpdatedAt = DateTime.Now;
     }
 }

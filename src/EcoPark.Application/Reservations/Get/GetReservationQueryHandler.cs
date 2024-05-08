@@ -16,14 +16,14 @@ public class GetReservationQueryHandler(IRepository<ReservationModel> repository
                     reservation.ParkingSpace.ParkingSpaceType);
 
                 result = new ReservationViewModel(reservation.Id, reservation.CarId, reservation.ClientId,
-                    reservation.ReservationCode, reservation.Status,
+                    reservation.ReservationCode, reservation.Punctuation, reservation.Status,
                     reservation.ReservationDate, reservation.ExpirationDate,
                     parkingSpace);
             }
 
             else
                 result = new ReservationSimplifiedViewModel(reservation.Id, reservation.CarId, reservation.ClientId,
-                    reservation.ReservationCode,
+                    reservation.ReservationCode, reservation.Punctuation,
                 reservation.Status, reservation.ReservationDate, reservation.ExpirationDate);
         }
 
