@@ -14,6 +14,11 @@
     <Folder Include="Employees\List\" />
     <Folder Include="Employees\Update\" />
     <Folder Include="Locations\Validators\" />
+    <Folder Include="Rewards\Delete\" />
+    <Folder Include="Rewards\Get\" />
+    <Folder Include="Rewards\Insert\" />
+    <Folder Include="Rewards\List\" />
+    <Folder Include="Rewards\Models\" />
   </ItemGroup>
 
 	<ItemGroup>
