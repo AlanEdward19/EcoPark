@@ -150,7 +150,9 @@ public class ReservationRepository(DatabaseDbContext databaseDbContext, IUnitOfW
 
         ClientModel? clientModel = await databaseDbContext.Clients
             .AsNoTracking()
+            .AsSplitQuery()
             .Include(x => x.Credentials)
+            .Include(x => x.Cars)
             .FirstOrDefaultAsync(e => e.Credentials.Email.Equals(requestUserInfo.Email),
                 cancellationToken);
 
@@ -174,9 +176,42 @@ public class ReservationRepository(DatabaseDbContext databaseDbContext, IUnitOfW
         else
             reservationStatus = EReservationStatus.Confirmed;
 
+        ReservationModel? lastReservation = await databaseDbContext.Reservations
+            .AsNoTracking()
+            .AsSplitQuery()
+            .Include(x => x.Client)
+            .ThenInclude(x => x.Credentials)
+            .OrderByDescending(x => x.ReservationDate)
+            .FirstOrDefaultAsync(x =>
+                                   x.Client.Credentials.Email.Equals(requestUserInfo.Email) && x.Status == EReservationStatus.Completed,
+                               cancellationToken);
+
+        string reservationCode = Reservation.GenerateReservationCode();
+
+        bool reservationCodeAlreadyExists = await databaseDbContext.Reservations
+            .AsNoTracking()
+            .AnyAsync(
+                x => x.ReservationCode.Equals(reservationCode) && x.Status != EReservationStatus.Completed &&
+                     x.Status != EReservationStatus.Cancelled &&
+                     x.Status != EReservationStatus.Expired, cancellationToken);
+
+        while (reservationCodeAlreadyExists)
+        {
+            reservationCode = Reservation.GenerateReservationCode();
+            reservationCodeAlreadyExists = await databaseDbContext.Reservations
+                .AsNoTracking()
+                .AnyAsync(
+                    x => x.ReservationCode.Equals(reservationCode) && x.Status != EReservationStatus.Completed &&
+                         x.Status != EReservationStatus.Cancelled &&
+                         x.Status != EReservationStatus.Expired, cancellationToken);
+        }
+
         reservationModel = new(parsedCommand!.ParkingSpaceId!.Value, clientModel.Id,
-            parsedCommand.CarId!.Value, parsedCommand.ReservationDate!.Value, Reservation.GenerateReservationCode(),
-            parkingSpaceModel.Location.ReservationGraceInMinutes, reservationStatus);
+            parsedCommand.CarId!.Value, parsedCommand.ReservationDate!.Value, reservationCode,
+            parkingSpaceModel.Location.ReservationGraceInMinutes, reservationStatus,
+            Reservation.CalculatePunctuation(parsedCommand.ReservationDate.Value, lastReservation?.ReservationDate,
+                clientModel.Cars.FirstOrDefault(x => x.Id.Equals(parsedCommand.CarId))!.Type,
+                parkingSpaceModel.Location.ReservationFeeRate));
 
         await databaseDbContext.Reservations.AddAsync(reservationModel, cancellationToken);
 
@@ -344,7 +379,9 @@ public class ReservationRepository(DatabaseDbContext databaseDbContext, IUnitOfW
 
         else if (!string.IsNullOrWhiteSpace(parsedCommand!.ReservationCode))
             reservationModel = await databaseDbContext.Reservations
-                .FirstOrDefaultAsync(r => r.ReservationCode.Equals(parsedCommand.ReservationCode), cancellationToken);
+                .FirstOrDefaultAsync(
+                    r => r.ReservationCode.Equals(parsedCommand.ReservationCode) &&
+                         r.Status == EReservationStatus.Confirmed, cancellationToken);
 
         if (reservationModel != null)
         {

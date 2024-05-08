@@ -7,10 +7,13 @@ using EcoPark.Application.ParkingSpaces.Update.Status;
 using EcoPark.Application.Reservations.Update.Status;
 using EcoPark.Domain.Aggregates.Location.ParkingSpace;
 using EcoPark.Domain.Commons.Enums;
+using EcoPark.Application.Punctuation;
 
 namespace EcoPark.Infrastructure.Repositories;
 
-public class ParkingSpaceRepository(DatabaseDbContext databaseDbContext, IUnitOfWork unitOfWork, IRepository<ReservationModel> reservationRepository) : IAggregateRepository<ParkingSpaceModel>
+public class ParkingSpaceRepository(DatabaseDbContext databaseDbContext, IUnitOfWork unitOfWork,
+    IRepository<ReservationModel> reservationRepository, IRepository<PunctuationModel> punctuationRepository)
+    : IAggregateRepository<ParkingSpaceModel>
 {
     public IUnitOfWork UnitOfWork { get; } = unitOfWork;
 
@@ -239,7 +242,8 @@ public class ParkingSpaceRepository(DatabaseDbContext databaseDbContext, IUnitOf
     private async Task<bool> UpdateParkingSpaceStatusAsync(UpdateParkingSpaceStatusCommand command,
         CancellationToken cancellationToken)
     {
-        ReservationModel? reservationModel = await databaseDbContext.Reservations.Include(x => x.ParkingSpace)
+        ReservationModel? reservationModel = await databaseDbContext.Reservations
+            .Include(x => x.ParkingSpace)
             .FirstOrDefaultAsync(
                 x => x.ParkingSpaceId == command.Id && x.Status == EReservationStatus.Arrived &&
                      x.ParkingSpace.IsOccupied, cancellationToken);
@@ -283,8 +287,20 @@ public class ParkingSpaceRepository(DatabaseDbContext databaseDbContext, IUnitOf
             parkingSpaceAggregate.SetOccupied(command.Status);
             reservationModel.ParkingSpace.UpdateBasedOnAggregate(parkingSpaceAggregate);
 
-
             databaseDbContext.ParkingSpaces.Update(reservationModel.ParkingSpace);
+
+            PunctuationModel? punctuation = await databaseDbContext.Punctuations
+                .FirstOrDefaultAsync(x => x.ClientId == reservationModel.ClientId.Value &&
+                                          x.LocationId == reservationModel.ParkingSpace.LocationId, cancellationToken);
+
+            PunctuationCommand punctuationCommand =
+                new(reservationModel.ParkingSpace.LocationId, reservationModel.ClientId.Value, reservationModel.Punctuation);
+
+            if (punctuation == null)
+                await punctuationRepository.AddAsync(punctuationCommand, cancellationToken);
+
+            else
+                await punctuationRepository.UpdateAsync(punctuationCommand, cancellationToken);
 
             await reservationRepository.UpdateAsync(reservationStatusCommand, cancellationToken);
 
