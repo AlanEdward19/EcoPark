@@ -1,4 +1,4 @@
-﻿namespace EcoPark.Application.Punctuation.Models;
+﻿namespace EcoPark.Application.Punctuations.Models;
 
 public class PunctuationViewModel(Guid locationId, string locationName, double punctuation)
 {

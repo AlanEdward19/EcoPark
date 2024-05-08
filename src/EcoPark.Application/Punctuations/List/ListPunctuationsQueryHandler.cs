@@ -1,6 +1,6 @@
-﻿using EcoPark.Application.Punctuation.Models;
+﻿using EcoPark.Application.Punctuations.Models;
 
-namespace EcoPark.Application.Punctuation.List;
+namespace EcoPark.Application.Punctuations.List;
 
 public class ListPunctuationsQueryHandler(IRepository<PunctuationModel> repository) : IHandler<ListPunctuationsQuery, IEnumerable<PunctuationViewModel>?>
 {

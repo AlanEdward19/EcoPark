@@ -1,4 +1,4 @@
-﻿namespace EcoPark.Application.Punctuation;
+﻿namespace EcoPark.Application.Punctuations;
 
 public class PunctuationCommand(Guid locationId, Guid clientId, double punctuation) : ICommand
 {

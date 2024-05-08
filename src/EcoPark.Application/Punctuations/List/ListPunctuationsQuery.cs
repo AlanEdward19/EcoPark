@@ -1,8 +1,10 @@
-﻿namespace EcoPark.Application.Punctuation.Get;
+﻿namespace EcoPark.Application.Punctuations.List;
 
-public class GetPunctuationQuery: IQuery
+public class ListPunctuationsQuery: IQuery
 {
-    public Guid LocationId { get; set; }
+    public IEnumerable<Guid>? LocationIds { get; set; }
+
+    [JsonIgnore]
     public (string Email, EUserType UserType) RequestUserInfo { get; private set; }
 
     public void SetRequestUserInfo((string email, EUserType userType) information)
