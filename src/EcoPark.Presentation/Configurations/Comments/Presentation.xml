@@ -351,7 +351,19 @@
             <param name="cancellationToken"></param>
             <returns>Mensagem sobre resultado da operação</returns>
         </member>
-        <member name="M:EcoPark.Presentation.Controllers.PunctuationController.GetList(EcoPark.Domain.Interfaces.Services.IHandler{EcoPark.Application.Punctuation.List.ListPunctuationsQuery,System.Collections.Generic.IEnumerable{EcoPark.Application.Punctuation.Models.PunctuationViewModel}},EcoPark.Application.Punctuation.List.ListPunctuationsQuery,System.Threading.CancellationToken)">
+        <member name="T:EcoPark.Presentation.Controllers.PunctuationController">
+            <summary>
+            Endpoints para Operações relacionadas a Pontuações
+            </summary>
+            <param name="logger"></param>
+        </member>
+        <member name="M:EcoPark.Presentation.Controllers.PunctuationController.#ctor(Microsoft.Extensions.Logging.ILogger{EcoPark.Presentation.Controllers.PunctuationController})">
+            <summary>
+            Endpoints para Operações relacionadas a Pontuações
+            </summary>
+            <param name="logger"></param>
+        </member>
+        <member name="M:EcoPark.Presentation.Controllers.PunctuationController.GetList(EcoPark.Domain.Interfaces.Services.IHandler{EcoPark.Application.Punctuations.List.ListPunctuationsQuery,System.Collections.Generic.IEnumerable{EcoPark.Application.Punctuations.Models.PunctuationViewModel}},EcoPark.Application.Punctuations.List.ListPunctuationsQuery,System.Threading.CancellationToken)">
             <summary>
             Método para listar todas as pontuações que o determinado usuario possui, podendo filtrar por uma lista de Ids
             </summary>
@@ -360,7 +372,7 @@
             <param name="cancellationToken"></param>
             <returns>Lista de Pontuações com suas devidas informações</returns>
         </member>
-        <member name="M:EcoPark.Presentation.Controllers.PunctuationController.GetById(EcoPark.Domain.Interfaces.Services.IHandler{EcoPark.Application.Punctuation.Get.GetPunctuationQuery,EcoPark.Application.Punctuation.Models.PunctuationViewModel},EcoPark.Application.Punctuation.Get.GetPunctuationQuery,System.Threading.CancellationToken)">
+        <member name="M:EcoPark.Presentation.Controllers.PunctuationController.GetById(EcoPark.Domain.Interfaces.Services.IHandler{EcoPark.Application.Punctuations.Get.GetPunctuationQuery,EcoPark.Application.Punctuations.Models.PunctuationViewModel},EcoPark.Application.Punctuations.Get.GetPunctuationQuery,System.Threading.CancellationToken)">
             <summary>
             Método para buscar uma pontuação pelo Id
             </summary>
@@ -444,6 +456,28 @@
             <param name="command"></param>
             <param name="cancellationToken"></param>
             <returns>Mensagem sobre resultado da operação</returns>
+        </member>
+        <member name="T:EcoPark.Presentation.Controllers.RewardController">
+            <summary>
+            Endpoints para Operações relacionadas a Recompensas
+            </summary>
+            <param name="logger"></param>
+        </member>
+        <member name="M:EcoPark.Presentation.Controllers.RewardController.#ctor(Microsoft.Extensions.Logging.ILogger{EcoPark.Presentation.Controllers.RewardController})">
+            <summary>
+            Endpoints para Operações relacionadas a Recompensas
+            </summary>
+            <param name="logger"></param>
+        </member>
+        <member name="M:EcoPark.Presentation.Controllers.RewardController.Insert(EcoPark.Domain.Interfaces.Services.IHandler{EcoPark.Application.Rewards.Insert.InsertRewardCommand,EcoPark.Application.Commons.Models.DatabaseOperationResponseViewModel},EcoPark.Application.Rewards.Insert.InsertRewardCommand,Microsoft.AspNetCore.Http.IFormFile,System.Threading.CancellationToken)">
+            <summary>
+            Método para inserir uma nova recompensa
+            </summary>
+            <param name="handler"></param>
+            <param name="command"></param>
+            <param name="image"></param>
+            <param name="cancellationToken"></param>
+            <returns></returns>
         </member>
     </members>
 </doc>
