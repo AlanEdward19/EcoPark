@@ -1,4 +1,6 @@
-﻿namespace EcoPark.Domain.Aggregates.Client;
+﻿using EcoPark.Domain.DataModels.Client;
+
+namespace EcoPark.Domain.Aggregates.Client;
 
 public class ClientAggregateRoot
 {

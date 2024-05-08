@@ -1,4 +1,6 @@
-﻿namespace EcoPark.Domain.Aggregates.Location;
+﻿using EcoPark.Domain.DataModels.Employee.Location;
+
+namespace EcoPark.Domain.Aggregates.Location;
 
 public class LocationAggregateRoot
 {

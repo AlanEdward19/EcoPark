@@ -1,4 +1,6 @@
-﻿namespace EcoPark.Domain.Aggregates.Location.ParkingSpace;
+﻿using EcoPark.Domain.DataModels.Employee.Location.ParkingSpace;
+
+namespace EcoPark.Domain.Aggregates.Location.ParkingSpace;
 
 public class Reservation(ReservationModel reservationModel)
 {
