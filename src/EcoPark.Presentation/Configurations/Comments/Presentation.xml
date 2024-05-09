@@ -427,7 +427,7 @@
             <param name="handler"></param>
             <param name="query"></param>
             <param name="cancellationToken"></param>
-            <returns>Mensagem sobre resultado da operação</returns>
+            <returns>Informações da Reserva</returns>
         </member>
         <member name="M:EcoPark.Presentation.Controllers.ReservationController.Insert(EcoPark.Domain.Interfaces.Services.IHandler{EcoPark.Application.Reservations.Insert.InsertReservationCommand,EcoPark.Application.Commons.Models.DatabaseOperationResponseViewModel},EcoPark.Application.Reservations.Insert.InsertReservationCommand,System.Threading.CancellationToken)">
             <summary>
@@ -469,6 +469,24 @@
             </summary>
             <param name="logger"></param>
         </member>
+        <member name="M:EcoPark.Presentation.Controllers.RewardController.GetList(EcoPark.Domain.Interfaces.Services.IHandler{EcoPark.Application.Rewards.List.ListRewardsQuery,System.Collections.Generic.IEnumerable{EcoPark.Application.Rewards.Models.RewardViewModel}},EcoPark.Application.Rewards.List.ListRewardsQuery,System.Threading.CancellationToken)">
+            <summary>
+            Método para listar todas as recompensas cadastradas, podendo filtrar por localização e lista de ids
+            </summary>
+            <param name="handler"></param>
+            <param name="query"></param>
+            <param name="cancellationToken"></param>
+            <returns>Lista de recompensas</returns>
+        </member>
+        <member name="M:EcoPark.Presentation.Controllers.RewardController.GetById(EcoPark.Domain.Interfaces.Services.IHandler{EcoPark.Application.Rewards.Get.GetRewardQuery,EcoPark.Application.Rewards.Models.RewardViewModel},EcoPark.Application.Rewards.Get.GetRewardQuery,System.Threading.CancellationToken)">
+            <summary>
+            Método para buscar uma recompensa pelo seu Id
+            </summary>
+            <param name="handler"></param>
+            <param name="query"></param>
+            <param name="cancellationToken"></param>
+            <returns>Informações da Recompensa</returns>
+        </member>
         <member name="M:EcoPark.Presentation.Controllers.RewardController.Insert(EcoPark.Domain.Interfaces.Services.IHandler{EcoPark.Application.Rewards.Insert.InsertRewardCommand,EcoPark.Application.Commons.Models.DatabaseOperationResponseViewModel},EcoPark.Application.Rewards.Insert.InsertRewardCommand,Microsoft.AspNetCore.Http.IFormFile,System.Threading.CancellationToken)">
             <summary>
             Método para inserir uma nova recompensa
@@ -477,7 +495,26 @@
             <param name="command"></param>
             <param name="image"></param>
             <param name="cancellationToken"></param>
-            <returns></returns>
+            <returns>Mensagem sobre resultado da operação</returns>
+        </member>
+        <member name="M:EcoPark.Presentation.Controllers.RewardController.Update(EcoPark.Domain.Interfaces.Services.IHandler{EcoPark.Application.Rewards.Update.UpdateRewardCommand,EcoPark.Application.Commons.Models.DatabaseOperationResponseViewModel},EcoPark.Application.Rewards.Update.UpdateRewardCommand,Microsoft.AspNetCore.Http.IFormFile,System.Threading.CancellationToken)">
+            <summary>
+            Método para atualizar uma recompensa
+            </summary>
+            <param name="handler"></param>
+            <param name="command"></param>
+            <param name="image"></param>
+            <param name="cancellationToken"></param>
+            <returns>Mensagem sobre resultado da operação</returns>
+        </member>
+        <member name="M:EcoPark.Presentation.Controllers.RewardController.Delete(EcoPark.Domain.Interfaces.Services.IHandler{EcoPark.Application.Rewards.Delete.DeleteRewardCommand,EcoPark.Application.Commons.Models.DatabaseOperationResponseViewModel},EcoPark.Application.Rewards.Delete.DeleteRewardCommand,System.Threading.CancellationToken)">
+            <summary>
+            Método para deletar uma recompensa
+            </summary>
+            <param name="handler"></param>
+            <param name="command"></param>
+            <param name="cancellationToken"></param>
+            <returns>Mensagem sobre resultado da operação</returns>
         </member>
     </members>
 </doc>
