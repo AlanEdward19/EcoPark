@@ -104,7 +104,7 @@ public class ReservationController(ILogger<ReservationController> logger) : Cont
     /// <param name="handler"></param>
     /// <param name="query"></param>
     /// <param name="cancellationToken"></param>
-    /// <returns>Mensagem sobre resultado da operação</returns>
+    /// <returns>Informações da Reserva</returns>
     [ProducesResponseType(typeof(ReservationSimplifiedViewModel), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(EntityNotFoundValueObject), StatusCodes.Status404NotFound)]
     [HttpGet]
