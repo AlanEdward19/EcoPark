@@ -1,6 +1,4 @@
-﻿using EcoPark.Domain.Interfaces.Database;
-
-namespace EcoPark.Application.Rewards.Insert;
+﻿namespace EcoPark.Application.Rewards.Insert;
 
 public class InsertRewardCommandHandler(IRepository<RewardModel> repository) : IHandler<InsertRewardCommand, DatabaseOperationResponseViewModel>
 {
@@ -22,7 +20,7 @@ public class InsertRewardCommandHandler(IRepository<RewardModel> repository) : I
                     await repository.UnitOfWork.CommitAsync(cancellationToken);
 
                     result = new DatabaseOperationResponseViewModel("Post", EOperationStatus.Successful,
-                        "Reservation was inserted successfully!");
+                        "Reward was inserted successfully!");
                 }
                 else
                 {
