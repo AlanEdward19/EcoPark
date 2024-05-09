@@ -45,5 +45,6 @@ global using EcoPark.Application.Employees.Insert;
 global using EcoPark.Application.Employees.List;
 global using EcoPark.Application.Employees.Update;
 global using EcoPark.Application.Commons.Base.Commands;
+global using EcoPark.Application.Rewards.Models;
 
 #endregion
