@@ -18,7 +18,10 @@ using EcoPark.Application.Punctuations.Get;
 using EcoPark.Application.Punctuations.List;
 using EcoPark.Application.Punctuations.Models;
 using EcoPark.Application.Reservations.Update.Status;
+using EcoPark.Application.Rewards.Delete;
+using EcoPark.Application.Rewards.Get;
 using EcoPark.Application.Rewards.Insert;
+using EcoPark.Application.Rewards.List;
 using EcoPark.Application.Rewards.Update;
 
 namespace EcoPark.Application;
@@ -66,6 +69,9 @@ public static class ApplicationModule
 
         services.AddScoped<IHandler<GetPunctuationQuery, PunctuationViewModel?>, GetPunctuationQueryHandler>();
         services.AddScoped<IHandler<ListPunctuationsQuery, IEnumerable<PunctuationViewModel>?>, ListPunctuationsQueryHandler>();
+
+        services.AddScoped<IHandler<GetRewardQuery, RewardViewModel?>, GetRewardQueryHandler>();
+        services.AddScoped<IHandler<ListRewardsQuery, IEnumerable<RewardViewModel>>, ListRewardsQueryHandler>();
 
         return services;
     }
@@ -174,8 +180,14 @@ public static class ApplicationModule
 
         #region Reward
 
-        services.AddScoped<IHandler<InsertRewardCommand, DatabaseOperationResponseViewModel>, InsertRewardCommandHandler>();
-        services.AddScoped<IHandler<UpdateRewardCommand, DatabaseOperationResponseViewModel>, UpdateRewardCommandHandler>();
+        services
+            .AddScoped<IHandler<InsertRewardCommand, DatabaseOperationResponseViewModel>, InsertRewardCommandHandler>();
+
+        services
+            .AddScoped<IHandler<UpdateRewardCommand, DatabaseOperationResponseViewModel>, UpdateRewardCommandHandler>();
+
+        services
+            .AddScoped<IHandler<DeleteRewardCommand, DatabaseOperationResponseViewModel>, DeleteRewardCommandHandler>();
 
         #endregion
 
