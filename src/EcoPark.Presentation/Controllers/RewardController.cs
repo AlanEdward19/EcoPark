@@ -1,6 +1,7 @@
 ﻿using EcoPark.Application.Rewards.Delete;
 using EcoPark.Application.Rewards.Get;
 using EcoPark.Application.Rewards.Insert;
+using EcoPark.Application.Rewards.Insert.RedeemReward;
 using EcoPark.Application.Rewards.List;
 using EcoPark.Application.Rewards.Models;
 using EcoPark.Application.Rewards.Update;
@@ -62,6 +63,39 @@ public class RewardController(ILogger<RewardController> logger) : ControllerBase
         var result = await handler.HandleAsync(query, cancellationToken);
 
         return result is not null ? Ok(result) : NotFound(new EntityNotFoundValueObject($"Reward not found"));
+    }
+
+    /// <summary>
+    /// Método para resgatar uma recompensa
+    /// </summary>
+    /// <param name="handler"></param>
+    /// <param name="command"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns>Mensagem sobre resultado da operação</returns>
+    [Tags("Operações de Recompensas")]
+    [ProducesResponseType(typeof(DatabaseOperationResponseViewModel), StatusCodes.Status201Created)]
+    [ProducesResponseType(typeof(DatabaseOperationResponseViewModel), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(DatabaseOperationResponseViewModel), StatusCodes.Status401Unauthorized)]
+    [HttpPost("redeem")]
+    public async Task<IActionResult> RedeemReward(
+        [FromServices] IHandler<RedeemRewardCommand, DatabaseOperationResponseViewModel> handler,
+        [FromBody] RedeemRewardCommand command, CancellationToken cancellationToken)
+    {
+        logger.LogInformation(
+                       $"Method Call: RedeemReward with parameters: \n{string.Join("\n", EntityPropertiesUtilities.GetEntityPropertiesAndValueAsIEnumerable(command))}");
+
+        var requestUserInfo = EntityPropertiesUtilities.GetUserInfo(HttpContext.User);
+        command.SetRequestUserInfo(requestUserInfo);
+
+        var result = await handler.HandleAsync(command, cancellationToken);
+        var status = Enum.Parse<EOperationStatus>(result.Status);
+
+        return status switch
+        {
+            EOperationStatus.Successful => Ok(result),
+            EOperationStatus.Failed => BadRequest(result),
+            EOperationStatus.NotAuthorized => Unauthorized(result)
+        };
     }
 
     /// <summary>

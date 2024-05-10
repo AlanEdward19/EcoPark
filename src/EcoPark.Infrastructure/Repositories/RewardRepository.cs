@@ -21,6 +21,8 @@ public class RewardRepository(DatabaseDbContext databaseDbContext, IUnitOfWork u
         switch (command)
         {
             case InsertRewardCommand insertCommand:
+                if (insertCommand.ExpirationDate != null && insertCommand.ExpirationDate < DateTime.Today) return false;
+
                 location = await databaseDbContext.Locations
                     .AsNoTracking()
                     .FirstOrDefaultAsync(x => x.Id.Equals(insertCommand.LocationId.Value), cancellationToken);
@@ -117,7 +119,7 @@ public class RewardRepository(DatabaseDbContext databaseDbContext, IUnitOfWork u
         return false;
     }
 
-    public async Task<bool> AddAsync(ICommand command, CancellationToken cancellationToken)
+    public async Task<bool> AddAsync(ICommand command, CancellationToken cancellationToken) 
     {
         var parsedCommand = command as InsertRewardCommand;
 

@@ -4,6 +4,9 @@ using EcoPark.Application.Clients.Insert;
 using EcoPark.Application.Clients.List;
 using EcoPark.Application.Clients.Models;
 using EcoPark.Application.Clients.Update;
+using EcoPark.Application.Rewards.List.ListUserRewards;
+using EcoPark.Application.Rewards.Models;
+using EcoPark.Application.Rewards.Update.UseReward;
 
 namespace EcoPark.Presentation.Controllers;
 /// <summary>
@@ -150,5 +153,60 @@ public class ClientController(ILogger<ClientController> logger) : ControllerBase
 
             EOperationStatus.NotAuthorized => Unauthorized(result)
         };
+    }
+
+    /// <summary>
+    /// Método para usar uma recompensa
+    /// </summary>
+    /// <param name="handler"></param>
+    /// <param name="command"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    [Tags("Operações de Recompensas")]
+    [ProducesResponseType(typeof(DatabaseOperationResponseViewModel), StatusCodes.Status201Created)]
+    [ProducesResponseType(typeof(DatabaseOperationResponseViewModel), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(DatabaseOperationResponseViewModel), StatusCodes.Status401Unauthorized)]
+    [HttpPut("useReward")]
+    public async Task<IActionResult> UseReward(
+        [FromServices] IHandler<UseRewardCommand, DatabaseOperationResponseViewModel> handler,
+        [FromBody] UseRewardCommand command, CancellationToken cancellationToken)
+    {
+        logger.LogInformation(
+            $"Method Call: UseReward with parameters: \n{string.Join("\n", EntityPropertiesUtilities.GetEntityPropertiesAndValueAsIEnumerable(command))}");
+
+        var requestUserInfo = EntityPropertiesUtilities.GetUserInfo(HttpContext.User);
+        command.SetRequestUserInfo(requestUserInfo);
+
+        var result = await handler.HandleAsync(command, cancellationToken);
+        var status = Enum.Parse<EOperationStatus>(result.Status);
+
+        return status switch
+        {
+            EOperationStatus.Successful => Ok(result),
+            EOperationStatus.Failed => BadRequest(result),
+            EOperationStatus.NotAuthorized => Unauthorized(result)
+        };
+    }
+
+    /// <summary>
+    /// Método para listar todos as recompensas resgatadas por um usuario
+    /// </summary>
+    /// <param name="handler"></param>
+    /// <param name="query"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns>Lista de recompensas de um usuario</returns>
+    [Tags("Informações de Recompensas")]
+    [HttpPost("Reward/list")]
+    [Authorize(Roles = "Client")]
+    public async Task<IActionResult> GetRewardsList([FromServices] IHandler<ListUserRewardsQuery, IEnumerable<UserRewardViewModel>> handler,
+        [FromBody] ListUserRewardsQuery query, CancellationToken cancellationToken)
+    {
+        logger.LogInformation(
+            $"Method Call: ListRewards [Client] with parameters: \n{string.Join("\n", EntityPropertiesUtilities.GetEntityPropertiesAndValueAsIEnumerable(query))}");
+
+        var requestUserInfo = EntityPropertiesUtilities.GetUserInfo(HttpContext.User);
+        query.SetRequestUserInfo(requestUserInfo);
+
+        return Ok(await handler.HandleAsync(query, cancellationToken));
     }
 }
