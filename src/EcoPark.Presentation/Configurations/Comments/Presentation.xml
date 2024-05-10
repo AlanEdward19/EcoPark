@@ -120,6 +120,24 @@
             <param name="cancellationToken"></param>
             <returns>Mensagem sobre resultado da operação</returns>
         </member>
+        <member name="M:EcoPark.Presentation.Controllers.ClientController.UseReward(EcoPark.Domain.Interfaces.Services.IHandler{EcoPark.Application.Rewards.Update.UseReward.UseRewardCommand,EcoPark.Application.Commons.Models.DatabaseOperationResponseViewModel},EcoPark.Application.Rewards.Update.UseReward.UseRewardCommand,System.Threading.CancellationToken)">
+            <summary>
+            Método para usar uma recompensa
+            </summary>
+            <param name="handler"></param>
+            <param name="command"></param>
+            <param name="cancellationToken"></param>
+            <returns></returns>
+        </member>
+        <member name="M:EcoPark.Presentation.Controllers.ClientController.GetRewardsList(EcoPark.Domain.Interfaces.Services.IHandler{EcoPark.Application.Rewards.List.ListUserRewards.ListUserRewardsQuery,System.Collections.Generic.IEnumerable{EcoPark.Application.Rewards.Models.UserRewardViewModel}},EcoPark.Application.Rewards.List.ListUserRewards.ListUserRewardsQuery,System.Threading.CancellationToken)">
+            <summary>
+            Método para listar todos as recompensas resgatadas por um usuario
+            </summary>
+            <param name="handler"></param>
+            <param name="query"></param>
+            <param name="cancellationToken"></param>
+            <returns>Lista de recompensas de um usuario</returns>
+        </member>
         <member name="T:EcoPark.Presentation.Controllers.EmployeeController">
             <summary>
             Endpoints para Operações relacionadas a Funcionários
@@ -486,6 +504,15 @@
             <param name="query"></param>
             <param name="cancellationToken"></param>
             <returns>Informações da Recompensa</returns>
+        </member>
+        <member name="M:EcoPark.Presentation.Controllers.RewardController.RedeemReward(EcoPark.Domain.Interfaces.Services.IHandler{EcoPark.Application.Rewards.Insert.RedeemReward.RedeemRewardCommand,EcoPark.Application.Commons.Models.DatabaseOperationResponseViewModel},EcoPark.Application.Rewards.Insert.RedeemReward.RedeemRewardCommand,System.Threading.CancellationToken)">
+            <summary>
+            Método para resgatar uma recompensa
+            </summary>
+            <param name="handler"></param>
+            <param name="command"></param>
+            <param name="cancellationToken"></param>
+            <returns>Mensagem sobre resultado da operação</returns>
         </member>
         <member name="M:EcoPark.Presentation.Controllers.RewardController.Insert(EcoPark.Domain.Interfaces.Services.IHandler{EcoPark.Application.Rewards.Insert.InsertRewardCommand,EcoPark.Application.Commons.Models.DatabaseOperationResponseViewModel},EcoPark.Application.Rewards.Insert.InsertRewardCommand,Microsoft.AspNetCore.Http.IFormFile,System.Threading.CancellationToken)">
             <summary>
