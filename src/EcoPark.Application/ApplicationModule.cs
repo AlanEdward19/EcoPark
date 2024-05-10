@@ -21,8 +21,11 @@ using EcoPark.Application.Reservations.Update.Status;
 using EcoPark.Application.Rewards.Delete;
 using EcoPark.Application.Rewards.Get;
 using EcoPark.Application.Rewards.Insert;
+using EcoPark.Application.Rewards.Insert.RedeemReward;
 using EcoPark.Application.Rewards.List;
+using EcoPark.Application.Rewards.List.ListUserRewards;
 using EcoPark.Application.Rewards.Update;
+using EcoPark.Application.Rewards.Update.UseReward;
 
 namespace EcoPark.Application;
 
@@ -72,6 +75,8 @@ public static class ApplicationModule
 
         services.AddScoped<IHandler<GetRewardQuery, RewardViewModel?>, GetRewardQueryHandler>();
         services.AddScoped<IHandler<ListRewardsQuery, IEnumerable<RewardViewModel>>, ListRewardsQueryHandler>();
+
+        services.AddScoped<IHandler<ListUserRewardsQuery, IEnumerable<UserRewardViewModel>>, ListUserRewardsQueryHandler>();
 
         return services;
     }
@@ -184,7 +189,13 @@ public static class ApplicationModule
             .AddScoped<IHandler<InsertRewardCommand, DatabaseOperationResponseViewModel>, InsertRewardCommandHandler>();
 
         services
+            .AddScoped<IHandler<RedeemRewardCommand, DatabaseOperationResponseViewModel>, RedeemRewardCommandHandler>();
+
+        services
             .AddScoped<IHandler<UpdateRewardCommand, DatabaseOperationResponseViewModel>, UpdateRewardCommandHandler>();
+
+        services
+            .AddScoped<IHandler<UseRewardCommand, DatabaseOperationResponseViewModel>, UseRewardCommandHandler>();
 
         services
             .AddScoped<IHandler<DeleteRewardCommand, DatabaseOperationResponseViewModel>, DeleteRewardCommandHandler>();
