@@ -7,6 +7,7 @@ using EcoPark.Application.Clients.Update;
 using EcoPark.Application.Rewards.List.ListUserRewards;
 using EcoPark.Application.Rewards.Models;
 using EcoPark.Application.Rewards.Update.UseReward;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace EcoPark.Presentation.Controllers;
 /// <summary>
@@ -75,10 +76,12 @@ public class ClientController(ILogger<ClientController> logger) : ControllerBase
     [Tags("Operações do Cliente")]
     [HttpPost]
     public async Task<IActionResult> Insert([FromServices] IHandler<InsertClientCommand, DatabaseOperationResponseViewModel> handler,
-        [FromBody] InsertClientCommand command, CancellationToken cancellationToken)
+        [FromQuery] InsertClientCommand command, [FromForm] IFormFile profileImage, CancellationToken cancellationToken)
     {
         logger.LogInformation(
             $"Method Call: InsertClient with parameters: \n{string.Join("\n", EntityPropertiesUtilities.GetEntityPropertiesAndValueAsIEnumerable(command))}");
+
+        await command.SetImage(profileImage, profileImage.FileName, cancellationToken);
 
         return Created(Request.GetDisplayUrl(), await handler.HandleAsync(command, cancellationToken));
     }

@@ -11,9 +11,10 @@ public class EmployeeValueObject
     public string FirstName { get; private set; }
     public string LastName { get; private set; }
     public EUserType UserType { get; private set; }
+    public string? Image { get; private set; }
 
     public EmployeeValueObject(Guid id, string email, string password, string firstName, string lastName,
-        EUserType userType)
+        EUserType userType, string? image)
     {
         Id = id;
         Email = email;
@@ -21,6 +22,7 @@ public class EmployeeValueObject
         FirstName = firstName;
         LastName = lastName;
         UserType = userType;
+        Image = image;
     }
 
     public EmployeeValueObject(EmployeeModel employeeModel)
@@ -31,6 +33,7 @@ public class EmployeeValueObject
         FirstName = employeeModel.Credentials.FirstName;
         LastName = employeeModel.Credentials.LastName;
         UserType = employeeModel.Credentials.UserType;
+        Image = employeeModel.Credentials.Image;
     }
 
     public void UpdateFirstName(string? firstName)
@@ -61,6 +64,12 @@ public class EmployeeValueObject
     {
         if (userType != null && userType != UserType)
             UserType = userType.Value;
+    }
+
+    public void UpdateImage(string? image)
+    {
+        if (!string.IsNullOrWhiteSpace(image))
+            Image = image;
     }
 
     public string GetFullName() => $"{FirstName} {LastName}";

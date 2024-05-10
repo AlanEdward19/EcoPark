@@ -11,7 +11,7 @@ public class ListEmployeesQueryHandler(IRepository<EmployeeModel> repository) : 
         foreach (var employeeModel in employees)
         {
             EmployeeViewModel employee = new(employeeModel.Id, employeeModel.Credentials.Email, employeeModel.Credentials.FirstName, 
-                employeeModel.Credentials.LastName, employeeModel.Credentials.UserType);
+                employeeModel.Credentials.LastName, employeeModel.Credentials.UserType, employeeModel.Credentials.Image);
 
             result.Add(employee);
         }

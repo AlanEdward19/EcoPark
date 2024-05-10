@@ -20,13 +20,13 @@ public class AuthenticationService(IConfiguration configuration) : IAuthenticati
         var claims = new List<Claim>
         {
             new ("userName", email),
-            new (ClaimTypes.Role, role.ToString())
+            new ("role", role.ToString())
         };
 
         var token = new JwtSecurityToken(
             issuer: issuer,
             audience: audience,
-            expires: DateTime.Now.AddMinutes(30),
+            expires: role != EUserType.System ? DateTime.Now.AddMinutes(30) : null,
             signingCredentials: credentials,
             claims: claims);
 

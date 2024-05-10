@@ -92,7 +92,7 @@
             <param name="cancellationToken"></param>
             <returns>Cliente Cadastrado</returns>
         </member>
-        <member name="M:EcoPark.Presentation.Controllers.ClientController.Insert(EcoPark.Domain.Interfaces.Services.IHandler{EcoPark.Application.Clients.Insert.InsertClientCommand,EcoPark.Application.Commons.Models.DatabaseOperationResponseViewModel},EcoPark.Application.Clients.Insert.InsertClientCommand,System.Threading.CancellationToken)">
+        <member name="M:EcoPark.Presentation.Controllers.ClientController.Insert(EcoPark.Domain.Interfaces.Services.IHandler{EcoPark.Application.Clients.Insert.InsertClientCommand,EcoPark.Application.Commons.Models.DatabaseOperationResponseViewModel},EcoPark.Application.Clients.Insert.InsertClientCommand,Microsoft.AspNetCore.Http.IFormFile,System.Threading.CancellationToken)">
             <summary>
             Método para inserir um novo cliente
             </summary>
@@ -169,6 +169,15 @@
             <returns>Funcionario</returns>
         </member>
         <member name="M:EcoPark.Presentation.Controllers.EmployeeController.Insert(EcoPark.Domain.Interfaces.Services.IHandler{EcoPark.Application.Employees.Insert.InsertEmployeeCommand,EcoPark.Application.Commons.Models.DatabaseOperationResponseViewModel},EcoPark.Application.Employees.Insert.InsertEmployeeCommand,System.Threading.CancellationToken)">
+            <summary>
+            Método para inserir um novo funcionário
+            </summary>
+            <param name="handler"></param>
+            <param name="command"></param>
+            <param name="cancellationToken"></param>
+            <returns>Mensagem sobre resultado da operação</returns>
+        </member>
+        <member name="M:EcoPark.Presentation.Controllers.EmployeeController.InsertSystem(EcoPark.Domain.Interfaces.Services.IHandler{EcoPark.Application.Employees.Insert.System.InsertSystemCommand,EcoPark.Application.Commons.Models.DatabaseOperationResponseViewModel},EcoPark.Application.Employees.Insert.System.InsertSystemCommand,System.Threading.CancellationToken)">
             <summary>
             Método para inserir um novo funcionário
             </summary>

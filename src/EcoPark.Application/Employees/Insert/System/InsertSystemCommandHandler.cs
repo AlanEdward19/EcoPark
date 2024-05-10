@@ -1,8 +1,8 @@
-﻿namespace EcoPark.Application.Employees.Insert;
+﻿namespace EcoPark.Application.Employees.Insert.System;
 
-public class InsertEmployeeCommandHandler(IRepository<EmployeeModel> repository) : IHandler<InsertEmployeeCommand, DatabaseOperationResponseViewModel>
+public class InsertSystemCommandHandler(IRepository<EmployeeModel> repository) : IHandler<InsertSystemCommand, DatabaseOperationResponseViewModel>
 {
-    public async Task<DatabaseOperationResponseViewModel> HandleAsync(InsertEmployeeCommand command, CancellationToken cancellationToken)
+    public async Task<DatabaseOperationResponseViewModel> HandleAsync(InsertSystemCommand command, CancellationToken cancellationToken)
     {
         DatabaseOperationResponseViewModel result;
 
@@ -19,12 +19,12 @@ public class InsertEmployeeCommandHandler(IRepository<EmployeeModel> repository)
                     await repository.UnitOfWork.SaveEntitiesAsync(cancellationToken);
                     await repository.UnitOfWork.CommitAsync(cancellationToken);
 
-                    result = new DatabaseOperationResponseViewModel("Post", EOperationStatus.Successful, "Employee was inserted successfully!");
+                    result = new DatabaseOperationResponseViewModel("Post", EOperationStatus.Successful, "System was inserted successfully!");
                 }
                 else
                 {
                     await repository.UnitOfWork.RollbackAsync(cancellationToken);
-                    result = new DatabaseOperationResponseViewModel("Post", EOperationStatus.Failed, "Employee was not inserted!");
+                    result = new DatabaseOperationResponseViewModel("Post", EOperationStatus.Failed, "System was not inserted!");
                 }
             }
             else

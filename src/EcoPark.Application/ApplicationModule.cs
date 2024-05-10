@@ -13,6 +13,7 @@ using EcoPark.Application.Clients.List;
 using EcoPark.Application.Clients.Update;
 using EcoPark.Application.Employees.Delete.GroupAccess;
 using EcoPark.Application.Employees.Insert.GroupAccess;
+using EcoPark.Application.Employees.Insert.System;
 using EcoPark.Application.ParkingSpaces.Update.Status;
 using EcoPark.Application.Punctuations.Get;
 using EcoPark.Application.Punctuations.List;
@@ -128,7 +129,7 @@ public static class ApplicationModule
             .AddScoped<IHandler<UpdateReservationCommand, DatabaseOperationResponseViewModel>,
                 UpdateReservationCommandHandler>();
         services
-            .AddScoped<IHandler<UpdateReservationStatusCommand, DatabaseOperationResponseViewModel>, 
+            .AddScoped<IHandler<UpdateReservationStatusCommand, DatabaseOperationResponseViewModel>,
                 UpdateReservationStatusCommandHandler>();
         services
             .AddScoped<IHandler<DeleteReservationCommand, DatabaseOperationResponseViewModel>,
@@ -141,6 +142,9 @@ public static class ApplicationModule
         services
             .AddScoped<IHandler<InsertEmployeeCommand, DatabaseOperationResponseViewModel>,
                 InsertEmployeeCommandHandler>();
+
+        services
+            .AddScoped<IHandler<InsertSystemCommand, DatabaseOperationResponseViewModel>, InsertSystemCommandHandler>();
 
         services
             .AddScoped<IHandler<InsertEmployeeGroupAccessCommand, DatabaseOperationResponseViewModel>,

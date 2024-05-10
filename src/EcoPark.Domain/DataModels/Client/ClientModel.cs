@@ -27,6 +27,7 @@ public class ClientModel(Guid credentialsId)
         Credentials.Password = clientAggregateRoot.Password;
         Credentials.FirstName = clientAggregateRoot.FirstName;
         Credentials.LastName = clientAggregateRoot.LastName;
+        Credentials.Image = clientAggregateRoot.Image;
         Credentials.UpdatedAt = DateTime.Now;
     }
 }

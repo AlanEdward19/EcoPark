@@ -5,10 +5,14 @@ using EcoPark.Application.Employees.Insert.GroupAccess;
 using EcoPark.Application.Employees.List;
 using EcoPark.Application.Employees.Update;
 using EcoPark.Application.Employees.Delete.GroupAccess;
+using EcoPark.Application.Employees.Insert.System;
+using EcoPark.Domain.Interfaces.Providers;
+using EcoPark.Infrastructure.Providers;
+using EcoPark.Domain.DataModels.Client;
 
 namespace EcoPark.Infrastructure.Repositories;
 
-public class EmployeeRepository(DatabaseDbContext databaseDbContext, IAuthenticationService authenticationService, IUnitOfWork unitOfWork) : IRepository<EmployeeModel>
+public class EmployeeRepository(DatabaseDbContext databaseDbContext, IAuthenticationService authenticationService, IUnitOfWork unitOfWork, IStorageProvider storageProvider) : IRepository<EmployeeModel>
 {
     public IUnitOfWork UnitOfWork { get; } = unitOfWork;
 
@@ -127,6 +131,7 @@ public class EmployeeRepository(DatabaseDbContext databaseDbContext, IAuthentica
     {
         InsertEmployeeCommand insertCommand => await InsertEmployeeAsync(insertCommand, cancellationToken),
         InsertEmployeeGroupAccessCommand insertEmployeeGroupAccessCommand => await InsertEmployeeGroupAccessAsync(insertEmployeeGroupAccessCommand, cancellationToken),
+        InsertSystemCommand insertSystemCommand => await InsertSystemAsync(insertSystemCommand, cancellationToken),
     };
 
     public async Task<bool> UpdateAsync(ICommand command, CancellationToken cancellationToken)
@@ -146,6 +151,34 @@ public class EmployeeRepository(DatabaseDbContext databaseDbContext, IAuthentica
             employeeValueObject.UpdateFirstName(parsedCommand.FirstName);
             employeeValueObject.UpdateLastName(parsedCommand.LastName);
             employeeValueObject.UpdateUserType(parsedCommand.UserType);
+
+            if (parsedCommand.Image != null)
+            {
+                string format = parsedCommand.ImageFileName!.Split('.').Last();
+                string blobName;
+
+                string newFileFormat = parsedCommand.ImageFileName!.Split('.').Last();
+
+                if (string.IsNullOrWhiteSpace(employeeModel.Credentials.Image))
+                    blobName = $"{Guid.NewGuid()}.{format}";
+
+                else
+                {
+                    blobName = employeeModel.Credentials.Image;
+                    var oldFileFormat = employeeModel.Credentials.Image!.Split('.').Last();
+
+                    if (!newFileFormat.Equals(oldFileFormat))
+                    {
+                        string oldFileName = employeeModel.Credentials.Image.Split(".").First();
+                        blobName = $"{oldFileName}.{newFileFormat}";
+                        employeeValueObject.UpdateImage(blobName);
+                    }
+
+                    await storageProvider.DeleteBlobAsync(employeeModel.Credentials.Image, "profiles");
+                }
+
+                await storageProvider.WriteBlobAsync(parsedCommand.Image, blobName, "profiles");
+            }
 
             employeeModel.UpdateBasedOnValueObject(employeeValueObject);
 
@@ -210,7 +243,18 @@ public class EmployeeRepository(DatabaseDbContext databaseDbContext, IAuthentica
 
     private async Task<bool> InsertEmployeeAsync(InsertEmployeeCommand command, CancellationToken cancellationToken)
     {
-        EmployeeModel employeeModel = command.ToModel(authenticationService);
+        string? blobFileName = null;
+
+        if (command.Image != null)
+        {
+            Guid imageId = Guid.NewGuid();
+            string format = command.ImageFileName.Split('.').Last();
+            blobFileName = $"{imageId}.{format}";
+
+            await storageProvider.WriteBlobAsync(command.Image, blobFileName, "profiles");
+        }
+
+        EmployeeModel employeeModel = command.ToModel(authenticationService, blobFileName, null);
 
         await databaseDbContext.Employees.AddAsync(employeeModel, cancellationToken);
 
@@ -221,6 +265,22 @@ public class EmployeeRepository(DatabaseDbContext databaseDbContext, IAuthentica
     {
         await databaseDbContext.GroupAccesses
             .AddAsync(new GroupAccessModel(command.LocationId, command.EmployeeId), cancellationToken);
+
+        return true;
+    }
+
+    private async Task<bool> InsertSystemAsync(InsertSystemCommand command, CancellationToken cancellationToken)
+    {
+        string email = command.RequestUserInfo.Email;
+
+        EmployeeModel administratorModel = await databaseDbContext.Employees
+            .Include(x => x.Credentials)
+            .FirstAsync(e => e.Credentials.Email.Equals(email), cancellationToken);
+
+        EmployeeModel employeeModel = command.ToModel(authenticationService, administratorModel.Id, command.Ipv4);
+
+        await databaseDbContext.Employees.AddAsync(employeeModel, cancellationToken);
+
         return true;
     }
 
@@ -243,7 +303,7 @@ public class EmployeeRepository(DatabaseDbContext databaseDbContext, IAuthentica
         GroupAccessModel? groupAccessModel = await databaseDbContext.GroupAccesses
             .FirstOrDefaultAsync(x => x.EmployeeId == command.EmployeeId && x.LocationId == command.LocationId,
                 cancellationToken);
-        
+
         if (groupAccessModel == null) return false;
 
         databaseDbContext.GroupAccesses.Remove(groupAccessModel);
