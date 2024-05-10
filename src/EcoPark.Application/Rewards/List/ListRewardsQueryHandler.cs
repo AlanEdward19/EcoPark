@@ -12,9 +12,8 @@ public class ListRewardsQueryHandler(IRepository<RewardModel> repository) : IHan
 
         foreach (var reward in rewards)
         {
-            RewardViewModel rewardModel = new(reward.Name, reward.Description, reward.AvailableQuantity,
-                reward.RequiredPoints, reward.Image,
-                reward.ExpirationDate);
+            RewardViewModel rewardModel = new(reward.Id, reward.Name, reward.Description, reward.AvailableQuantity,
+                reward.RequiredPoints, reward.Url, reward.Image, reward.ExpirationDate);
 
             result.Add(rewardModel);
         }

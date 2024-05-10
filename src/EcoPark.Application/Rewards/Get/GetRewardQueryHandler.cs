@@ -8,8 +8,8 @@ public class GetRewardQueryHandler(IRepository<RewardModel> repository) : IHandl
         var reward = await repository.GetByIdAsync(command, cancellationToken);
 
         if (reward != null)
-            result = new(reward.Name, reward.Description, reward.AvailableQuantity, reward.RequiredPoints, reward.Image,
-                reward.ExpirationDate);
+            result = new(reward.Id, reward.Name, reward.Description, reward.AvailableQuantity,
+                reward.RequiredPoints, reward.Url, reward.Image, reward.ExpirationDate);
 
         return result;
     }
