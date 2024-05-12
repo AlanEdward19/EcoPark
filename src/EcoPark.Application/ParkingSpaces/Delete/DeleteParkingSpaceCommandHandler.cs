@@ -1,43 +1,49 @@
 ﻿namespace EcoPark.Application.ParkingSpaces.Delete;
 
-public class DeleteParkingSpaceCommandHandler(IAggregateRepository<ParkingSpaceModel> repository) : IHandler<DeleteParkingSpaceCommand, DatabaseOperationResponseViewModel>
+public class DeleteParkingSpaceCommandHandler(IRepository<ParkingSpaceModel> repository) : IHandler<DeleteParkingSpaceCommand, DatabaseOperationResponseViewModel>
 {
     public async Task<DatabaseOperationResponseViewModel> HandleAsync(DeleteParkingSpaceCommand command,
         CancellationToken cancellationToken)
     {
-        DatabaseOperationResponseViewModel result;
+        DatabaseOperationResponseViewModel result = new(EOperationStatus.Failed, "AAAAA");
 
         try
         {
-            if (await repository.CheckChangePermissionAsync(command, cancellationToken))
+            EOperationStatus status = await repository.CheckChangePermissionAsync(command, cancellationToken);
+
+            switch (status)
             {
-                await repository.UnitOfWork.StartAsync(cancellationToken);
+                case EOperationStatus.Successful:
+                    await repository.UnitOfWork.StartAsync(cancellationToken);
 
-                var databaseOperationResult = await repository.DeleteAsync(command, cancellationToken);
+                    await repository.DeleteAsync(command, cancellationToken);
 
-                if (databaseOperationResult)
-                {
                     await repository.UnitOfWork.SaveEntitiesAsync(cancellationToken);
                     await repository.UnitOfWork.CommitAsync(cancellationToken);
 
-                    result = new DatabaseOperationResponseViewModel("Delete", EOperationStatus.Successful,
-                        "Parking space was deleted successfully!");
-                }
-                else
-                {
-                    await repository.UnitOfWork.RollbackAsync(cancellationToken);
-                    result = new DatabaseOperationResponseViewModel("Delete", EOperationStatus.Failed,
-                        "No Parking space were found with this id");
-                }
+                    result = new DatabaseOperationResponseViewModel(EOperationStatus.Successful,
+                                                   "Parking space was deleted successfully!");
+
+                    break;
+
+                case EOperationStatus.NotAuthorized:
+                    result = new DatabaseOperationResponseViewModel(EOperationStatus.NotAuthorized,
+                                               "You have no permission to delete this parking space");
+                    break;
+
+                case EOperationStatus.Failed:
+                    break;
+
+                case EOperationStatus.NotFound:
+                    result = new DatabaseOperationResponseViewModel(EOperationStatus.NotFound,
+                        "Parking space not found");
+                    break;
             }
-            else
-                result = new DatabaseOperationResponseViewModel("Delete", EOperationStatus.NotAuthorized,
-                                       "You have no permission to delete this parking space");
         }
         catch (Exception e)
         {
             await repository.UnitOfWork.RollbackAsync(cancellationToken);
-            result = new DatabaseOperationResponseViewModel("Delete", EOperationStatus.Failed, e.Message);
+            result = new DatabaseOperationResponseViewModel(EOperationStatus.Failed, e.Message);
         }
 
         return result;

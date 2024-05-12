@@ -8,12 +8,12 @@ namespace EcoPark.Infrastructure.Repositories
     {
         public IUnitOfWork UnitOfWork { get; } = unitOfWork;
 
-        public async Task<bool> CheckChangePermissionAsync(ICommand command, CancellationToken cancellationToken)
+        public async Task<EOperationStatus> CheckChangePermissionAsync(ICommand command, CancellationToken cancellationToken)
         {
             throw new NotImplementedException();
         }
 
-        public async Task<bool> AddAsync(ICommand command, CancellationToken cancellationToken)
+        public async Task AddAsync(ICommand command, CancellationToken cancellationToken)
         {
             var parsedCommand = command as PunctuationCommand;
 
@@ -21,29 +21,23 @@ namespace EcoPark.Infrastructure.Repositories
                 new(parsedCommand.ClientId, parsedCommand.LocationId, parsedCommand.Punctuation);
 
             await databaseDbContext.Punctuations.AddAsync(punctuation, cancellationToken);
-
-            return true;
         }
 
-        public async Task<bool> UpdateAsync(ICommand command, CancellationToken cancellationToken)
+        public async Task UpdateAsync(ICommand command, CancellationToken cancellationToken)
         {
             var parsedCommand = command as PunctuationCommand;
 
-            PunctuationModel? punctuation = await databaseDbContext.Punctuations
-                .FirstOrDefaultAsync(
+            PunctuationModel punctuation = await databaseDbContext.Punctuations
+                .FirstAsync(
                     p => p.ClientId == parsedCommand.ClientId && p.LocationId == parsedCommand.LocationId,
                     cancellationToken);
-
-            if (punctuation == null) return false;
 
             punctuation.Punctuation += parsedCommand.Punctuation;
 
             databaseDbContext.Punctuations.Update(punctuation);
-
-            return true;
         }
 
-        public async Task<bool> DeleteAsync(ICommand command, CancellationToken cancellationToken)
+        public async Task DeleteAsync(ICommand command, CancellationToken cancellationToken)
         {
             throw new NotImplementedException();
         }

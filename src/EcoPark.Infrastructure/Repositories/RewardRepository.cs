@@ -11,7 +11,7 @@ public class RewardRepository(DatabaseDbContext databaseDbContext, IUnitOfWork u
 {
     public IUnitOfWork UnitOfWork { get; } = unitOfWork;
 
-    public async Task<bool> CheckChangePermissionAsync(ICommand command, CancellationToken cancellationToken)
+    public async Task<EOperationStatus> CheckChangePermissionAsync(ICommand command, CancellationToken cancellationToken)
     {
         EmployeeModel? owner;
         LocationModel? location;
@@ -21,13 +21,11 @@ public class RewardRepository(DatabaseDbContext databaseDbContext, IUnitOfWork u
         switch (command)
         {
             case InsertRewardCommand insertCommand:
-                if (insertCommand.ExpirationDate != null && insertCommand.ExpirationDate < DateTime.Today) return false;
-
                 location = await databaseDbContext.Locations
                     .AsNoTracking()
                     .FirstOrDefaultAsync(x => x.Id.Equals(insertCommand.LocationId.Value), cancellationToken);
 
-                if (location == null) return false;
+                if (location == null) return EOperationStatus.NotFound;
 
                 owner = await databaseDbContext.Employees
                     .Include(x => x.Credentials)
@@ -37,9 +35,7 @@ public class RewardRepository(DatabaseDbContext databaseDbContext, IUnitOfWork u
                     .AsSplitQuery()
                     .FirstOrDefaultAsync(x => x.Id.Equals(location.OwnerId), cancellationToken);
 
-                if (owner == null) return false;
-
-                if (owner.Credentials.Email.Equals(requestUserInfo.Email)) return true;
+                if (owner!.Credentials.Email.Equals(requestUserInfo.Email)) return EOperationStatus.Successful;
 
                 if (owner.Employees.Select(x => x.Credentials.Email).Contains(requestUserInfo.Email))
                 {
@@ -48,7 +44,9 @@ public class RewardRepository(DatabaseDbContext databaseDbContext, IUnitOfWork u
                         .Include(x => x.GroupAccesses)
                         .FirstOrDefaultAsync(x => x.Credentials.Email.Equals(requestUserInfo.Email), cancellationToken))!;
 
-                    return employeeModel.GroupAccesses.Any(x => x.LocationId.Equals(location.Id));
+                    return employeeModel.GroupAccesses.Any(x => x.LocationId.Equals(location.Id))
+                        ? EOperationStatus.Successful
+                        : EOperationStatus.NotAuthorized;
                 }
 
                 break;
@@ -58,7 +56,7 @@ public class RewardRepository(DatabaseDbContext databaseDbContext, IUnitOfWork u
                     .Include(x => x.Location)
                     .FirstOrDefaultAsync(x => x.Id.Equals(updateCommand.Id), cancellationToken);
 
-                if (reward == null) return false;
+                if (reward == null) return EOperationStatus.NotFound;
 
                 owner = await databaseDbContext.Employees
                     .Include(x => x.Credentials)
@@ -68,9 +66,7 @@ public class RewardRepository(DatabaseDbContext databaseDbContext, IUnitOfWork u
                     .AsSplitQuery()
                     .FirstOrDefaultAsync(x => x.Id.Equals(reward.Location.OwnerId), cancellationToken);
 
-                if (owner == null) return false;
-
-                if (owner.Credentials.Email.Equals(requestUserInfo.Email)) return true;
+                if (owner.Credentials.Email.Equals(requestUserInfo.Email)) return EOperationStatus.Successful;
 
                 if (owner.Employees.Select(x => x.Credentials.Email).Contains(requestUserInfo.Email))
                 {
@@ -79,7 +75,9 @@ public class RewardRepository(DatabaseDbContext databaseDbContext, IUnitOfWork u
                         .Include(x => x.GroupAccesses)
                         .FirstOrDefaultAsync(x => x.Credentials.Email.Equals(requestUserInfo.Email), cancellationToken))!;
 
-                    return employeeModel.GroupAccesses.Any(x => x.LocationId.Equals(reward.Location.Id));
+                    return employeeModel.GroupAccesses.Any(x => x.LocationId.Equals(reward.Location.Id))
+                        ? EOperationStatus.Successful
+                        : EOperationStatus.NotAuthorized;
                 }
 
                 break;
@@ -89,7 +87,7 @@ public class RewardRepository(DatabaseDbContext databaseDbContext, IUnitOfWork u
                     .Include(x => x.Location)
                     .FirstOrDefaultAsync(x => x.Id.Equals(deleteCommand.Id), cancellationToken);
 
-                if (reward == null) return false;
+                if (reward == null) return EOperationStatus.NotFound;
 
                 owner = await databaseDbContext.Employees
                     .Include(x => x.Credentials)
@@ -99,9 +97,7 @@ public class RewardRepository(DatabaseDbContext databaseDbContext, IUnitOfWork u
                     .AsSplitQuery()
                     .FirstOrDefaultAsync(x => x.Id.Equals(reward.Location.OwnerId), cancellationToken);
 
-                if (owner == null) return false;
-
-                if (owner.Credentials.Email.Equals(requestUserInfo.Email)) return true;
+                if (owner.Credentials.Email.Equals(requestUserInfo.Email)) return EOperationStatus.Successful;
 
                 if (owner.Employees.Select(x => x.Credentials.Email).Contains(requestUserInfo.Email))
                 {
@@ -110,16 +106,18 @@ public class RewardRepository(DatabaseDbContext databaseDbContext, IUnitOfWork u
                         .Include(x => x.GroupAccesses)
                         .FirstOrDefaultAsync(x => x.Credentials.Email.Equals(requestUserInfo.Email), cancellationToken))!;
 
-                    return employeeModel.GroupAccesses.Any(x => x.LocationId.Equals(reward.Location.Id));
+                    return employeeModel.GroupAccesses.Any(x => x.LocationId.Equals(reward.Location.Id))
+                        ? EOperationStatus.Successful
+                        : EOperationStatus.NotAuthorized;
                 }
 
                 break;
         }
 
-        return false;
+        return EOperationStatus.NotAuthorized;
     }
 
-    public async Task<bool> AddAsync(ICommand command, CancellationToken cancellationToken) 
+    public async Task AddAsync(ICommand command, CancellationToken cancellationToken)
     {
         var parsedCommand = command as InsertRewardCommand;
 
@@ -134,71 +132,58 @@ public class RewardRepository(DatabaseDbContext databaseDbContext, IUnitOfWork u
             parsedCommand.LocationId!.Value);
 
         await databaseDbContext.Rewards.AddAsync(reward, cancellationToken);
-
-        return true;
     }
 
-    public async Task<bool> UpdateAsync(ICommand command, CancellationToken cancellationToken)
+    public async Task UpdateAsync(ICommand command, CancellationToken cancellationToken)
     {
         var parsedCommand = command as UpdateRewardCommand;
 
-        RewardModel? reward = await databaseDbContext.Rewards
+        RewardModel reward = await databaseDbContext.Rewards
             .Include(x => x.Location)
-            .FirstOrDefaultAsync(e => e.Id == parsedCommand.Id, cancellationToken);
+            .FirstAsync(e => e.Id == parsedCommand.Id, cancellationToken);
 
-        if (reward != null)
+        RewardValueObject rewardValueObject = new(reward);
+
+        rewardValueObject.UpdateName(parsedCommand.Name);
+        rewardValueObject.UpdateDescription(parsedCommand.Description);
+        rewardValueObject.UpdateAvailableQuantity(parsedCommand.AvailableQuantity);
+        rewardValueObject.UpdateRequiredPoints(parsedCommand.RequiredPoints);
+        rewardValueObject.UpdateIsActive(parsedCommand.IsActive);
+        rewardValueObject.UpdateUrl(parsedCommand.Url);
+        rewardValueObject.UpdateExpirationDate(parsedCommand.ExpirationDate);
+
+        if (parsedCommand.Image != null)
         {
-            RewardValueObject rewardValueObject = new(reward);
+            string blobName = reward.Image;
+            string newFileFormat = parsedCommand.ImageFileName!.Split('.').Last();
+            string oldFileFormat = reward.Image.Split('.').Last();
 
-            rewardValueObject.UpdateName(parsedCommand.Name);
-            rewardValueObject.UpdateDescription(parsedCommand.Description);
-            rewardValueObject.UpdateAvailableQuantity(parsedCommand.AvailableQuantity);
-            rewardValueObject.UpdateRequiredPoints(parsedCommand.RequiredPoints);
-            rewardValueObject.UpdateIsActive(parsedCommand.IsActive);
-            rewardValueObject.UpdateUrl(parsedCommand.Url);
-            rewardValueObject.UpdateExpirationDate(parsedCommand.ExpirationDate);
-
-            if (parsedCommand.Image != null)
+            if (!newFileFormat.Equals(oldFileFormat))
             {
-                string blobName = reward.Image;
-                string newFileFormat = parsedCommand.ImageFileName!.Split('.').Last();
-                string oldFileFormat = reward.Image.Split('.').Last();
+                string oldFileName = reward.Image.Split(".").First();
+                blobName = $"{oldFileName}.{newFileFormat}";
 
-                if (!newFileFormat.Equals(oldFileFormat))
-                {
-                    string oldFileName = reward.Image.Split(".").First();
-                    blobName = $"{oldFileName}.{newFileFormat}";
-
-                    rewardValueObject.UpdateImage(blobName);
-                }
-
-                await storageProvider.DeleteBlobAsync(reward.Image, "rewards");
-                await storageProvider.WriteBlobAsync(parsedCommand.Image, blobName, "rewards");
+                rewardValueObject.UpdateImage(blobName);
             }
 
-            reward.UpdateBasedOnValueObject(rewardValueObject);
-            databaseDbContext.Rewards.Update(reward);
-
-            return true;
+            await storageProvider.DeleteBlobAsync(reward.Image, "rewards");
+            await storageProvider.WriteBlobAsync(parsedCommand.Image, blobName, "rewards");
         }
 
-        return false;
+        reward.UpdateBasedOnValueObject(rewardValueObject);
+        databaseDbContext.Rewards.Update(reward);
     }
 
-    public async Task<bool> DeleteAsync(ICommand command, CancellationToken cancellationToken)
+    public async Task DeleteAsync(ICommand command, CancellationToken cancellationToken)
     {
         var parsedCommand = command as DeleteRewardCommand;
 
-        RewardModel? reward = await databaseDbContext.Rewards
+        RewardModel reward = await databaseDbContext.Rewards
             .Include(x => x.Location)
-            .FirstOrDefaultAsync(e => e.Id == parsedCommand.Id, cancellationToken);
-
-        if (reward == null) return false;
+            .FirstAsync(e => e.Id == parsedCommand.Id, cancellationToken);
 
         await storageProvider.DeleteBlobAsync(reward.Image, "rewards");
         databaseDbContext.Rewards.Remove(reward);
-
-        return true;
     }
 
     public async Task<RewardModel?> GetByIdAsync(IQuery query, CancellationToken cancellationToken)

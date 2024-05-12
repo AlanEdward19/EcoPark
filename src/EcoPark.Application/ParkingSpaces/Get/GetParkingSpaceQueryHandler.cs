@@ -1,6 +1,6 @@
 ﻿namespace EcoPark.Application.ParkingSpaces.Get;
 
-public class GetParkingSpaceQueryHandler(IAggregateRepository<ParkingSpaceModel> repository) : IHandler<GetParkingSpaceQuery, ParkingSpaceSimplifiedViewModel?>
+public class GetParkingSpaceQueryHandler(IRepository<ParkingSpaceModel> repository) : IHandler<GetParkingSpaceQuery, ParkingSpaceSimplifiedViewModel?>
 {
     public async Task<ParkingSpaceSimplifiedViewModel?> HandleAsync(GetParkingSpaceQuery command,
         CancellationToken cancellationToken)

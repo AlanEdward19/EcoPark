@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace EcoPark.Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class DatabaseRefactor : Migration
+    public partial class v100 : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -22,30 +22,13 @@ namespace EcoPark.Infrastructure.Migrations
                     LastName = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     UserType = table.Column<int>(type: "int", nullable: false),
                     Ipv4 = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Image = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Credentials", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Administrators",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    CredentialsId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Administrators", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_Administrators_Credentials_CredentialsId",
-                        column: x => x.CredentialsId,
-                        principalTable: "Credentials",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -78,42 +61,16 @@ namespace EcoPark.Infrastructure.Migrations
                 {
                     table.PrimaryKey("PK_Employees", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Employees_Administrators_AdministratorId",
-                        column: x => x.AdministratorId,
-                        principalTable: "Administrators",
-                        principalColumn: "Id");
-                    table.ForeignKey(
                         name: "FK_Employees_Credentials_CredentialsId",
                         column: x => x.CredentialsId,
                         principalTable: "Credentials",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Locations",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    OwnerId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Address = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    ReservationGraceInMinutes = table.Column<int>(type: "int", nullable: false),
-                    CancellationFeeRate = table.Column<double>(type: "float", nullable: false),
-                    ReservationFeeRate = table.Column<double>(type: "float", nullable: false),
-                    HourlyParkingRate = table.Column<double>(type: "float", nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Locations", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Locations_Administrators_OwnerId",
-                        column: x => x.OwnerId,
-                        principalTable: "Administrators",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        name: "FK_Employees_Employees_AdministratorId",
+                        column: x => x.AdministratorId,
+                        principalTable: "Employees",
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -143,12 +100,38 @@ namespace EcoPark.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Locations",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    OwnerId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Address = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    ReservationGraceInMinutes = table.Column<int>(type: "int", nullable: false),
+                    CancellationFeeRate = table.Column<double>(type: "float", nullable: false),
+                    ReservationFeeRate = table.Column<double>(type: "float", nullable: false),
+                    HourlyParkingRate = table.Column<double>(type: "float", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Locations", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Locations_Employees_OwnerId",
+                        column: x => x.OwnerId,
+                        principalTable: "Employees",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "GroupAccesses",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     LocationId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    EmployeeModelId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    EmployeeId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
@@ -156,10 +139,11 @@ namespace EcoPark.Infrastructure.Migrations
                 {
                     table.PrimaryKey("PK_GroupAccesses", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_GroupAccesses_Employees_EmployeeModelId",
-                        column: x => x.EmployeeModelId,
+                        name: "FK_GroupAccesses_Employees_EmployeeId",
+                        column: x => x.EmployeeId,
                         principalTable: "Employees",
-                        principalColumn: "Id");
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
                         name: "FK_GroupAccesses_Locations_LocationId",
                         column: x => x.LocationId,
@@ -193,6 +177,61 @@ namespace EcoPark.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Punctuations",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    ClientId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    LocationId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Punctuation = table.Column<double>(type: "float", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Punctuations", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Punctuations_Clients_ClientId",
+                        column: x => x.ClientId,
+                        principalTable: "Clients",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_Punctuations_Locations_LocationId",
+                        column: x => x.LocationId,
+                        principalTable: "Locations",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Rewards",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    AvailableQuantity = table.Column<int>(type: "int", nullable: true),
+                    RequiredPoints = table.Column<double>(type: "float", nullable: false),
+                    IsActive = table.Column<bool>(type: "bit", nullable: false),
+                    Url = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Image = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    ExpirationDate = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    LocationId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Rewards", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Rewards_Locations_LocationId",
+                        column: x => x.LocationId,
+                        principalTable: "Locations",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Reservations",
                 columns: table => new
                 {
@@ -201,6 +240,7 @@ namespace EcoPark.Infrastructure.Migrations
                     ClientId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     CarId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     ReservationCode = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Punctuation = table.Column<double>(type: "float", nullable: false),
                     Status = table.Column<int>(type: "int", nullable: false),
                     ReservationDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     ExpirationDate = table.Column<DateTime>(type: "datetime2", nullable: false),
@@ -228,15 +268,47 @@ namespace EcoPark.Infrastructure.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
-            migrationBuilder.CreateIndex(
-                name: "IX_Administrators_CredentialsId",
-                table: "Administrators",
-                column: "CredentialsId");
+            migrationBuilder.CreateTable(
+                name: "ClientClaimedRewards",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    ClientId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    RewardId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    IsUsed = table.Column<bool>(type: "bit", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ClientClaimedRewards", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_ClientClaimedRewards_Clients_ClientId",
+                        column: x => x.ClientId,
+                        principalTable: "Clients",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_ClientClaimedRewards_Rewards_RewardId",
+                        column: x => x.RewardId,
+                        principalTable: "Rewards",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
 
             migrationBuilder.CreateIndex(
                 name: "IX_Cars_ClientId",
                 table: "Cars",
                 column: "ClientId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ClientClaimedRewards_ClientId",
+                table: "ClientClaimedRewards",
+                column: "ClientId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ClientClaimedRewards_RewardId",
+                table: "ClientClaimedRewards",
+                column: "RewardId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Clients_CredentialsId",
@@ -254,9 +326,9 @@ namespace EcoPark.Infrastructure.Migrations
                 column: "CredentialsId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_GroupAccesses_EmployeeModelId",
+                name: "IX_GroupAccesses_EmployeeId",
                 table: "GroupAccesses",
-                column: "EmployeeModelId");
+                column: "EmployeeId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_GroupAccesses_LocationId",
@@ -275,6 +347,16 @@ namespace EcoPark.Infrastructure.Migrations
                 column: "LocationId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Punctuations_ClientId",
+                table: "Punctuations",
+                column: "ClientId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Punctuations_LocationId",
+                table: "Punctuations",
+                column: "LocationId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Reservations_CarId",
                 table: "Reservations",
                 column: "CarId");
@@ -288,19 +370,30 @@ namespace EcoPark.Infrastructure.Migrations
                 name: "IX_Reservations_ParkingSpaceId",
                 table: "Reservations",
                 column: "ParkingSpaceId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Rewards_LocationId",
+                table: "Rewards",
+                column: "LocationId");
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
+                name: "ClientClaimedRewards");
+
+            migrationBuilder.DropTable(
                 name: "GroupAccesses");
+
+            migrationBuilder.DropTable(
+                name: "Punctuations");
 
             migrationBuilder.DropTable(
                 name: "Reservations");
 
             migrationBuilder.DropTable(
-                name: "Employees");
+                name: "Rewards");
 
             migrationBuilder.DropTable(
                 name: "Cars");
@@ -315,7 +408,7 @@ namespace EcoPark.Infrastructure.Migrations
                 name: "Locations");
 
             migrationBuilder.DropTable(
-                name: "Administrators");
+                name: "Employees");
 
             migrationBuilder.DropTable(
                 name: "Credentials");

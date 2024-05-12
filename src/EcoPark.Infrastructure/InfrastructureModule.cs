@@ -32,12 +32,12 @@ public static class InfrastructureModule
 
     private static IServiceCollection ConfigureRepositories(this IServiceCollection services)
     {
-        services.AddScoped<IAggregateRepository<LocationModel>, LocationRepository>();
-        services.AddScoped<IAggregateRepository<ParkingSpaceModel>, ParkingSpaceRepository>();
+        services.AddScoped<IRepository<LocationModel>, LocationRepository>();
+        services.AddScoped<IRepository<ParkingSpaceModel>, ParkingSpaceRepository>();
         services.AddScoped<IRepository<EmployeeModel>, EmployeeRepository>();
         services.AddScoped<IRepository<ReservationModel>, ReservationRepository>();
         services.AddScoped<IRepository<CredentialsModel>, LoginRepository>();
-        services.AddScoped<IAggregateRepository<ClientModel>, ClientRepository>();
+        services.AddScoped<IRepository<ClientModel>, ClientRepository>();
         services.AddScoped<IRepository<CarModel>, CarRepository>();
         services.AddScoped<IRepository<PunctuationModel>, PunctuationRepository>();
         services.AddScoped<IRepository<RewardModel>, RewardRepository>();

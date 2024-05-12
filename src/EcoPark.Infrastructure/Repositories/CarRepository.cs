@@ -3,7 +3,6 @@ using EcoPark.Application.Cars.Get;
 using EcoPark.Application.Cars.Insert;
 using EcoPark.Application.Cars.List;
 using EcoPark.Application.Cars.Update;
-using EcoPark.Domain.Aggregates.Client;
 
 namespace EcoPark.Infrastructure.Repositories;
 
@@ -11,105 +10,107 @@ public class CarRepository(DatabaseDbContext databaseDbContext, IUnitOfWork unit
 {
     public IUnitOfWork UnitOfWork { get; } = unitOfWork;
 
-    public async Task<bool> CheckChangePermissionAsync(ICommand command, CancellationToken cancellationToken)
+    public async Task<EOperationStatus> CheckChangePermissionAsync(ICommand command, CancellationToken cancellationToken)
     {
         CarModel? carModel = null;
         var requestUserInfo = command.RequestUserInfo;
 
-        switch (command.GetType().Name)
+        switch (command)
         {
-            case nameof(UpdateCarCommand):
-                var parsedUpdateCommand = command as UpdateCarCommand;
+            case InsertCarCommand insertCommand:
+
+                ClientModel? clientModel = await databaseDbContext.Clients
+                    .AsNoTracking()
+                    .Include(x => x.Credentials)
+                    .FirstOrDefaultAsync(e => e.Credentials.Email.Equals(requestUserInfo.Email),
+                        cancellationToken);
+
+                if (clientModel == null) return EOperationStatus.Failed;
+
+                return EOperationStatus.Successful;
+
+            case UpdateCarCommand updateCommand:
 
                 carModel = await databaseDbContext.Cars
                     .AsNoTracking()
                     .AsSplitQuery()
                     .Include(x => x.Client)
                     .ThenInclude(x => x.Credentials)
-                    .FirstOrDefaultAsync(e => e.Id == parsedUpdateCommand.CarId &&
-                                              e.Client.Credentials.Email.Equals(requestUserInfo.Email),
-                        cancellationToken);
+                    .FirstOrDefaultAsync(e => e.Id == updateCommand.CarId, cancellationToken);
+
+                if(carModel == null) return EOperationStatus.NotFound;
+
+                if (!carModel.Client.Credentials.Email.Equals(requestUserInfo.Email))
+                    return EOperationStatus.NotAuthorized;
 
                 break;
 
-            case nameof(DeleteCarCommand):
-                var parsedDeleteCommand = command as DeleteCarCommand;
+            case DeleteCarCommand deleteCommand:
 
                 carModel = await databaseDbContext.Cars
                     .AsNoTracking()
                     .AsSplitQuery()
                     .Include(x => x.Client)
                     .ThenInclude(x => x.Credentials)
-                    .FirstOrDefaultAsync(e => e.Id == parsedDeleteCommand.Id &&
-                                              e.Client.Credentials.Email.Equals(requestUserInfo.Email),
-                        cancellationToken);
+                    .FirstOrDefaultAsync(e => e.Id == deleteCommand.Id, cancellationToken);
+
+                if (carModel == null) return EOperationStatus.NotFound;
+
+                if (!carModel.Client.Credentials.Email.Equals(requestUserInfo.Email))
+                    return EOperationStatus.NotAuthorized;
 
                 break;
         }
 
-        return carModel != null;
+        return EOperationStatus.Failed;
     }
 
-    public async Task<bool> AddAsync(ICommand command, CancellationToken cancellationToken)
+    public async Task AddAsync(ICommand command, CancellationToken cancellationToken)
     {
         var parsedCommand = command as InsertCarCommand;
 
         var requestUserInfo = command.RequestUserInfo;
 
-        ClientModel? clientModel = await databaseDbContext.Clients
+        ClientModel clientModel = await databaseDbContext.Clients
             .AsNoTracking()
             .Include(x => x.Credentials)
-            .FirstOrDefaultAsync(e => e.Credentials.Email.Equals(requestUserInfo.Email),
+            .FirstAsync(e => e.Credentials.Email.Equals(requestUserInfo.Email),
                 cancellationToken);
-
-        if (clientModel == null) return false;
 
         CarModel carModel = parsedCommand!.ToModel(clientModel.Id);
 
         await databaseDbContext.Cars.AddAsync(carModel, cancellationToken);
-
-        return true;
     }
 
-    public async Task<bool> UpdateAsync(ICommand command, CancellationToken cancellationToken)
+    public async Task UpdateAsync(ICommand command, CancellationToken cancellationToken)
     {
         var parsedCommand = command as UpdateCarCommand;
 
-        CarModel? carModel = await databaseDbContext.Cars
-            .FirstOrDefaultAsync(e => e.Id == parsedCommand.CarId, cancellationToken);
+        CarModel carModel = await databaseDbContext.Cars
+            .FirstAsync(e => e.Id == parsedCommand.CarId, cancellationToken);
 
-        if (carModel != null)
-        {
-            Car car = new(carModel);
+        Car car = new(carModel);
 
-            car.UpdateBrand(parsedCommand.Brand);
-            car.UpdateColor(parsedCommand.Color);
-            car.UpdateModel(parsedCommand.Model);
-            car.UpdatePlate(parsedCommand.Plate);
-            car.UpdateType(parsedCommand.Type);
-            car.UpdateYear(parsedCommand.Year);
+        car.UpdateBrand(parsedCommand.Brand);
+        car.UpdateColor(parsedCommand.Color);
+        car.UpdateModel(parsedCommand.Model);
+        car.UpdatePlate(parsedCommand.Plate);
+        car.UpdateType(parsedCommand.Type);
+        car.UpdateYear(parsedCommand.Year);
 
-            carModel.UpdateBasedOnValueObject(car);
+        carModel.UpdateBasedOnValueObject(car);
 
-            databaseDbContext.Cars.Update(carModel);
-
-            return true;
-        }
-
-        return false;
+        databaseDbContext.Cars.Update(carModel);
     }
 
-    public async Task<bool> DeleteAsync(ICommand command, CancellationToken cancellationToken)
+    public async Task DeleteAsync(ICommand command, CancellationToken cancellationToken)
     {
         var parsedCommand = command as DeleteCarCommand;
 
-        CarModel? carModel = await databaseDbContext.Cars
-            .FirstOrDefaultAsync(e => e.Id == parsedCommand.Id, cancellationToken);
-
-        if (carModel == null) return false;
+        CarModel carModel = await databaseDbContext.Cars
+            .FirstAsync(e => e.Id == parsedCommand.Id, cancellationToken);
 
         databaseDbContext.Cars.Remove(carModel);
-        return true;
     }
 
     public async Task<CarModel?> GetByIdAsync(IQuery query, CancellationToken cancellationToken)

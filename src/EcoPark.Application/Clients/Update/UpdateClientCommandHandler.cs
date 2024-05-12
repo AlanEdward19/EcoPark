@@ -1,41 +1,47 @@
 ﻿namespace EcoPark.Application.Clients.Update;
 
-public class UpdateClientCommandHandler(IAggregateRepository<ClientModel> repository) : IHandler<UpdateClientCommand, DatabaseOperationResponseViewModel>
+public class UpdateClientCommandHandler(IRepository<ClientModel> repository) : IHandler<UpdateClientCommand, DatabaseOperationResponseViewModel>
 {
     public async Task<DatabaseOperationResponseViewModel> HandleAsync(UpdateClientCommand command,
         CancellationToken cancellationToken)
     {
-        DatabaseOperationResponseViewModel result;
+        DatabaseOperationResponseViewModel result = new(EOperationStatus.Failed, "");
 
         try
         {
-            if (await repository.CheckChangePermissionAsync(command, cancellationToken))
+            EOperationStatus status = await repository.CheckChangePermissionAsync(command, cancellationToken);
+
+            switch (status)
             {
-                await repository.UnitOfWork.StartAsync(cancellationToken);
+                case EOperationStatus.Successful:
+                    await repository.UnitOfWork.StartAsync(cancellationToken);
 
-                var databaseOperationResult = await repository.UpdateAsync(command, cancellationToken);
+                    await repository.UpdateAsync(command, cancellationToken);
 
-                if (databaseOperationResult)
-                {
                     await repository.UnitOfWork.SaveEntitiesAsync(cancellationToken);
                     await repository.UnitOfWork.CommitAsync(cancellationToken);
 
-                    result = new("Patch", EOperationStatus.Successful, "Client updated successfully");
-                }
-                else
-                {
-                    await repository.UnitOfWork.RollbackAsync(cancellationToken);
-                    result = new("Patch", EOperationStatus.Failed, "No Client were found with this id");
-                }
+                    result = new(EOperationStatus.Successful, "Client updated successfully");
+
+                    break;
+
+                case EOperationStatus.Failed:
+                    break;
+
+                case EOperationStatus.NotAuthorized:
+                    result = new(EOperationStatus.NotAuthorized, "You have no permission to update this client");
+                    break;
+
+                case EOperationStatus.NotFound:
+                    result = new(EOperationStatus.NotFound, "No client were found with this id");
+                    break;
             }
 
-            else
-                result = new("Patch", EOperationStatus.NotAuthorized, "You have no permission to update this client");
         }
         catch (Exception e)
         {
             await repository.UnitOfWork.RollbackAsync(cancellationToken);
-            result = new("Patch", EOperationStatus.Failed, e.Message);
+            result = new(EOperationStatus.Failed, e.Message);
         }
 
         return result;

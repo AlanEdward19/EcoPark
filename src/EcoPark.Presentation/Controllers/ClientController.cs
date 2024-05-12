@@ -76,12 +76,12 @@ public class ClientController(ILogger<ClientController> logger) : ControllerBase
     [Tags("Operações do Cliente")]
     [HttpPost]
     public async Task<IActionResult> Insert([FromServices] IHandler<InsertClientCommand, DatabaseOperationResponseViewModel> handler,
-        [FromQuery] InsertClientCommand command, [FromForm] IFormFile profileImage, CancellationToken cancellationToken)
+        [FromQuery] InsertClientCommand command, [FromForm] IFormFile image, CancellationToken cancellationToken)
     {
         logger.LogInformation(
             $"Method Call: InsertClient with parameters: \n{string.Join("\n", EntityPropertiesUtilities.GetEntityPropertiesAndValueAsIEnumerable(command))}");
 
-        await command.SetImage(profileImage, profileImage.FileName, cancellationToken);
+        await command.SetImage(image, image.FileName, cancellationToken);
 
         return Created(Request.GetDisplayUrl(), await handler.HandleAsync(command, cancellationToken));
     }
@@ -117,7 +117,9 @@ public class ClientController(ILogger<ClientController> logger) : ControllerBase
         {
             EOperationStatus.Successful => Created(Request.GetDisplayUrl(), result),
 
-            EOperationStatus.Failed => NotFound(result),
+            EOperationStatus.NotFound => NotFound(result),
+
+            EOperationStatus.Failed => BadRequest(result),
 
             EOperationStatus.NotAuthorized => Unauthorized(result)
         };
@@ -152,7 +154,9 @@ public class ClientController(ILogger<ClientController> logger) : ControllerBase
         {
             EOperationStatus.Successful => Created(Request.GetDisplayUrl(), result),
 
-            EOperationStatus.Failed => NotFound(result),
+            EOperationStatus.NotFound => NotFound(result),
+
+            EOperationStatus.Failed => BadRequest(result),
 
             EOperationStatus.NotAuthorized => Unauthorized(result)
         };
@@ -187,6 +191,7 @@ public class ClientController(ILogger<ClientController> logger) : ControllerBase
         {
             EOperationStatus.Successful => Ok(result),
             EOperationStatus.Failed => BadRequest(result),
+            EOperationStatus.NotFound => NotFound(result),
             EOperationStatus.NotAuthorized => Unauthorized(result)
         };
     }

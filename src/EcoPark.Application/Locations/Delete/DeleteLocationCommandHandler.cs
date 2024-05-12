@@ -1,43 +1,43 @@
 ﻿namespace EcoPark.Application.Locations.Delete;
 
-public class DeleteLocationCommandHandler(IAggregateRepository<LocationModel> repository): IHandler<DeleteLocationCommand, DatabaseOperationResponseViewModel>
+public class DeleteLocationCommandHandler(IRepository<LocationModel> repository) : IHandler<DeleteLocationCommand, DatabaseOperationResponseViewModel>
 {
     public async Task<DatabaseOperationResponseViewModel> HandleAsync(DeleteLocationCommand command,
         CancellationToken cancellationToken)
     {
-        DatabaseOperationResponseViewModel result;
+        DatabaseOperationResponseViewModel result = new(EOperationStatus.Failed, "AAAAA");
         try
         {
-            if (await repository.CheckChangePermissionAsync(command, cancellationToken))
+            EOperationStatus status = await repository.CheckChangePermissionAsync(command, cancellationToken);
+
+            switch (status)
             {
-                await repository.UnitOfWork.StartAsync(cancellationToken);
+                case EOperationStatus.Successful:
+                    await repository.UnitOfWork.StartAsync(cancellationToken);
 
-                var databaseOperationResult = await repository.DeleteAsync(command, cancellationToken);
+                    await repository.DeleteAsync(command, cancellationToken);
 
-                if (databaseOperationResult)
-                {
                     await repository.UnitOfWork.SaveEntitiesAsync(cancellationToken);
                     await repository.UnitOfWork.CommitAsync(cancellationToken);
 
-                    result = new DatabaseOperationResponseViewModel("Delete", EOperationStatus.Successful,
-                        "Location was deleted successfully!");
-                }
-                else
-                {
-                    await repository.UnitOfWork.RollbackAsync(cancellationToken);
-                    result = new DatabaseOperationResponseViewModel("Delete", EOperationStatus.Failed,
-                        "No Location were found with this id");
-                }
+                    result = new DatabaseOperationResponseViewModel(EOperationStatus.Successful,
+                                                   "Location was deleted successfully!");
+
+                    break;
+
+                case EOperationStatus.NotAuthorized:
+                    result = new DatabaseOperationResponseViewModel(EOperationStatus.NotAuthorized,
+                                               "You have no permission to delete this location");
+                    break;
+
+                case EOperationStatus.Failed:
+                    break;
             }
-            else
-                result = new DatabaseOperationResponseViewModel("Delete", EOperationStatus.NotAuthorized,
-                                       "You have no permission to delete this location");
-                
         }
         catch (Exception e)
         {
             await repository.UnitOfWork.RollbackAsync(cancellationToken);
-            result = new DatabaseOperationResponseViewModel("Delete", EOperationStatus.Failed, e.Message);
+            result = new DatabaseOperationResponseViewModel(EOperationStatus.Failed, e.Message);
         }
 
         return result;

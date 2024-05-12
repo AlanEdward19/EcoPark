@@ -6,11 +6,11 @@ using EcoPark.Application.Locations.Update;
 
 namespace EcoPark.Infrastructure.Repositories;
 
-public class LocationRepository(DatabaseDbContext databaseDbContext, IUnitOfWork unitOfWork) : IAggregateRepository<LocationModel>
+public class LocationRepository(DatabaseDbContext databaseDbContext, IUnitOfWork unitOfWork) : IRepository<LocationModel>
 {
     public IUnitOfWork UnitOfWork { get; } = unitOfWork;
 
-    public async Task<bool> CheckChangePermissionAsync(ICommand command, CancellationToken cancellationToken)
+    public async Task<EOperationStatus> CheckChangePermissionAsync(ICommand command, CancellationToken cancellationToken)
     {
         var requestUserInfo = command.RequestUserInfo;
         LocationModel? locationModel = null;
@@ -21,7 +21,9 @@ public class LocationRepository(DatabaseDbContext databaseDbContext, IUnitOfWork
         switch (command)
         {
             case InsertLocationCommand:
-                return requestUserInfo.UserType == EUserType.Administrator;
+                return requestUserInfo.UserType == EUserType.Administrator
+                    ? EOperationStatus.Successful
+                    : EOperationStatus.NotAuthorized;
 
             case UpdateLocationCommand updateCommand:
                 databaseQuery = databaseQuery
@@ -33,7 +35,7 @@ public class LocationRepository(DatabaseDbContext databaseDbContext, IUnitOfWork
                     .Include(x => x.Credentials)
                     .FirstOrDefaultAsync(e => e.Credentials.Email.Equals(requestUserInfo.Email), cancellationToken);
 
-                if (employeeModel == null) return false;
+                if (employeeModel == null) return EOperationStatus.NotFound;
 
                 if (employeeModel.Credentials.UserType == EUserType.Administrator)
                     locationModel = await databaseQuery
@@ -45,7 +47,9 @@ public class LocationRepository(DatabaseDbContext databaseDbContext, IUnitOfWork
                     locationModel = await databaseQuery
                         .FirstOrDefaultAsync(cancellationToken);
 
-                    return employeeModel.GroupAccesses.Any(x => x.LocationId.Equals(locationModel.Id));
+                    return employeeModel.GroupAccesses.Any(x => x.LocationId.Equals(locationModel.Id))
+                        ? EOperationStatus.Successful
+                        : EOperationStatus.NotAuthorized;
                 }
 
                 break;
@@ -57,7 +61,7 @@ public class LocationRepository(DatabaseDbContext databaseDbContext, IUnitOfWork
                         x.Credentials.Email.Equals(requestUserInfo.Email) &&
                         x.Credentials.UserType == EUserType.Administrator, cancellationToken);
 
-                if (administrator == null) return false;
+                if (administrator == null) return EOperationStatus.NotAuthorized;
 
                 locationModel = await databaseDbContext.Locations
                     .FirstOrDefaultAsync(x => x.Id.Equals(deleteCommand.Id) &&
@@ -67,70 +71,55 @@ public class LocationRepository(DatabaseDbContext databaseDbContext, IUnitOfWork
                 break;
         }
 
-        return locationModel != null;
+        return locationModel != null ? EOperationStatus.Successful : EOperationStatus.NotAuthorized;
     }
 
-    public async Task<bool> AddAsync(ICommand command, CancellationToken cancellationToken)
+    public async Task AddAsync(ICommand command, CancellationToken cancellationToken)
     {
         var parsedCommand = command as InsertLocationCommand;
 
         var requestUserInfo = command.RequestUserInfo;
 
-        EmployeeModel? employeeModel = await databaseDbContext.Employees
+        EmployeeModel employeeModel = await databaseDbContext.Employees
             .Include(x => x.Credentials)
-            .FirstOrDefaultAsync(
+            .FirstAsync(
                 e => e.Credentials.Email.Equals(requestUserInfo.Email) &&
                      e.Credentials.UserType == EUserType.Administrator, cancellationToken);
-
-        if (employeeModel == null) return false;
 
         LocationModel locationModel = new(employeeModel.Id, parsedCommand.Name, parsedCommand.Address,
             parsedCommand.ReservationGraceInMinutes!.Value, parsedCommand.CancellationFeeRate!.Value,
             parsedCommand.ReservationFeeRate!.Value, parsedCommand.HourlyParkingRate!.Value);
 
         await databaseDbContext.Locations.AddAsync(locationModel, cancellationToken);
-
-        return true;
     }
 
-    public async Task<bool> UpdateAsync(ICommand command, CancellationToken cancellationToken)
+    public async Task UpdateAsync(ICommand command, CancellationToken cancellationToken)
     {
         var parsedCommand = command as UpdateLocationCommand;
 
-        LocationModel? locationModel = await databaseDbContext.Locations
-            .FirstOrDefaultAsync(l => l.Id == parsedCommand.LocationId, cancellationToken);
+        LocationModel locationModel = await databaseDbContext.Locations
+            .FirstAsync(l => l.Id == parsedCommand.LocationId, cancellationToken);
 
-        if (locationModel != null)
-        {
-            LocationAggregateRoot locationAggregate = new(locationModel);
+        LocationAggregateRoot locationAggregate = new(locationModel);
 
-            locationAggregate.UpdateName(parsedCommand.Name);
-            locationAggregate.UpdateAddress(parsedCommand.Address);
-            locationAggregate.UpdateReservationGraceInMinutes(parsedCommand.ReservationGraceInMinutes);
-            locationAggregate.UpdateCancellationFeeRate(parsedCommand.CancellationFeeRate);
-            locationAggregate.UpdateReservationFeeRate(parsedCommand.ReservationFeeRate);
-            locationAggregate.UpdateHourlyParkingRate(parsedCommand.HourlyParkingRate);
+        locationAggregate.UpdateName(parsedCommand.Name);
+        locationAggregate.UpdateAddress(parsedCommand.Address);
+        locationAggregate.UpdateReservationGraceInMinutes(parsedCommand.ReservationGraceInMinutes);
+        locationAggregate.UpdateCancellationFeeRate(parsedCommand.CancellationFeeRate);
+        locationAggregate.UpdateReservationFeeRate(parsedCommand.ReservationFeeRate);
+        locationAggregate.UpdateHourlyParkingRate(parsedCommand.HourlyParkingRate);
 
-            locationModel.UpdateBasedOnAggregate(locationAggregate);
-
-            return true;
-        }
-
-        return false;
+        locationModel.UpdateBasedOnAggregate(locationAggregate);
     }
 
-    public async Task<bool> DeleteAsync(ICommand command, CancellationToken cancellationToken)
+    public async Task DeleteAsync(ICommand command, CancellationToken cancellationToken)
     {
         var parsedCommand = command as DeleteLocationCommand;
 
-        LocationModel? locationModel = await databaseDbContext.Locations
-            .FirstOrDefaultAsync(l => l.Id == parsedCommand.Id, cancellationToken);
-
-        if (locationModel == null) return false;
+        LocationModel locationModel = await databaseDbContext.Locations
+            .FirstAsync(l => l.Id == parsedCommand.Id, cancellationToken);
 
         databaseDbContext.Locations.Remove(locationModel);
-
-        return true;
     }
 
     public async Task<LocationModel?> GetByIdAsync(IQuery query, CancellationToken cancellationToken)
@@ -206,7 +195,7 @@ public class LocationRepository(DatabaseDbContext databaseDbContext, IUnitOfWork
             databaseQuery = databaseQuery
                 .Where(x => x.OwnerId.Equals(employeeModel.Id));
         }
-        else if(requestUserInfo.UserType != EUserType.PlataformAdministrator)
+        else if(requestUserInfo.UserType is not EUserType.PlataformAdministrator and not EUserType.Client)
         {
             employeeModel = await databaseDbContext.Employees
                 .Include(x => x.Credentials)

@@ -2,14 +2,14 @@
 
 namespace EcoPark.Application.Employees.Insert;
 
-public class InsertEmployeeCommand(Guid? administratorId, string? email, string? password, string? firstName, string? lastName, EUserType? userType): ICommand
+public class InsertEmployeeCommand(): ICommand
 {
-    public Guid? AdministratorId { get; private set; } = administratorId;
-    public string? Email { get; private set; } = email!.ToLower();
-    public string? Password { get; private set; } = password;
-    public string? FirstName { get; private set; } = firstName;
-    public string? LastName { get; private set; } = lastName;
-    public EUserType? UserType { get; private set; } = userType;
+    public Guid? AdministratorId { get; set; }
+    public string? Email { get; set; }
+    public string? Password { get; set; }
+    public string? FirstName { get; set; }
+    public string? LastName { get; set; }
+    public EUserType? UserType { get; set; }
     public MemoryStream? Image { get; private set; }
     public string? ImageFileName { get; private set; }
 

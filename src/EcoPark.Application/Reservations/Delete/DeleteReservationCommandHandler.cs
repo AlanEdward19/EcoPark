@@ -2,42 +2,48 @@
 
 public class DeleteReservationCommandHandler(IRepository<ReservationModel> repository) : IHandler<DeleteReservationCommand, DatabaseOperationResponseViewModel>
 {
-    public async Task<DatabaseOperationResponseViewModel> HandleAsync(DeleteReservationCommand command, 
+    public async Task<DatabaseOperationResponseViewModel> HandleAsync(DeleteReservationCommand command,
         CancellationToken cancellationToken)
     {
-        DatabaseOperationResponseViewModel result;
+        DatabaseOperationResponseViewModel result = new(EOperationStatus.Failed, "AAAAA");
 
         try
         {
-            if (await repository.CheckChangePermissionAsync(command, cancellationToken))
+            EOperationStatus status = await repository.CheckChangePermissionAsync(command, cancellationToken);
+
+            switch (status)
             {
-                await repository.UnitOfWork.StartAsync(cancellationToken);
+                case EOperationStatus.Successful:
+                    await repository.UnitOfWork.StartAsync(cancellationToken);
 
-                var databaseOperationResult = await repository.DeleteAsync(command, cancellationToken);
+                    await repository.DeleteAsync(command, cancellationToken);
 
-                if (databaseOperationResult)
-                {
                     await repository.UnitOfWork.SaveEntitiesAsync(cancellationToken);
                     await repository.UnitOfWork.CommitAsync(cancellationToken);
 
-                    result = new DatabaseOperationResponseViewModel("Delete", EOperationStatus.Successful,
+                    result = new DatabaseOperationResponseViewModel(EOperationStatus.Successful,
                         "Reservation was deleted successfully!");
-                }
-                else
-                {
-                    await repository.UnitOfWork.RollbackAsync(cancellationToken);
-                    result = new DatabaseOperationResponseViewModel("Delete", EOperationStatus.Failed,
-                        "No Reservations were found with this id");
-                }
+
+                    break;
+
+                case EOperationStatus.NotAuthorized:
+                    result = new DatabaseOperationResponseViewModel(EOperationStatus.NotAuthorized,
+                        "You have no permission to delete this reservation");
+                    break;
+
+                case EOperationStatus.Failed:
+                    break;
+
+                case EOperationStatus.NotFound:
+                    result = new DatabaseOperationResponseViewModel(EOperationStatus.NotFound,
+                        "Reservation not found, check input data");
+                    break;
             }
-            else
-                result = new("Delete", EOperationStatus.NotAuthorized,
-                    "You have no permission to delete this reservation");
         }
         catch (Exception e)
         {
             await repository.UnitOfWork.RollbackAsync(cancellationToken);
-            result = new DatabaseOperationResponseViewModel("Delete", EOperationStatus.Failed, e.Message);
+            result = new DatabaseOperationResponseViewModel(EOperationStatus.Failed, e.Message);
         }
 
         return result;

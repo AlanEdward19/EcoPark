@@ -8,10 +8,8 @@ public class ClientClaimedRewardRepository(DatabaseDbContext databaseDbContext, 
 {
     public IUnitOfWork UnitOfWork { get; } = unitOfWork;
 
-    public async Task<bool> CheckChangePermissionAsync(ICommand command, CancellationToken cancellationToken)
+    public async Task<EOperationStatus> CheckChangePermissionAsync(ICommand command, CancellationToken cancellationToken)
     {
-        EmployeeModel? owner;
-        LocationModel? location;
         RewardModel? reward;
         ClientModel? client;
         var requestUserInfo = command.RequestUserInfo;
@@ -25,51 +23,53 @@ public class ClientClaimedRewardRepository(DatabaseDbContext databaseDbContext, 
                              (x.AvailableQuantity == null || x.AvailableQuantity >= 1) &&
                              (x.ExpirationDate == null || x.ExpirationDate.Value >= DateTime.Today), cancellationToken);
 
-                if (reward == null) return false;
+                if (reward == null) return EOperationStatus.NotFound;
 
                 client = await databaseDbContext.Clients
                     .Include(x => x.Credentials)
                     .Include(x => x.Punctuations)
                     .FirstOrDefaultAsync(x => x.Credentials.Email.Equals(requestUserInfo.Email), cancellationToken);
 
-                if (client == null) return false;
+                if (client == null) return EOperationStatus.Failed;
 
                 return client.Punctuations.Any(x =>
-                    x.LocationId.Equals(reward.LocationId) && x.Punctuation >= reward.RequiredPoints);
+                    x.LocationId.Equals(reward.LocationId) && x.Punctuation >= reward.RequiredPoints)
+                    ? EOperationStatus.Successful
+                    : EOperationStatus.Failed;
 
             case UseRewardCommand useCommand:
                 ClientClaimedRewardModel? rewardClaimed = await databaseDbContext.ClientClaimedRewards
                     .FirstOrDefaultAsync(x => x.Id.Equals(useCommand.RewardId), cancellationToken);
 
-                if (rewardClaimed == null) return false;
+                if (rewardClaimed == null) return EOperationStatus.NotFound;
 
                 client = await databaseDbContext.Clients
                     .Include(x => x.Credentials)
                     .FirstOrDefaultAsync(x => x.Credentials.Email.Equals(requestUserInfo.Email), cancellationToken);
 
-                if (client == null) return false;
+                if (client == null) return EOperationStatus.Failed;
 
-                return rewardClaimed.ClientId.Equals(client!.Id);
+                return rewardClaimed.ClientId.Equals(client!.Id) ? EOperationStatus.Successful : EOperationStatus.NotAuthorized;
         }
 
-        return false;
+        return EOperationStatus.Failed;
     }
 
-    public async Task<bool> AddAsync(ICommand command, CancellationToken cancellationToken)
+    public async Task AddAsync(ICommand command, CancellationToken cancellationToken)
     {
-        var parsedCommand = command as UseRewardCommand;
+        var parsedCommand = command as RedeemRewardCommand;
 
         string email = command.RequestUserInfo.Email;
 
-        RewardModel? reward = await databaseDbContext.Rewards
+        RewardModel reward = await databaseDbContext.Rewards
             .AsNoTracking()
-            .FirstOrDefaultAsync(x => x.Id.Equals(parsedCommand.RewardId), cancellationToken);
+            .FirstAsync(x => x.Id.Equals(parsedCommand.RewardId), cancellationToken);
 
-        ClientModel? client = await databaseDbContext.Clients
+        ClientModel client = await databaseDbContext.Clients
             .AsSplitQuery()
             .Include(x => x.Credentials)
             .Include(x => x.Punctuations)
-            .FirstOrDefaultAsync(x => x.Credentials.Email.Equals(email), cancellationToken);
+            .FirstAsync(x => x.Credentials.Email.Equals(email), cancellationToken);
 
         ClientClaimedRewardModel claimedReward = new(client!.Id, reward!.Id, false);
 
@@ -77,32 +77,26 @@ public class ClientClaimedRewardRepository(DatabaseDbContext databaseDbContext, 
 
         databaseDbContext.Clients.Update(client);
         await databaseDbContext.ClientClaimedRewards.AddAsync(claimedReward, cancellationToken);
-
-        return true;
     }
 
-    public async Task<bool> UpdateAsync(ICommand command, CancellationToken cancellationToken)
+    public async Task UpdateAsync(ICommand command, CancellationToken cancellationToken)
     {
         var parsedCommand = command as UseRewardCommand;
 
         string email = command.RequestUserInfo.Email;
 
-        ClientModel? client = await databaseDbContext.Clients
+        ClientModel client = await databaseDbContext.Clients
             .AsSplitQuery()
             .Include(x => x.ClaimedRewards)
             .Include(x => x.Credentials)
-            .FirstOrDefaultAsync(x => x.Credentials.Email.Equals(email), cancellationToken);
-
-        if (client == null) return false;
+            .FirstAsync(x => x.Credentials.Email.Equals(email), cancellationToken);
 
         client!.ClaimedRewards.First(x => x.Id.Equals(parsedCommand.RewardId)).IsUsed = true;
 
         databaseDbContext.Clients.Update(client);
-
-        return true;
     }
 
-    public async Task<bool> DeleteAsync(ICommand command, CancellationToken cancellationToken)
+    public async Task DeleteAsync(ICommand command, CancellationToken cancellationToken)
     {
         throw new NotImplementedException();
     }

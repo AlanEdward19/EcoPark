@@ -2,42 +2,50 @@
 
 public class InsertReservationCommandHandler(IRepository<ReservationModel> repository) : IHandler<InsertReservationCommand, DatabaseOperationResponseViewModel>
 {
-    public async Task<DatabaseOperationResponseViewModel> HandleAsync(InsertReservationCommand command, 
+    public async Task<DatabaseOperationResponseViewModel> HandleAsync(InsertReservationCommand command,
         CancellationToken cancellationToken)
     {
-        DatabaseOperationResponseViewModel result;
+        DatabaseOperationResponseViewModel result = new(EOperationStatus.Failed, "AAAAA");
 
         try
         {
-            if (await repository.CheckChangePermissionAsync(command, cancellationToken))
+            EOperationStatus status = await repository.CheckChangePermissionAsync(command, cancellationToken);
+
+            switch (status)
             {
-                await repository.UnitOfWork.StartAsync(cancellationToken);
+                case EOperationStatus.Successful:
+                    await repository.UnitOfWork.StartAsync(cancellationToken);
 
-                var databaseOperationResult = await repository.AddAsync(command, cancellationToken);
+                    await repository.AddAsync(command, cancellationToken);
 
-                if (databaseOperationResult)
-                {
                     await repository.UnitOfWork.SaveEntitiesAsync(cancellationToken);
                     await repository.UnitOfWork.CommitAsync(cancellationToken);
 
-                    result = new DatabaseOperationResponseViewModel("Post", EOperationStatus.Successful,
-                        "Reservation was inserted successfully!");
-                }
-                else
-                {
-                    await repository.UnitOfWork.RollbackAsync(cancellationToken);
-                    result = new DatabaseOperationResponseViewModel("Post", EOperationStatus.Failed, "Reservation was not inserted!");
-                }
-            }
-            else
-                result = new("Post", EOperationStatus.NotAuthorized, "This Car id doesn't match the current user cars" +
-                                                                     " or This ParkingSpace isn't available at this time");
+                    result = new DatabaseOperationResponseViewModel(EOperationStatus.Successful,
+                                                   "Reservation was inserted successfully!");
 
+                    break;
+
+                case EOperationStatus.NotAuthorized:
+                    result = new DatabaseOperationResponseViewModel(EOperationStatus.NotAuthorized,
+                        "This Car id doesn't match the current user cars");
+                    break;
+
+                case EOperationStatus.Failed:
+                    result = new DatabaseOperationResponseViewModel(EOperationStatus.Failed,
+                        "Invalid operation, the selected parkingSpace is not available at this period or client doesn't have cars");
+                    break;
+
+                case EOperationStatus.NotFound:
+                    result = new DatabaseOperationResponseViewModel(EOperationStatus.NotFound,
+                                               "Parking space not found, check input data");
+                    break;
+            }
         }
         catch (Exception e)
         {
             await repository.UnitOfWork.RollbackAsync(cancellationToken);
-            result = new DatabaseOperationResponseViewModel("Post", EOperationStatus.Failed, e.Message);
+            result = new DatabaseOperationResponseViewModel(EOperationStatus.Failed, e.Message);
         }
 
         return result;

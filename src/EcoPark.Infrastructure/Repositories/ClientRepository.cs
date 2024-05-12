@@ -4,58 +4,64 @@ using EcoPark.Application.Clients.Insert;
 using EcoPark.Application.Clients.List;
 using EcoPark.Application.Clients.Update;
 using EcoPark.Domain.Interfaces.Providers;
-using EcoPark.Domain.ValueObjects;
-using EcoPark.Infrastructure.Migrations;
-using EcoPark.Infrastructure.Providers;
-using Microsoft.SqlServer.Server;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace EcoPark.Infrastructure.Repositories;
 
 public class ClientRepository(DatabaseDbContext databaseDbContext, IAuthenticationService authenticationService, IUnitOfWork unitOfWork, IStorageProvider storageProvider)
-    : IAggregateRepository<ClientModel>
+    : IRepository<ClientModel>
 {
     public IUnitOfWork UnitOfWork { get; } = unitOfWork;
 
-    public async Task<bool> CheckChangePermissionAsync(ICommand command, CancellationToken cancellationToken)
+    public async Task<EOperationStatus> CheckChangePermissionAsync(ICommand command, CancellationToken cancellationToken)
     {
         if (command.RequestUserInfo.UserType == EUserType.PlataformAdministrator)
-            return true;
+            return EOperationStatus.Successful;
 
         ClientModel? clientModel = null;
 
         switch (command)
         {
             case UpdateClientCommand updateCommand:
-
                 clientModel = await databaseDbContext.Clients
                     .Include(x => x.Credentials)
                     .FirstOrDefaultAsync(
-                        e => e.Credentials.Email.Equals(updateCommand.RequestUserInfo.Email) &&
-                             e.Id == updateCommand.ClientId, cancellationToken);
+                        e => e.Id == updateCommand.ClientId, cancellationToken);
+
+                if(clientModel == null)
+                    return EOperationStatus.NotFound;
+
+                if (!clientModel.Credentials.Email.Equals(updateCommand.RequestUserInfo.Email))
+                    return EOperationStatus.NotAuthorized;
+
                 break;
 
             case DeleteClientCommand deleteCommand:
                 clientModel = await databaseDbContext.Clients
                     .Include(x => x.Credentials)
                     .FirstOrDefaultAsync(
-                        e => e.Credentials.Email.Equals(deleteCommand.RequestUserInfo.Email) &&
-                             e.Id == deleteCommand.Id, cancellationToken);
+                        e => e.Id == deleteCommand.Id, cancellationToken);
+
+                if(clientModel == null)
+                    return EOperationStatus.NotFound;
+
+                if (!clientModel.Credentials.Email.Equals(deleteCommand.RequestUserInfo.Email))
+                    return EOperationStatus.NotAuthorized;
+
                 break;
         }
 
-        return clientModel != null;
+        return clientModel != null ? EOperationStatus.Successful : EOperationStatus.NotAuthorized;
     }
 
-    public async Task<bool> AddAsync(ICommand command, CancellationToken cancellationToken)
+    public async Task AddAsync(ICommand command, CancellationToken cancellationToken)
     {
         var parsedCommand = command as InsertClientCommand;
         string? blobFileName;
 
-        if (parsedCommand.Image != null)
+        if (parsedCommand!.Image != null)
         {
             Guid imageId = Guid.NewGuid();
-            string format = parsedCommand.ImageFileName.Split('.').Last();
+            string format = parsedCommand!.ImageFileName!.Split('.').Last();
             blobFileName = $"{imageId}.{format}";
 
             await storageProvider.WriteBlobAsync(parsedCommand.Image, blobFileName, "profiles");
@@ -66,78 +72,66 @@ public class ClientRepository(DatabaseDbContext databaseDbContext, IAuthenticati
         ClientModel clientModel = parsedCommand.ToModel(authenticationService, blobFileName);
 
         await databaseDbContext.Clients.AddAsync(clientModel, cancellationToken);
-
-        return true;
     }
 
-    public async Task<bool> UpdateAsync(ICommand command, CancellationToken cancellationToken)
+    public async Task UpdateAsync(ICommand command, CancellationToken cancellationToken)
     {
         var parsedCommand = command as UpdateClientCommand;
 
-        ClientModel? clientModel = await databaseDbContext.Clients
+        ClientModel clientModel = await databaseDbContext.Clients
             .Include(x => x.Credentials)
-            .FirstOrDefaultAsync(e => e.Id == parsedCommand.ClientId, cancellationToken);
+            .FirstAsync(e => e.Id == parsedCommand!.ClientId, cancellationToken);
 
-        if (clientModel != null)
+        ClientAggregateRoot clientAggregate = new(clientModel);
+
+        clientAggregate.UpdateEmail(parsedCommand!.Email);
+        clientAggregate.UpdatePassword(authenticationService.ComputeSha256Hash(parsedCommand!.Password));
+        clientAggregate.UpdateFirstName(parsedCommand!.FirstName);
+        clientAggregate.UpdateLastName(parsedCommand!.LastName);
+
+        if (parsedCommand.Image != null)
         {
-            ClientAggregateRoot clientAggregate = new(clientModel);
+            string format = parsedCommand.ImageFileName!.Split('.').Last();
+            string blobName;
 
-            clientAggregate.UpdateEmail(parsedCommand.Email);
-            clientAggregate.UpdatePassword(authenticationService.ComputeSha256Hash(parsedCommand.Password!));
-            clientAggregate.UpdateFirstName(parsedCommand.FirstName);
-            clientAggregate.UpdateLastName(parsedCommand.LastName);
+            string newFileFormat = parsedCommand.ImageFileName!.Split('.').Last();
 
-            if (parsedCommand.Image != null)
+            if (string.IsNullOrWhiteSpace(clientModel.Credentials.Image))
+                blobName = $"{Guid.NewGuid()}.{format}";
+
+            else
             {
-                string format = parsedCommand.ImageFileName!.Split('.').Last();
-                string blobName;
+                blobName = clientModel.Credentials.Image;
+                var oldFileFormat = clientModel.Credentials.Image!.Split('.').Last();
 
-                string newFileFormat = parsedCommand.ImageFileName!.Split('.').Last();
-
-                if (string.IsNullOrWhiteSpace(clientModel.Credentials.Image))
-                    blobName = $"{Guid.NewGuid()}.{format}";
-
-                else
+                if (!newFileFormat.Equals(oldFileFormat))
                 {
-                    blobName = clientModel.Credentials.Image;
-                    var oldFileFormat = clientModel.Credentials.Image!.Split('.').Last();
-
-                    if (!newFileFormat.Equals(oldFileFormat))
-                    {
-                        string oldFileName = clientModel.Credentials.Image.Split(".").First();
-                        blobName = $"{oldFileName}.{newFileFormat}";
-                        clientAggregate.UpdateImage(blobName);
-                    }
-
-                    await storageProvider.DeleteBlobAsync(clientModel.Credentials.Image, "profiles");
+                    string oldFileName = clientModel.Credentials.Image.Split(".").First();
+                    blobName = $"{oldFileName}.{newFileFormat}";
+                    clientAggregate.UpdateImage(blobName);
                 }
 
-                await storageProvider.WriteBlobAsync(parsedCommand.Image, blobName, "profiles");
+                await storageProvider.DeleteBlobAsync(clientModel.Credentials.Image, "profiles");
             }
 
-            clientModel.UpdateBasedOnAggregate(clientAggregate);
-
-            databaseDbContext.Clients.Update(clientModel);
-
-            return true;
+            await storageProvider.WriteBlobAsync(parsedCommand.Image, blobName, "profiles");
         }
 
-        return false;
+        clientModel.UpdateBasedOnAggregate(clientAggregate);
+
+        databaseDbContext.Clients.Update(clientModel);
     }
 
-    public async Task<bool> DeleteAsync(ICommand command, CancellationToken cancellationToken)
+    public async Task DeleteAsync(ICommand command, CancellationToken cancellationToken)
     {
         var parsedCommand = command as DeleteClientCommand;
 
-        ClientModel? clientModel = await databaseDbContext.Clients
+        ClientModel clientModel = await databaseDbContext.Clients
             .Include(x => x.Credentials)
-            .FirstOrDefaultAsync(e => e.Id == parsedCommand.Id, cancellationToken);
-
-        if (clientModel == null) return false;
+            .FirstAsync(e => e.Id == parsedCommand.Id, cancellationToken);
 
         databaseDbContext.Clients.Remove(clientModel);
         databaseDbContext.Credentials.Remove(clientModel.Credentials);
-        return true;
     }
 
     public async Task<ClientModel?> GetByIdAsync(IQuery query, CancellationToken cancellationToken)

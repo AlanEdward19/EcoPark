@@ -1,6 +1,6 @@
 ﻿namespace EcoPark.Application.Locations.Get;
 
-public class GetLocationQueryHandler(IAggregateRepository<LocationModel> repository) : IHandler<GetLocationQuery, LocationSimplifiedViewModel?>
+public class GetLocationQueryHandler(IRepository<LocationModel> repository) : IHandler<GetLocationQuery, LocationSimplifiedViewModel?>
 {
     public async Task<LocationSimplifiedViewModel?> HandleAsync(GetLocationQuery command, CancellationToken cancellationToken)
     {

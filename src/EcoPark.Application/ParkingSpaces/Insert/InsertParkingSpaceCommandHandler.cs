@@ -1,41 +1,49 @@
 ﻿namespace EcoPark.Application.ParkingSpaces.Insert;
 
-public class InsertParkingSpaceCommandHandler(IAggregateRepository<ParkingSpaceModel> repository) : IHandler<InsertParkingSpaceCommand, DatabaseOperationResponseViewModel>
+public class InsertParkingSpaceCommandHandler(IRepository<ParkingSpaceModel> repository) : IHandler<InsertParkingSpaceCommand, DatabaseOperationResponseViewModel>
 {
     public async Task<DatabaseOperationResponseViewModel> HandleAsync(InsertParkingSpaceCommand command,
         CancellationToken cancellationToken)
     {
-        DatabaseOperationResponseViewModel result;
+        DatabaseOperationResponseViewModel result = new(EOperationStatus.Failed, "AAAAA");
 
         try
         {
-            if (await repository.CheckChangePermissionAsync(command, cancellationToken))
+            EOperationStatus status = await repository.CheckChangePermissionAsync(command, cancellationToken);
+
+            switch (status)
             {
-                await repository.UnitOfWork.StartAsync(cancellationToken);
+                case EOperationStatus.Successful:
+                    await repository.UnitOfWork.StartAsync(cancellationToken);
 
-                var databaseOperationResult = await repository.AddAsync(command, cancellationToken);
+                    await repository.AddAsync(command, cancellationToken);
 
-                if (databaseOperationResult)
-                {
                     await repository.UnitOfWork.SaveEntitiesAsync(cancellationToken);
                     await repository.UnitOfWork.CommitAsync(cancellationToken);
 
-                    result = new DatabaseOperationResponseViewModel("Post", EOperationStatus.Successful,
+                    result = new DatabaseOperationResponseViewModel(EOperationStatus.Successful,
                         "Parking space was inserted successfully!");
-                }
-                else
-                {
-                    await repository.UnitOfWork.RollbackAsync(cancellationToken);
-                    result = new DatabaseOperationResponseViewModel("Post", EOperationStatus.Failed, "Parking space was not inserted!");
-                }
+
+                    break;
+
+                case EOperationStatus.NotAuthorized:
+                    result = new DatabaseOperationResponseViewModel(EOperationStatus.NotAuthorized,
+                        "You have no permission to insert this parking space");
+                    break;
+
+                case EOperationStatus.Failed:
+                    break;
+
+                case EOperationStatus.NotFound:
+                    result = new DatabaseOperationResponseViewModel(EOperationStatus.NotFound,
+                        "Location not found, check input data");
+                    break;
             }
-            else
-                result = new DatabaseOperationResponseViewModel("Post", EOperationStatus.NotAuthorized, "You have no permission to insert this parking space");
         }
         catch (Exception e)
         {
             await repository.UnitOfWork.RollbackAsync(cancellationToken);
-            result = new DatabaseOperationResponseViewModel("Post", EOperationStatus.Failed, e.Message);
+            result = new DatabaseOperationResponseViewModel(EOperationStatus.Failed, e.Message);
         }
 
         return result;

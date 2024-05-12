@@ -80,13 +80,14 @@ public class EmployeeController(ILogger<EmployeeController> logger) : Controller
     [HttpPost]
     [Authorize(Roles = "PlataformAdministrator, Administrator")]
     public async Task<IActionResult> Insert([FromServices] IHandler<InsertEmployeeCommand, DatabaseOperationResponseViewModel> handler,
-        [FromBody] InsertEmployeeCommand command, CancellationToken cancellationToken)
+        [FromQuery] InsertEmployeeCommand command, [FromForm] IFormFile image ,CancellationToken cancellationToken)
     {
         logger.LogInformation(
             $"Method Call: InsertEmployee with parameters: \n{string.Join("\n", EntityPropertiesUtilities.GetEntityPropertiesAndValueAsIEnumerable(command))}");
 
         var requestUserInfo = EntityPropertiesUtilities.GetUserInfo(HttpContext.User);
         command.SetRequestUserInfo(requestUserInfo);
+        command.SetImage(image, image.FileName, cancellationToken);
 
         var result = await handler.HandleAsync(command, cancellationToken);
         var status = Enum.Parse<EOperationStatus>(result.Status);
@@ -96,6 +97,8 @@ public class EmployeeController(ILogger<EmployeeController> logger) : Controller
             EOperationStatus.Successful => Created(Request.GetDisplayUrl(), result),
 
             EOperationStatus.Failed => BadRequest(result),
+
+            EOperationStatus.NotFound => NotFound(result),
 
             EOperationStatus.NotAuthorized => Unauthorized(result)
         };
@@ -132,6 +135,8 @@ public class EmployeeController(ILogger<EmployeeController> logger) : Controller
 
             EOperationStatus.Failed => BadRequest(result),
 
+            EOperationStatus.NotFound => NotFound(result),
+
             EOperationStatus.NotAuthorized => Unauthorized(result)
         };
     }
@@ -166,6 +171,8 @@ public class EmployeeController(ILogger<EmployeeController> logger) : Controller
             EOperationStatus.Successful => Created(Request.GetDisplayUrl(), result),
 
             EOperationStatus.Failed => BadRequest(result),
+
+            EOperationStatus.NotFound => NotFound(result),
 
             EOperationStatus.NotAuthorized => Unauthorized(result)
         };
@@ -202,6 +209,8 @@ public class EmployeeController(ILogger<EmployeeController> logger) : Controller
 
             EOperationStatus.Failed => BadRequest(result),
 
+            EOperationStatus.NotFound => NotFound(result),
+
             EOperationStatus.NotAuthorized => Unauthorized(result)
         };
     }
@@ -237,7 +246,9 @@ public class EmployeeController(ILogger<EmployeeController> logger) : Controller
         {
             EOperationStatus.Successful => Created(Request.GetDisplayUrl(), result),
 
-            EOperationStatus.Failed => NotFound(result),
+            EOperationStatus.NotFound => NotFound(result),
+
+            EOperationStatus.Failed => BadRequest(result),
 
             EOperationStatus.NotAuthorized => Unauthorized(result)
         };
@@ -272,7 +283,9 @@ public class EmployeeController(ILogger<EmployeeController> logger) : Controller
         {
             EOperationStatus.Successful => Accepted(Request.GetDisplayUrl(), result),
 
-            EOperationStatus.Failed => NotFound(result),
+            EOperationStatus.NotFound => NotFound(result),
+
+            EOperationStatus.Failed => BadRequest(result),
 
             EOperationStatus.NotAuthorized => Unauthorized(result)
         };

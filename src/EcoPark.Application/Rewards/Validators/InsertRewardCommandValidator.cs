@@ -45,8 +45,9 @@ public class InsertRewardCommandValidator : AbstractValidator<InsertRewardComman
             .WithMessage("Url can't be empty");
 
         RuleFor(x => x.ExpirationDate)
-            .NotNull()
-            .WithMessage("ExpirationDate is required");
+            .Must(x => x.Value > DateTime.Today)
+            .When(x => x.ExpirationDate != null)
+            .WithMessage("ExpirationDate must be greater than today");
 
         RuleFor(x => x.LocationId)
             .NotNull()

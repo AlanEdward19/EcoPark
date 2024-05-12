@@ -2,13 +2,12 @@
 
 namespace EcoPark.Application.Clients.Insert;
 
-public class InsertClientCommand(string email, string password, string firstName, string lastName)
-    : ICommand
+public class InsertClientCommand : ICommand
 {
-    public string Email { get; private set; } = email;
-    public string Password { get; private set; } = password;
-    public string FirstName { get; private set; } = firstName;
-    public string LastName { get; private set; } = lastName;
+    public string Email { get; set; }
+    public string Password { get; set; }
+    public string FirstName { get; set; }
+    public string LastName { get; set; }
     public MemoryStream? Image { get; private set; }
     public string? ImageFileName { get; private set; }
 

@@ -86,7 +86,19 @@ public class CarController(ILogger<CarController> logger) : ControllerBase
         var requestUserInfo = EntityPropertiesUtilities.GetUserInfo(HttpContext.User);
         command.SetRequestUserInfo(requestUserInfo);
 
-        return Created(Request.GetDisplayUrl(), await handler.HandleAsync(command, cancellationToken));
+        var result = await handler.HandleAsync(command, cancellationToken);
+        var status = Enum.Parse<EOperationStatus>(result.Status);
+
+        return status switch
+        {
+            EOperationStatus.Successful => Created(Request.GetDisplayUrl(), result),
+
+            EOperationStatus.Failed => BadRequest(result),
+
+            EOperationStatus.NotFound => NotFound(result),
+
+            EOperationStatus.NotAuthorized => Unauthorized(result)
+        };
     }
 
     /// <summary>
@@ -120,7 +132,9 @@ public class CarController(ILogger<CarController> logger) : ControllerBase
         {
             EOperationStatus.Successful => Created(Request.GetDisplayUrl(), result),
 
-            EOperationStatus.Failed => NotFound(result),
+            EOperationStatus.NotFound => NotFound(result),
+
+            EOperationStatus.Failed => BadRequest(result),
 
             EOperationStatus.NotAuthorized => Unauthorized(result)
         };
@@ -155,7 +169,9 @@ public class CarController(ILogger<CarController> logger) : ControllerBase
         {
             EOperationStatus.Successful => Created(Request.GetDisplayUrl(), result),
 
-            EOperationStatus.Failed => NotFound(result),
+            EOperationStatus.NotFound => NotFound(result),
+
+            EOperationStatus.Failed => BadRequest(result),
 
             EOperationStatus.NotAuthorized => Unauthorized(result)
         };

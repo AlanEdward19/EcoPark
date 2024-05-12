@@ -168,7 +168,7 @@
             <param name="cancellationToken"></param>
             <returns>Funcionario</returns>
         </member>
-        <member name="M:EcoPark.Presentation.Controllers.EmployeeController.Insert(EcoPark.Domain.Interfaces.Services.IHandler{EcoPark.Application.Employees.Insert.InsertEmployeeCommand,EcoPark.Application.Commons.Models.DatabaseOperationResponseViewModel},EcoPark.Application.Employees.Insert.InsertEmployeeCommand,System.Threading.CancellationToken)">
+        <member name="M:EcoPark.Presentation.Controllers.EmployeeController.Insert(EcoPark.Domain.Interfaces.Services.IHandler{EcoPark.Application.Employees.Insert.InsertEmployeeCommand,EcoPark.Application.Commons.Models.DatabaseOperationResponseViewModel},EcoPark.Application.Employees.Insert.InsertEmployeeCommand,Microsoft.AspNetCore.Http.IFormFile,System.Threading.CancellationToken)">
             <summary>
             Método para inserir um novo funcionário
             </summary>

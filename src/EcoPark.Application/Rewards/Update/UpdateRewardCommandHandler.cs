@@ -5,36 +5,42 @@ public class UpdateRewardCommandHandler(IRepository<RewardModel> repository) : I
     public async Task<DatabaseOperationResponseViewModel> HandleAsync(UpdateRewardCommand command,
         CancellationToken cancellationToken)
     {
-        DatabaseOperationResponseViewModel result;
+        DatabaseOperationResponseViewModel result = new(EOperationStatus.Failed, "AAAAA");
 
         try
         {
-            if (await repository.CheckChangePermissionAsync(command, cancellationToken))
+            EOperationStatus status = await repository.CheckChangePermissionAsync(command, cancellationToken);
+
+            switch (status)
             {
-                await repository.UnitOfWork.StartAsync(cancellationToken);
+                case EOperationStatus.Successful:
+                    await repository.UnitOfWork.StartAsync(cancellationToken);
 
-                var databaseOperationResult = await repository.UpdateAsync(command, cancellationToken);
+                    await repository.UpdateAsync(command, cancellationToken);
 
-                if (databaseOperationResult)
-                {
                     await repository.UnitOfWork.SaveEntitiesAsync(cancellationToken);
                     await repository.UnitOfWork.CommitAsync(cancellationToken);
 
-                    result = new("Patch", EOperationStatus.Successful, "Reward updated successfully");
-                }
-                else
-                {
-                    await repository.UnitOfWork.RollbackAsync(cancellationToken);
-                    result = new("Patch", EOperationStatus.Failed, "No Reward were found with this id");
-                }
+                    result = new(EOperationStatus.Successful, "Reward updated successfully");
+
+                    break;
+
+                case EOperationStatus.NotAuthorized:
+                    result = new(EOperationStatus.NotAuthorized, "You have no permission to update this Reward");
+                    break;
+
+                case EOperationStatus.Failed:
+                    break;
+
+                case EOperationStatus.NotFound:
+                    result = new(EOperationStatus.NotFound, "Reward not found");
+                    break;
             }
-            else
-                result = new("Patch", EOperationStatus.NotAuthorized, "You have no permission to update this Reward");
         }
         catch (Exception e)
         {
             await repository.UnitOfWork.RollbackAsync(cancellationToken);
-            result = new("Patch", EOperationStatus.Failed, e.Message);
+            result = new(EOperationStatus.Failed, e.Message);
         }
 
         return result;

@@ -2,33 +2,42 @@
 
 public class InsertCarCommandHandler(IRepository<CarModel> repository) : IHandler<InsertCarCommand, DatabaseOperationResponseViewModel>
 {
-    public async Task<DatabaseOperationResponseViewModel> HandleAsync(InsertCarCommand command, 
+    public async Task<DatabaseOperationResponseViewModel> HandleAsync(InsertCarCommand command,
         CancellationToken cancellationToken)
     {
-        DatabaseOperationResponseViewModel result;
+        DatabaseOperationResponseViewModel result = new(EOperationStatus.Failed, "");
         try
         {
-            await repository.UnitOfWork.StartAsync(cancellationToken);
+            EOperationStatus status = await repository.CheckChangePermissionAsync(command, cancellationToken);
 
-            var databaseOperationResult = await repository.AddAsync(command, cancellationToken);
-
-            if (databaseOperationResult)
+            switch (status)
             {
-                await repository.UnitOfWork.SaveEntitiesAsync(cancellationToken);
-                await repository.UnitOfWork.CommitAsync(cancellationToken);
+                case EOperationStatus.Successful:
+                    await repository.UnitOfWork.StartAsync(cancellationToken);
 
-                result = new DatabaseOperationResponseViewModel("Post", EOperationStatus.Successful, "Car was inserted successfully!");
-            }
-            else
-            {
-                await repository.UnitOfWork.RollbackAsync(cancellationToken);
-                result = new DatabaseOperationResponseViewModel("Post", EOperationStatus.Failed, "Car was not inserted!");
+                    await repository.AddAsync(command, cancellationToken);
+
+                    await repository.UnitOfWork.SaveEntitiesAsync(cancellationToken);
+                    await repository.UnitOfWork.CommitAsync(cancellationToken);
+
+                    result = new DatabaseOperationResponseViewModel(EOperationStatus.Successful, "Car was inserted successfully!");
+                    break;
+
+                case EOperationStatus.NotAuthorized:
+                    break;
+
+                case EOperationStatus.Failed:
+                    result = new(EOperationStatus.Failed, "No client were found with this email, contact administrator");
+                    break;
+
+                case EOperationStatus.NotFound:
+                    break;
             }
         }
         catch (Exception e)
         {
             await repository.UnitOfWork.RollbackAsync(cancellationToken);
-            result = new DatabaseOperationResponseViewModel("Post", EOperationStatus.Failed, e.Message);
+            result = new DatabaseOperationResponseViewModel(EOperationStatus.Failed, e.Message);
         }
 
         return result;

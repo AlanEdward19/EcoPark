@@ -4,38 +4,43 @@ public class InsertRewardCommandHandler(IRepository<RewardModel> repository) : I
 {
     public async Task<DatabaseOperationResponseViewModel> HandleAsync(InsertRewardCommand command, CancellationToken cancellationToken)
     {
-        DatabaseOperationResponseViewModel result;
+        DatabaseOperationResponseViewModel result = new(EOperationStatus.Failed, "AAAAA");
 
         try
         {
-            if (await repository.CheckChangePermissionAsync(command, cancellationToken))
+            EOperationStatus status = await repository.CheckChangePermissionAsync(command, cancellationToken);
+
+            switch (status)
             {
-                await repository.UnitOfWork.StartAsync(cancellationToken);
+                case EOperationStatus.Successful:
+                    await repository.UnitOfWork.StartAsync(cancellationToken);
 
-                var databaseOperationResult = await repository.AddAsync(command, cancellationToken);
+                    await repository.AddAsync(command, cancellationToken);
 
-                if (databaseOperationResult)
-                {
                     await repository.UnitOfWork.SaveEntitiesAsync(cancellationToken);
                     await repository.UnitOfWork.CommitAsync(cancellationToken);
 
-                    result = new DatabaseOperationResponseViewModel("Post", EOperationStatus.Successful,
-                        "Reward was inserted successfully!");
-                }
-                else
-                {
-                    await repository.UnitOfWork.RollbackAsync(cancellationToken);
-                    result = new DatabaseOperationResponseViewModel("Post", EOperationStatus.Failed, "Reward was not inserted!");
-                }
-            }
-            else
-                result = new("Post", EOperationStatus.NotAuthorized, "You have no permission to create a Reward with this location");
+                    result = new DatabaseOperationResponseViewModel(EOperationStatus.Successful, "Reward was inserted successfully!");
 
+                    break;
+
+                case EOperationStatus.NotAuthorized:
+                    result = new DatabaseOperationResponseViewModel(EOperationStatus.NotAuthorized, "You have no permission to create a Reward with this location");
+                    break;
+
+                case EOperationStatus.Failed:
+                    break;
+
+                case EOperationStatus.NotFound:
+                    result = new DatabaseOperationResponseViewModel(EOperationStatus.NotFound,
+                        "Location not found, check input data");
+                    break;
+            }
         }
         catch (Exception e)
         {
             await repository.UnitOfWork.RollbackAsync(cancellationToken);
-            result = new DatabaseOperationResponseViewModel("Post", EOperationStatus.Failed, e.Message);
+            result = new DatabaseOperationResponseViewModel(EOperationStatus.Failed, e.Message);
         }
 
         return result;

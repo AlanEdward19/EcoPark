@@ -94,6 +94,7 @@ public class RewardController(ILogger<RewardController> logger) : ControllerBase
         {
             EOperationStatus.Successful => Ok(result),
             EOperationStatus.Failed => BadRequest(result),
+            EOperationStatus.NotFound => NotFound(result),
             EOperationStatus.NotAuthorized => Unauthorized(result)
         };
     }
@@ -128,6 +129,7 @@ public class RewardController(ILogger<RewardController> logger) : ControllerBase
         {
             EOperationStatus.Successful => Ok(result),
             EOperationStatus.Failed => BadRequest(result),
+            EOperationStatus.NotFound => NotFound(result),
             EOperationStatus.NotAuthorized => Unauthorized(result)
         };
     }
@@ -162,7 +164,8 @@ public class RewardController(ILogger<RewardController> logger) : ControllerBase
         return status switch
         {
             EOperationStatus.Successful => Created(Request.GetDisplayUrl(), result),
-            EOperationStatus.Failed => NotFound(result),
+            EOperationStatus.NotFound => NotFound(result),
+            EOperationStatus.Failed => BadRequest(result),
             EOperationStatus.NotAuthorized => Unauthorized(result)
         };
     }
@@ -192,7 +195,8 @@ public class RewardController(ILogger<RewardController> logger) : ControllerBase
         return status switch
         {
             EOperationStatus.Successful => Accepted(Request.GetDisplayUrl(), result),
-            EOperationStatus.Failed => NotFound(result),
+            EOperationStatus.NotFound => NotFound(result),
+            EOperationStatus.Failed => BadRequest(result),
             EOperationStatus.NotAuthorized => Unauthorized(result)
         };
     }
