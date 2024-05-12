@@ -2,41 +2,46 @@
 
 public class DeleteCarCommandHandler(IRepository<CarModel> repository) : IHandler<DeleteCarCommand, DatabaseOperationResponseViewModel>
 {
-    public async Task<DatabaseOperationResponseViewModel> HandleAsync(DeleteCarCommand command, 
+    public async Task<DatabaseOperationResponseViewModel> HandleAsync(DeleteCarCommand command,
         CancellationToken cancellationToken)
     {
-        DatabaseOperationResponseViewModel result;
+        DatabaseOperationResponseViewModel result = new(EOperationStatus.Failed, "");
         try
         {
-            if (await repository.CheckChangePermissionAsync(command, cancellationToken))
+            EOperationStatus status = await repository.CheckChangePermissionAsync(command, cancellationToken);
+
+            switch (status)
             {
-                await repository.UnitOfWork.StartAsync(cancellationToken);
+                case EOperationStatus.Successful:
+                    await repository.UnitOfWork.StartAsync(cancellationToken);
 
-                var databaseOperationResult = await repository.DeleteAsync(command, cancellationToken);
+                    await repository.DeleteAsync(command, cancellationToken);
 
-                if (databaseOperationResult)
-                {
                     await repository.UnitOfWork.SaveEntitiesAsync(cancellationToken);
                     await repository.UnitOfWork.CommitAsync(cancellationToken);
 
-                    result = new DatabaseOperationResponseViewModel("Delete", EOperationStatus.Successful,
+                    result = new DatabaseOperationResponseViewModel(EOperationStatus.Successful,
                         "Car was deleted successfully!");
-                }
-                else
-                {
-                    await repository.UnitOfWork.RollbackAsync(cancellationToken);
-                    result = new DatabaseOperationResponseViewModel("Delete", EOperationStatus.Failed,
-                        "No Car were found with this id");
-                }
-            }
-            else
-                result = new("Delete", EOperationStatus.NotAuthorized, "You have no permission to delete this car");
 
+                    break;
+
+                case EOperationStatus.NotAuthorized:
+                    result = new(EOperationStatus.NotAuthorized, "You have no permission to delete this car");
+                    break;
+
+                case EOperationStatus.Failed:
+                    break;
+
+                case EOperationStatus.NotFound:
+                    result = new DatabaseOperationResponseViewModel(EOperationStatus.NotFound,
+                        "No Car were found with this id");
+                    break;
+            }
         }
         catch (Exception e)
         {
             await repository.UnitOfWork.RollbackAsync(cancellationToken);
-            result = new DatabaseOperationResponseViewModel("Delete", EOperationStatus.Failed, e.Message);
+            result = new DatabaseOperationResponseViewModel(EOperationStatus.Failed, e.Message);
         }
 
         return result;

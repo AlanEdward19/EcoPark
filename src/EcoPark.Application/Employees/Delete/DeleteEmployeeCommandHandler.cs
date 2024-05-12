@@ -4,40 +4,46 @@ public class DeleteEmployeeCommandHandler(IRepository<EmployeeModel> repository)
 {
     public async Task<DatabaseOperationResponseViewModel> HandleAsync(DeleteEmployeeCommand command, CancellationToken cancellationToken)
     {
-        DatabaseOperationResponseViewModel result;
+        DatabaseOperationResponseViewModel result = new(EOperationStatus.Failed, "AAAAA");
 
         try
         {
-            if (await repository.CheckChangePermissionAsync(command, cancellationToken))
+            EOperationStatus status = await repository.CheckChangePermissionAsync(command, cancellationToken);
+
+            switch (status)
             {
-                await repository.UnitOfWork.StartAsync(cancellationToken);
+                case EOperationStatus.Successful:
+                    await repository.UnitOfWork.StartAsync(cancellationToken);
 
-                var databaseOperationResult = await repository.DeleteAsync(command, cancellationToken);
+                    await repository.DeleteAsync(command, cancellationToken);
 
-                if (databaseOperationResult)
-                {
                     await repository.UnitOfWork.SaveEntitiesAsync(cancellationToken);
                     await repository.UnitOfWork.CommitAsync(cancellationToken);
 
-                    result = new DatabaseOperationResponseViewModel("Delete", EOperationStatus.Successful,
-                        "Employee was deleted successfully!");
-                }
-                else
-                {
-                    await repository.UnitOfWork.RollbackAsync(cancellationToken);
-                    result = new DatabaseOperationResponseViewModel("Delete", EOperationStatus.Failed,
-                        "No Employee were found with this id");
-                }
-            }
-            else
-                result = new DatabaseOperationResponseViewModel("Delete", EOperationStatus.NotAuthorized,
-                    "You have no permission to delete this employee");
+                    result = new DatabaseOperationResponseViewModel(EOperationStatus.Successful,
+                                                   "Employee was deleted successfully!");
 
+                    break;
+
+                case EOperationStatus.NotAuthorized:
+                    result = new DatabaseOperationResponseViewModel(EOperationStatus.NotAuthorized,
+                                               "You have no permission to delete this employee");
+                    break;
+
+                case EOperationStatus.NotFound:
+                    result = new DatabaseOperationResponseViewModel(EOperationStatus.NotFound,
+                                               "No Employee were found with this id");
+                    break;
+
+                case EOperationStatus.Failed:
+                    result = new(EOperationStatus.Failed, "An error occurred while trying to delete employee, check input data");
+                    break;
+            }
         }
         catch (Exception e)
         {
             await repository.UnitOfWork.RollbackAsync(cancellationToken);
-            result = new DatabaseOperationResponseViewModel("Delete", EOperationStatus.Failed, e.Message);
+            result = new DatabaseOperationResponseViewModel(EOperationStatus.Failed, e.Message);
         }
 
         return result;

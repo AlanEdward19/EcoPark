@@ -1,6 +1,6 @@
 ﻿namespace EcoPark.Application.Clients.List;
 
-public class ListClientsQueryHandler(IAggregateRepository<ClientModel> repository) : IHandler<ListClientsQuery, IEnumerable<ClientSimplifiedViewModel>>
+public class ListClientsQueryHandler(IRepository<ClientModel> repository) : IHandler<ListClientsQuery, IEnumerable<ClientSimplifiedViewModel>>
 {
     public async Task<IEnumerable<ClientSimplifiedViewModel>> HandleAsync(ListClientsQuery command, CancellationToken cancellationToken)
     {
@@ -19,7 +19,7 @@ public class ListClientsQueryHandler(IAggregateRepository<ClientModel> repositor
                     new CarViewModel(car.Id, car.Plate, car.Type, car.Brand, car.Model, car.Color, car.Year));
 
                 ClientViewModel model = new(client.Credentials.Id, client.Credentials.Email,
-                    client.Credentials.FirstName, client.Credentials.LastName, cars);
+                    client.Credentials.FirstName, client.Credentials.LastName, client.Credentials.Image, cars);
 
                 result.Add(model);
             }
@@ -33,7 +33,7 @@ public class ListClientsQueryHandler(IAggregateRepository<ClientModel> repositor
             foreach (var client in clients)
             {
                 ClientSimplifiedViewModel model = new(client.Credentials.Id, client.Credentials.Email,
-                    client.Credentials.FirstName, client.Credentials.LastName);
+                    client.Credentials.FirstName, client.Credentials.LastName, client.Credentials.Image);
 
                 result.Add(model);
             }

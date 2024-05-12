@@ -2,39 +2,45 @@
 
 public class UpdateReservationCommandHandler(IRepository<ReservationModel> repository) : IHandler<UpdateReservationCommand, DatabaseOperationResponseViewModel>
 {
-    public async Task<DatabaseOperationResponseViewModel> HandleAsync(UpdateReservationCommand command, 
+    public async Task<DatabaseOperationResponseViewModel> HandleAsync(UpdateReservationCommand command,
         CancellationToken cancellationToken)
     {
-        DatabaseOperationResponseViewModel result;
+        DatabaseOperationResponseViewModel result = new(EOperationStatus.Failed, "AAAAA");
 
         try
         {
-            if (await repository.CheckChangePermissionAsync(command, cancellationToken))
+            EOperationStatus status = await repository.CheckChangePermissionAsync(command, cancellationToken);
+
+            switch (status)
             {
-                await repository.UnitOfWork.StartAsync(cancellationToken);
+                case EOperationStatus.Successful:
+                    await repository.UnitOfWork.StartAsync(cancellationToken);
 
-                var databaseOperationResult = await repository.UpdateAsync(command, cancellationToken);
+                    await repository.UpdateAsync(command, cancellationToken);
 
-                if (databaseOperationResult)
-                {
                     await repository.UnitOfWork.SaveEntitiesAsync(cancellationToken);
                     await repository.UnitOfWork.CommitAsync(cancellationToken);
 
-                    result = new("Patch", EOperationStatus.Successful, "Reservation updated successfully");
-                }
-                else
-                {
-                    await repository.UnitOfWork.RollbackAsync(cancellationToken);
-                    result = new("Patch", EOperationStatus.Failed, "No Reservations were found with this id");
-                }
+                    result = new(EOperationStatus.Successful, "Reservation updated successfully");
+
+                    break;
+
+                case EOperationStatus.NotAuthorized:
+                    result = new(EOperationStatus.NotAuthorized, "You have no permission to update this reservation");
+                    break;
+
+                case EOperationStatus.Failed:
+                    break;
+
+                case EOperationStatus.NotFound:
+                    result = new(EOperationStatus.NotFound, "Reservation not found");
+                    break;
             }
-            else
-                result = new("Patch", EOperationStatus.NotAuthorized, "You have no permission to update this reservation");
         }
         catch (Exception e)
         {
             await repository.UnitOfWork.RollbackAsync(cancellationToken);
-            result = new("Patch", EOperationStatus.Failed, e.Message);
+            result = new(EOperationStatus.Failed, e.Message);
         }
 
         return result;

@@ -5,37 +5,41 @@ public class UpdateCarCommandHandler(IRepository<CarModel> repository) : IHandle
     public async Task<DatabaseOperationResponseViewModel> HandleAsync(UpdateCarCommand command,
         CancellationToken cancellationToken)
     {
-        DatabaseOperationResponseViewModel result;
-
+        DatabaseOperationResponseViewModel result = new(EOperationStatus.Failed, "");
         try
         {
-            if (await repository.CheckChangePermissionAsync(command, cancellationToken))
+            EOperationStatus status = await repository.CheckChangePermissionAsync(command, cancellationToken);
+
+            switch (status)
             {
-                await repository.UnitOfWork.StartAsync(cancellationToken);
+                case EOperationStatus.Successful:
+                    await repository.UnitOfWork.StartAsync(cancellationToken);
 
-                var databaseOperationResult = await repository.UpdateAsync(command, cancellationToken);
+                    await repository.UpdateAsync(command, cancellationToken);
 
-                if (databaseOperationResult)
-                {
                     await repository.UnitOfWork.SaveEntitiesAsync(cancellationToken);
                     await repository.UnitOfWork.CommitAsync(cancellationToken);
 
-                    result = new("Patch", EOperationStatus.Successful, "Car updated successfully");
-                }
-                else
-                {
-                    await repository.UnitOfWork.RollbackAsync(cancellationToken);
-                    result = new("Patch", EOperationStatus.Failed, "No Car were found with this id");
-                }
-            }
+                    result = new(EOperationStatus.Successful, "Car updated successfully");
 
-            else
-                result = new("Patch", EOperationStatus.NotAuthorized, "You have no permission to update this car");
+                    break;
+
+                case EOperationStatus.NotAuthorized:
+                    result = new(EOperationStatus.NotAuthorized, "You have no permission to update this car");
+                    break;
+
+                case EOperationStatus.Failed:
+                    break;
+
+                case EOperationStatus.NotFound:
+                    result = new(EOperationStatus.NotFound, "No Car were found with this id");
+                    break;
+            }
         }
         catch (Exception e)
         {
             await repository.UnitOfWork.RollbackAsync(cancellationToken);
-            result = new("Patch", EOperationStatus.Failed, e.Message);
+            result = new( EOperationStatus.Failed, e.Message);
         }
 
         return result;

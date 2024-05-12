@@ -6,9 +6,12 @@ global using System.Text.Json.Serialization;
 global using EcoPark.Domain.Interfaces;
 global using EcoPark.Domain.Commons.Enums;
 global using EcoPark.Domain.DataModels;
-global using EcoPark.Domain.Commons.Base;
+global using EcoPark.Domain.DataModels.Client;
 global using EcoPark.Domain.Interfaces.Database;
 global using EcoPark.Domain.Interfaces.Services;
+global using EcoPark.Domain.DataModels.Employee;
+global using EcoPark.Domain.DataModels.Employee.Location;
+global using EcoPark.Domain.DataModels.Employee.Location.ParkingSpace;
 
 #endregion
 
@@ -41,8 +44,7 @@ global using EcoPark.Application.Employees.Get;
 global using EcoPark.Application.Employees.Insert;
 global using EcoPark.Application.Employees.List;
 global using EcoPark.Application.Employees.Update;
-global using EcoPark.Application.Authentication;
-
 global using EcoPark.Application.Commons.Base.Commands;
+global using EcoPark.Application.Rewards.Models;
 
 #endregion

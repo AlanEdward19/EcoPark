@@ -8,7 +8,9 @@ public partial class DatabaseDbContext
     public DbSet<CredentialsModel> Credentials { get; set; }
     public DbSet<GroupAccessModel> GroupAccesses { get; set; }
     public DbSet<PunctuationModel> Punctuations { get; set; }
+    public DbSet<RewardModel> Rewards { get; set; }
     public DbSet<ClientModel> Clients { get; set; }
+    public DbSet<ClientClaimedRewardModel> ClientClaimedRewards { get; set; }
     public DbSet<EmployeeModel> Employees { get; set; }
     public DbSet<CarModel> Cars { get; set; }
 }

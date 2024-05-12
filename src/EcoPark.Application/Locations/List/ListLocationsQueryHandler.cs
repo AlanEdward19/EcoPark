@@ -1,6 +1,6 @@
 ﻿namespace EcoPark.Application.Locations.List;
 
-public class ListLocationsQueryHandler(IAggregateRepository<LocationModel> repository) : IHandler<ListLocationQuery, IEnumerable<LocationSimplifiedViewModel>>
+public class ListLocationsQueryHandler(IRepository<LocationModel> repository) : IHandler<ListLocationQuery, IEnumerable<LocationSimplifiedViewModel>>
 {
     public async Task<IEnumerable<LocationSimplifiedViewModel>> HandleAsync(ListLocationQuery command, CancellationToken cancellationToken)
     {

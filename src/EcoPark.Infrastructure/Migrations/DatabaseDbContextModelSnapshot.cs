@@ -22,7 +22,7 @@ namespace EcoPark.Infrastructure.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("EcoPark.Domain.DataModels.CarModel", b =>
+            modelBuilder.Entity("EcoPark.Domain.DataModels.Client.CarModel", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -66,7 +66,37 @@ namespace EcoPark.Infrastructure.Migrations
                     b.ToTable("Cars");
                 });
 
-            modelBuilder.Entity("EcoPark.Domain.DataModels.ClientModel", b =>
+            modelBuilder.Entity("EcoPark.Domain.DataModels.Client.ClientClaimedRewardModel", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("ClientId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsUsed")
+                        .HasColumnType("bit");
+
+                    b.Property<Guid>("RewardId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ClientId");
+
+                    b.HasIndex("RewardId");
+
+                    b.ToTable("ClientClaimedRewards");
+                });
+
+            modelBuilder.Entity("EcoPark.Domain.DataModels.Client.ClientModel", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -80,6 +110,36 @@ namespace EcoPark.Infrastructure.Migrations
                     b.HasIndex("CredentialsId");
 
                     b.ToTable("Clients");
+                });
+
+            modelBuilder.Entity("EcoPark.Domain.DataModels.Client.PunctuationModel", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("ClientId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("LocationId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<double>("Punctuation")
+                        .HasColumnType("float");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ClientId");
+
+                    b.HasIndex("LocationId");
+
+                    b.ToTable("Punctuations");
                 });
 
             modelBuilder.Entity("EcoPark.Domain.DataModels.CredentialsModel", b =>
@@ -97,6 +157,9 @@ namespace EcoPark.Infrastructure.Migrations
 
                     b.Property<string>("FirstName")
                         .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Image")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Ipv4")
@@ -121,7 +184,7 @@ namespace EcoPark.Infrastructure.Migrations
                     b.ToTable("Credentials");
                 });
 
-            modelBuilder.Entity("EcoPark.Domain.DataModels.EmployeeModel", b =>
+            modelBuilder.Entity("EcoPark.Domain.DataModels.Employee.EmployeeModel", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -142,7 +205,7 @@ namespace EcoPark.Infrastructure.Migrations
                     b.ToTable("Employees");
                 });
 
-            modelBuilder.Entity("EcoPark.Domain.DataModels.GroupAccessModel", b =>
+            modelBuilder.Entity("EcoPark.Domain.DataModels.Employee.GroupAccessModel", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -170,7 +233,7 @@ namespace EcoPark.Infrastructure.Migrations
                     b.ToTable("GroupAccesses");
                 });
 
-            modelBuilder.Entity("EcoPark.Domain.DataModels.LocationModel", b =>
+            modelBuilder.Entity("EcoPark.Domain.DataModels.Employee.Location.LocationModel", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -212,7 +275,7 @@ namespace EcoPark.Infrastructure.Migrations
                     b.ToTable("Locations");
                 });
 
-            modelBuilder.Entity("EcoPark.Domain.DataModels.ParkingSpaceModel", b =>
+            modelBuilder.Entity("EcoPark.Domain.DataModels.Employee.Location.ParkingSpace.ParkingSpaceModel", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -247,37 +310,7 @@ namespace EcoPark.Infrastructure.Migrations
                     b.ToTable("ParkingSpaces");
                 });
 
-            modelBuilder.Entity("EcoPark.Domain.DataModels.PunctuationModel", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("ClientId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<Guid>("LocationId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<double>("Punctuation")
-                        .HasColumnType("float");
-
-                    b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ClientId");
-
-                    b.HasIndex("LocationId");
-
-                    b.ToTable("Punctuations");
-                });
-
-            modelBuilder.Entity("EcoPark.Domain.DataModels.ReservationModel", b =>
+            modelBuilder.Entity("EcoPark.Domain.DataModels.Employee.Location.ParkingSpace.ReservationModel", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -325,9 +358,59 @@ namespace EcoPark.Infrastructure.Migrations
                     b.ToTable("Reservations");
                 });
 
-            modelBuilder.Entity("EcoPark.Domain.DataModels.CarModel", b =>
+            modelBuilder.Entity("EcoPark.Domain.DataModels.Employee.Location.RewardModel", b =>
                 {
-                    b.HasOne("EcoPark.Domain.DataModels.ClientModel", "Client")
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int?>("AvailableQuantity")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("ExpirationDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Image")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<Guid>("LocationId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<double>("RequiredPoints")
+                        .HasColumnType("float");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Url")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("LocationId");
+
+                    b.ToTable("Rewards");
+                });
+
+            modelBuilder.Entity("EcoPark.Domain.DataModels.Client.CarModel", b =>
+                {
+                    b.HasOne("EcoPark.Domain.DataModels.Client.ClientModel", "Client")
                         .WithMany("Cars")
                         .HasForeignKey("ClientId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -336,7 +419,26 @@ namespace EcoPark.Infrastructure.Migrations
                     b.Navigation("Client");
                 });
 
-            modelBuilder.Entity("EcoPark.Domain.DataModels.ClientModel", b =>
+            modelBuilder.Entity("EcoPark.Domain.DataModels.Client.ClientClaimedRewardModel", b =>
+                {
+                    b.HasOne("EcoPark.Domain.DataModels.Client.ClientModel", "Client")
+                        .WithMany("ClaimedRewards")
+                        .HasForeignKey("ClientId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.HasOne("EcoPark.Domain.DataModels.Employee.Location.RewardModel", "Reward")
+                        .WithMany()
+                        .HasForeignKey("RewardId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Client");
+
+                    b.Navigation("Reward");
+                });
+
+            modelBuilder.Entity("EcoPark.Domain.DataModels.Client.ClientModel", b =>
                 {
                     b.HasOne("EcoPark.Domain.DataModels.CredentialsModel", "Credentials")
                         .WithMany()
@@ -347,9 +449,28 @@ namespace EcoPark.Infrastructure.Migrations
                     b.Navigation("Credentials");
                 });
 
-            modelBuilder.Entity("EcoPark.Domain.DataModels.EmployeeModel", b =>
+            modelBuilder.Entity("EcoPark.Domain.DataModels.Client.PunctuationModel", b =>
                 {
-                    b.HasOne("EcoPark.Domain.DataModels.EmployeeModel", "Administrator")
+                    b.HasOne("EcoPark.Domain.DataModels.Client.ClientModel", "Client")
+                        .WithMany("Punctuations")
+                        .HasForeignKey("ClientId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.HasOne("EcoPark.Domain.DataModels.Employee.Location.LocationModel", "Location")
+                        .WithMany()
+                        .HasForeignKey("LocationId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Client");
+
+                    b.Navigation("Location");
+                });
+
+            modelBuilder.Entity("EcoPark.Domain.DataModels.Employee.EmployeeModel", b =>
+                {
+                    b.HasOne("EcoPark.Domain.DataModels.Employee.EmployeeModel", "Administrator")
                         .WithMany("Employees")
                         .HasForeignKey("AdministratorId");
 
@@ -364,17 +485,17 @@ namespace EcoPark.Infrastructure.Migrations
                     b.Navigation("Credentials");
                 });
 
-            modelBuilder.Entity("EcoPark.Domain.DataModels.GroupAccessModel", b =>
+            modelBuilder.Entity("EcoPark.Domain.DataModels.Employee.GroupAccessModel", b =>
                 {
-                    b.HasOne("EcoPark.Domain.DataModels.EmployeeModel", "Employee")
+                    b.HasOne("EcoPark.Domain.DataModels.Employee.EmployeeModel", "Employee")
                         .WithMany("GroupAccesses")
                         .HasForeignKey("EmployeeId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("EcoPark.Domain.DataModels.LocationModel", "Location")
+                    b.HasOne("EcoPark.Domain.DataModels.Employee.Location.LocationModel", "Location")
                         .WithOne("GroupAccess")
-                        .HasForeignKey("EcoPark.Domain.DataModels.GroupAccessModel", "LocationId")
+                        .HasForeignKey("EcoPark.Domain.DataModels.Employee.GroupAccessModel", "LocationId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -383,9 +504,9 @@ namespace EcoPark.Infrastructure.Migrations
                     b.Navigation("Location");
                 });
 
-            modelBuilder.Entity("EcoPark.Domain.DataModels.LocationModel", b =>
+            modelBuilder.Entity("EcoPark.Domain.DataModels.Employee.Location.LocationModel", b =>
                 {
-                    b.HasOne("EcoPark.Domain.DataModels.EmployeeModel", "Owner")
+                    b.HasOne("EcoPark.Domain.DataModels.Employee.EmployeeModel", "Owner")
                         .WithMany()
                         .HasForeignKey("OwnerId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -394,9 +515,9 @@ namespace EcoPark.Infrastructure.Migrations
                     b.Navigation("Owner");
                 });
 
-            modelBuilder.Entity("EcoPark.Domain.DataModels.ParkingSpaceModel", b =>
+            modelBuilder.Entity("EcoPark.Domain.DataModels.Employee.Location.ParkingSpace.ParkingSpaceModel", b =>
                 {
-                    b.HasOne("EcoPark.Domain.DataModels.LocationModel", "Location")
+                    b.HasOne("EcoPark.Domain.DataModels.Employee.Location.LocationModel", "Location")
                         .WithMany("ParkingSpaces")
                         .HasForeignKey("LocationId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -405,36 +526,17 @@ namespace EcoPark.Infrastructure.Migrations
                     b.Navigation("Location");
                 });
 
-            modelBuilder.Entity("EcoPark.Domain.DataModels.PunctuationModel", b =>
+            modelBuilder.Entity("EcoPark.Domain.DataModels.Employee.Location.ParkingSpace.ReservationModel", b =>
                 {
-                    b.HasOne("EcoPark.Domain.DataModels.ClientModel", "Client")
-                        .WithMany("Punctuations")
-                        .HasForeignKey("ClientId")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
-
-                    b.HasOne("EcoPark.Domain.DataModels.LocationModel", "Location")
-                        .WithMany()
-                        .HasForeignKey("LocationId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Client");
-
-                    b.Navigation("Location");
-                });
-
-            modelBuilder.Entity("EcoPark.Domain.DataModels.ReservationModel", b =>
-                {
-                    b.HasOne("EcoPark.Domain.DataModels.CarModel", "Car")
+                    b.HasOne("EcoPark.Domain.DataModels.Client.CarModel", "Car")
                         .WithMany("Reservations")
                         .HasForeignKey("CarId");
 
-                    b.HasOne("EcoPark.Domain.DataModels.ClientModel", "Client")
+                    b.HasOne("EcoPark.Domain.DataModels.Client.ClientModel", "Client")
                         .WithMany("Reservations")
                         .HasForeignKey("ClientId");
 
-                    b.HasOne("EcoPark.Domain.DataModels.ParkingSpaceModel", "ParkingSpace")
+                    b.HasOne("EcoPark.Domain.DataModels.Employee.Location.ParkingSpace.ParkingSpaceModel", "ParkingSpace")
                         .WithMany("Reservations")
                         .HasForeignKey("ParkingSpaceId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -447,35 +549,48 @@ namespace EcoPark.Infrastructure.Migrations
                     b.Navigation("ParkingSpace");
                 });
 
-            modelBuilder.Entity("EcoPark.Domain.DataModels.CarModel", b =>
+            modelBuilder.Entity("EcoPark.Domain.DataModels.Employee.Location.RewardModel", b =>
+                {
+                    b.HasOne("EcoPark.Domain.DataModels.Employee.Location.LocationModel", "Location")
+                        .WithMany()
+                        .HasForeignKey("LocationId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Location");
+                });
+
+            modelBuilder.Entity("EcoPark.Domain.DataModels.Client.CarModel", b =>
                 {
                     b.Navigation("Reservations");
                 });
 
-            modelBuilder.Entity("EcoPark.Domain.DataModels.ClientModel", b =>
+            modelBuilder.Entity("EcoPark.Domain.DataModels.Client.ClientModel", b =>
                 {
                     b.Navigation("Cars");
+
+                    b.Navigation("ClaimedRewards");
 
                     b.Navigation("Punctuations");
 
                     b.Navigation("Reservations");
                 });
 
-            modelBuilder.Entity("EcoPark.Domain.DataModels.EmployeeModel", b =>
+            modelBuilder.Entity("EcoPark.Domain.DataModels.Employee.EmployeeModel", b =>
                 {
                     b.Navigation("Employees");
 
                     b.Navigation("GroupAccesses");
                 });
 
-            modelBuilder.Entity("EcoPark.Domain.DataModels.LocationModel", b =>
+            modelBuilder.Entity("EcoPark.Domain.DataModels.Employee.Location.LocationModel", b =>
                 {
                     b.Navigation("GroupAccess");
 
                     b.Navigation("ParkingSpaces");
                 });
 
-            modelBuilder.Entity("EcoPark.Domain.DataModels.ParkingSpaceModel", b =>
+            modelBuilder.Entity("EcoPark.Domain.DataModels.Employee.Location.ParkingSpace.ParkingSpaceModel", b =>
                 {
                     b.Navigation("Reservations");
                 });

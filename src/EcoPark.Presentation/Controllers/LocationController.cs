@@ -92,6 +92,7 @@ public class LocationController(ILogger<LocationController> logger) : Controller
         {
             EOperationStatus.Successful => Created(Request.GetDisplayUrl(), result),
             EOperationStatus.Failed => BadRequest(result),
+            EOperationStatus.NotFound => NotFound(result),
             EOperationStatus.NotAuthorized => Unauthorized(result)
         };
     }
@@ -126,7 +127,8 @@ public class LocationController(ILogger<LocationController> logger) : Controller
         return status switch
         {
             EOperationStatus.Successful => Created(Request.GetDisplayUrl(), result),
-            EOperationStatus.Failed => NotFound(result),
+            EOperationStatus.NotFound => NotFound(result),
+            EOperationStatus.Failed => BadRequest(result),
             EOperationStatus.NotAuthorized => Unauthorized(result)
         };
     }
@@ -159,7 +161,8 @@ public class LocationController(ILogger<LocationController> logger) : Controller
         return status switch
         {
             EOperationStatus.Successful => Accepted(Request.GetDisplayUrl(), result),
-            EOperationStatus.Failed => NotFound(result),
+            EOperationStatus.NotFound => NotFound(result),
+            EOperationStatus.Failed => BadRequest(result),
             EOperationStatus.NotAuthorized => Unauthorized(result)
         };
     }

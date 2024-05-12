@@ -5,7 +5,6 @@ using EcoPark.Application.Reservations.List;
 using EcoPark.Application.Reservations.Update;
 using EcoPark.Application.Reservations.Update.Status;
 using EcoPark.Domain.Aggregates.Location.ParkingSpace;
-using EcoPark.Domain.Commons.Enums;
 using Microsoft.Extensions.Logging;
 
 namespace EcoPark.Infrastructure.Repositories;
@@ -14,35 +13,71 @@ public class ReservationRepository(DatabaseDbContext databaseDbContext, IUnitOfW
 {
     public IUnitOfWork UnitOfWork { get; } = unitOfWork;
 
-    public async Task<bool> CheckChangePermissionAsync(ICommand command, CancellationToken cancellationToken)
+    public async Task<EOperationStatus> CheckChangePermissionAsync(ICommand command, CancellationToken cancellationToken)
     {
         ReservationModel? reservationModel = null;
         ClientModel? client;
+        EmployeeModel? employeeModel;
+        LocationModel? locationModel;
         var requestUserInfo = command.RequestUserInfo;
 
         switch (command)
         {
-            case UpdateReservationStatusCommand:
-                return requestUserInfo.UserType == EUserType.System;
+            case UpdateReservationStatusCommand updateReservationStatusCommand:
+                if (requestUserInfo.UserType != EUserType.System)
+                    return EOperationStatus.NotAuthorized;
+
+                if (updateReservationStatusCommand!.ReservationId != null)
+                    reservationModel = await databaseDbContext.Reservations
+                        .AsNoTracking()
+                        .AsSplitQuery()
+                        .Include(reservationModel => reservationModel.ParkingSpace!)
+                        .ThenInclude(parkingSpaceModel => parkingSpaceModel.Location!)
+                        .FirstOrDefaultAsync(r => r.Id == updateReservationStatusCommand.ReservationId, cancellationToken);
+
+                else if (!string.IsNullOrWhiteSpace(updateReservationStatusCommand!.ReservationCode))
+                    reservationModel = await databaseDbContext.Reservations
+                        .AsNoTracking()
+                        .AsSplitQuery()
+                        .Include(x => x.ParkingSpace)
+                        .ThenInclude(x => x.Location)
+                        .FirstOrDefaultAsync(
+                            r => r.ReservationCode.Equals(updateReservationStatusCommand.ReservationCode) &&
+                                 r.Status == EReservationStatus.Confirmed, cancellationToken);
+
+                if(reservationModel == null) return EOperationStatus.NotFound;
+
+                locationModel = reservationModel!.ParkingSpace!.Location!;
+
+                employeeModel = (await databaseDbContext.Employees
+                    .Include(x => x.Credentials)
+                    .Include(x => x.GroupAccesses)
+                    .FirstOrDefaultAsync(x => x.Credentials.Email.Equals(requestUserInfo.Email), cancellationToken))!;
+
+                return employeeModel.GroupAccesses.Any(x => x.LocationId.Equals(locationModel.Id))
+                    ? EOperationStatus.Successful
+                    : EOperationStatus.NotAuthorized;
 
             case UpdateReservationCommand updateCommand:
-
                 reservationModel = await databaseDbContext.Reservations
                     .AsNoTracking()
                     .Include(x => x.Client)
                     .ThenInclude(x => x.Credentials)
                     .AsSplitQuery()
                     .FirstOrDefaultAsync(x =>
-                            x.Id.Equals(updateCommand.ReservationId) &&
-                            x.Client.Credentials.Email.Equals(requestUserInfo.Email),
-                        cancellationToken);
+                        x.Id.Equals(updateCommand.ReservationId), cancellationToken);
+
+                if (reservationModel == null) return EOperationStatus.NotFound;
+
+                if (!reservationModel!.Client!.Credentials.Email.Equals(requestUserInfo.Email))
+                    return EOperationStatus.NotAuthorized;
 
                 break;
 
             case DeleteReservationCommand deleteCommand:
 
                 if (requestUserInfo.UserType == EUserType.PlataformAdministrator)
-                    return true;
+                    return EOperationStatus.Successful;
 
                 if (requestUserInfo.UserType is EUserType.Administrator or EUserType.Employee)
                 {
@@ -54,14 +89,12 @@ public class ReservationRepository(DatabaseDbContext databaseDbContext, IUnitOfW
                         .FirstOrDefaultAsync(x =>
                                 x.Id.Equals(deleteCommand.Id), cancellationToken);
 
-                    if (reservationModel == null) return false;
+                    if (reservationModel == null) return EOperationStatus.NotFound;
 
-                    var locationModel = await databaseDbContext.Locations
+                    locationModel = await databaseDbContext.Locations
                         .Include(x => x.ParkingSpaces)
                         .FirstOrDefaultAsync(x =>
                             x.ParkingSpaces.Any(y => y.Id.Equals(reservationModel.ParkingSpaceId)), cancellationToken);
-
-                    if (locationModel == null) return false;
 
                     var owner = await databaseDbContext.Employees
                         .Include(x => x.Credentials)
@@ -69,18 +102,18 @@ public class ReservationRepository(DatabaseDbContext databaseDbContext, IUnitOfW
                         .ThenInclude(x => x.Credentials)
                         .FirstOrDefaultAsync(x => x.Id.Equals(locationModel.OwnerId), cancellationToken);
 
-                    if (owner == null) return false;
-
-                    if (owner.Credentials.Email.Equals(requestUserInfo.Email)) return true;
+                    if (owner.Credentials.Email.Equals(requestUserInfo.Email)) return EOperationStatus.Successful;
 
                     if (owner.Employees.Select(x => x.Credentials.Email).Contains(requestUserInfo.Email))
                     {
-                        EmployeeModel employeeModel = (await databaseDbContext.Employees
+                        employeeModel = (await databaseDbContext.Employees
                             .Include(x => x.Credentials)
                             .Include(x => x.GroupAccesses)
                             .FirstOrDefaultAsync(x => x.Credentials.Email.Equals(requestUserInfo.Email), cancellationToken))!;
 
-                        return employeeModel.GroupAccesses.Any(x => x.LocationId.Equals(locationModel.Id));
+                        return employeeModel.GroupAccesses.Any(x => x.LocationId.Equals(locationModel.Id))
+                            ? EOperationStatus.Successful
+                            : EOperationStatus.NotAuthorized;
                     }
                 }
 
@@ -90,9 +123,12 @@ public class ReservationRepository(DatabaseDbContext databaseDbContext, IUnitOfW
                     .ThenInclude(x => x.Credentials)
                     .AsSplitQuery()
                     .FirstOrDefaultAsync(x =>
-                            x.Id.Equals(deleteCommand.Id) && x.Client.Credentials.Email.Equals(
-                                deleteCommand.RequestUserInfo.Email),
-                        cancellationToken);
+                            x.Id.Equals(deleteCommand.Id), cancellationToken);
+
+                if (reservationModel == null) return EOperationStatus.NotFound;
+
+                if (!reservationModel!.Client!.Credentials.Email.Equals(deleteCommand.RequestUserInfo.Email))
+                    return EOperationStatus.NotAuthorized;
 
                 break;
 
@@ -111,7 +147,7 @@ public class ReservationRepository(DatabaseDbContext databaseDbContext, IUnitOfW
                                 x.ExpirationDate >= insertCommand!.ReservationDate)
                     .FirstOrDefaultAsync(cancellationToken);
 
-                if (reservation != null) return false;
+                if (reservation != null) return EOperationStatus.Failed;
 
                 client =
                     await databaseDbContext.Clients
@@ -124,14 +160,23 @@ public class ReservationRepository(DatabaseDbContext databaseDbContext, IUnitOfW
                             cancellationToken);
 
                 if (client == null || !client.Cars!.Any())
-                    return false;
+                    return EOperationStatus.Failed;
+
+                ParkingSpaceModel? parkingSpaceModel = await databaseDbContext.ParkingSpaces
+                    .AsNoTracking()
+                    .AsSplitQuery()
+                    .Include(x => x.Location)
+                    .FirstOrDefaultAsync(e => e.Id == insertCommand.ParkingSpaceId, cancellationToken);
+
+                if (parkingSpaceModel == null)
+                    return EOperationStatus.NotFound;
 
                 int i = 0;
 
                 while (i < client.Cars.Count)
                 {
                     if (client.Cars.ElementAt(i).Id.Equals(insertCommand!.CarId))
-                        return true;
+                        return EOperationStatus.Successful;
 
                     i++;
                 }
@@ -139,32 +184,29 @@ public class ReservationRepository(DatabaseDbContext databaseDbContext, IUnitOfW
                 break;
         }
 
-        return reservationModel != null;
+        return reservationModel != null ? EOperationStatus.Successful : EOperationStatus.NotAuthorized;
     }
 
-    public async Task<bool> AddAsync(ICommand command, CancellationToken cancellationToken)
+    public async Task AddAsync(ICommand command, CancellationToken cancellationToken)
     {
         var parsedCommand = command as InsertReservationCommand;
 
         var requestUserInfo = command.RequestUserInfo;
 
-        ClientModel? clientModel = await databaseDbContext.Clients
+        ClientModel clientModel = await databaseDbContext.Clients
             .AsNoTracking()
             .AsSplitQuery()
             .Include(x => x.Credentials)
             .Include(x => x.Cars)
-            .FirstOrDefaultAsync(e => e.Credentials.Email.Equals(requestUserInfo.Email),
+            .FirstAsync(e => e.Credentials.Email.Equals(requestUserInfo.Email),
                 cancellationToken);
 
-        ParkingSpaceModel? parkingSpaceModel = await databaseDbContext.ParkingSpaces
+        ParkingSpaceModel parkingSpaceModel = await databaseDbContext.ParkingSpaces
             .AsNoTracking()
             .AsSplitQuery()
             .Include(x => x.Location)
-            .FirstOrDefaultAsync(e => e.Id == parsedCommand.ParkingSpaceId, cancellationToken);
+            .FirstAsync(e => e.Id == parsedCommand.ParkingSpaceId, cancellationToken);
 
-        if (clientModel == null || parkingSpaceModel == null) return false;
-
-        ReservationModel reservationModel;
 
         EReservationStatus reservationStatus;
 
@@ -206,7 +248,7 @@ public class ReservationRepository(DatabaseDbContext databaseDbContext, IUnitOfW
                          x.Status != EReservationStatus.Expired, cancellationToken);
         }
 
-        reservationModel = new(parsedCommand!.ParkingSpaceId!.Value, clientModel.Id,
+        ReservationModel reservationModel = new(parsedCommand!.ParkingSpaceId!.Value, clientModel.Id,
             parsedCommand.CarId!.Value, parsedCommand.ReservationDate!.Value, reservationCode,
             parkingSpaceModel.Location.ReservationGraceInMinutes, reservationStatus,
             Reservation.CalculatePunctuation(parsedCommand.ReservationDate.Value, lastReservation?.ReservationDate,
@@ -214,28 +256,30 @@ public class ReservationRepository(DatabaseDbContext databaseDbContext, IUnitOfW
                 parkingSpaceModel.Location.ReservationFeeRate));
 
         await databaseDbContext.Reservations.AddAsync(reservationModel, cancellationToken);
-
-        return true;
     }
 
-    public async Task<bool> UpdateAsync(ICommand command, CancellationToken cancellationToken) => command.GetType().Name switch
+    public async Task UpdateAsync(ICommand command, CancellationToken cancellationToken)
     {
-        nameof(UpdateReservationCommand) => await UpdateReservationAsync(command, cancellationToken),
-        nameof(UpdateReservationStatusCommand) => await UpdateReservationStatusAsync(command, cancellationToken)
-    };
+        switch (command)
+        {
+            case UpdateReservationCommand updateCommand:
+                await UpdateReservationAsync(updateCommand, cancellationToken);
+                break;
 
-    public async Task<bool> DeleteAsync(ICommand command, CancellationToken cancellationToken)
+            case UpdateReservationStatusCommand updateStatusCommand:
+                await UpdateReservationStatusAsync(updateStatusCommand, cancellationToken);
+                break;
+        }
+    }
+
+    public async Task DeleteAsync(ICommand command, CancellationToken cancellationToken)
     {
         var parsedCommand = command as DeleteReservationCommand;
 
-        ReservationModel? reservationModel = await databaseDbContext.Reservations
-            .FirstOrDefaultAsync(r => r.Id == parsedCommand.Id, cancellationToken);
-
-        if (reservationModel == null) return false;
+        ReservationModel reservationModel = await databaseDbContext.Reservations
+            .FirstAsync(r => r.Id == parsedCommand.Id, cancellationToken);
 
         databaseDbContext.Reservations.Remove(reservationModel);
-
-        return true;
     }
 
     public async Task<ReservationModel?> GetByIdAsync(IQuery query, CancellationToken cancellationToken)
@@ -368,61 +412,45 @@ public class ReservationRepository(DatabaseDbContext databaseDbContext, IUnitOfW
         return await reservationQuery.ToListAsync(cancellationToken);
     }
 
-    private async Task<bool> UpdateReservationStatusAsync(ICommand command, CancellationToken cancellationToken)
+    private async Task UpdateReservationStatusAsync(UpdateReservationStatusCommand command, CancellationToken cancellationToken)
     {
-        var parsedCommand = command as UpdateReservationStatusCommand;
         ReservationModel? reservationModel = null;
 
-        if (parsedCommand!.ReservationId != null)
+        if (command!.ReservationId != null)
             reservationModel = await databaseDbContext.Reservations
-                .FirstOrDefaultAsync(r => r.Id == parsedCommand.ReservationId, cancellationToken);
+                .FirstAsync(r => r.Id == command.ReservationId, cancellationToken);
 
-        else if (!string.IsNullOrWhiteSpace(parsedCommand!.ReservationCode))
+        else if (!string.IsNullOrWhiteSpace(command!.ReservationCode))
             reservationModel = await databaseDbContext.Reservations
-                .FirstOrDefaultAsync(
-                    r => r.ReservationCode.Equals(parsedCommand.ReservationCode) &&
+                .FirstAsync(
+                    r => r.ReservationCode.Equals(command.ReservationCode) &&
                          r.Status == EReservationStatus.Confirmed, cancellationToken);
 
-        if (reservationModel != null)
-        {
-            Reservation reservation = new(reservationModel);
+        Reservation reservation = new(reservationModel);
 
-            reservation.ChangeStatus(parsedCommand.Status);
+        reservation.ChangeStatus(command.Status);
 
-            reservationModel.UpdateBasedOnValueObject(reservation);
+        reservationModel.UpdateBasedOnValueObject(reservation);
 
-            databaseDbContext.Reservations.Update(reservationModel);
+        databaseDbContext.Reservations.Update(reservationModel);
 
-            return true;
-        }
-
-        return false;
     }
 
-    private async Task<bool> UpdateReservationAsync(ICommand command, CancellationToken cancellationToken)
+    private async Task UpdateReservationAsync(UpdateReservationCommand command, CancellationToken cancellationToken)
     {
-        var parsedCommand = command as UpdateReservationCommand;
-
-        ReservationModel? reservationModel = await databaseDbContext.Reservations
+        ReservationModel reservationModel = await databaseDbContext.Reservations
             .AsSplitQuery()
             .Include(x => x.ParkingSpace)
             .ThenInclude(parkingSpaceModel => parkingSpaceModel.Location)
-            .FirstOrDefaultAsync(r => r.Id == parsedCommand!.ReservationId, cancellationToken);
+            .FirstAsync(r => r.Id == command!.ReservationId, cancellationToken);
 
-        if (reservationModel != null)
-        {
-            Reservation reservation = new(reservationModel);
+        Reservation reservation = new(reservationModel);
 
-            reservation.ChangeReservationDate(parsedCommand!.ReservationDate!.Value,
-                reservationModel.ParkingSpace.Location.ReservationGraceInMinutes);
+        reservation.ChangeReservationDate(command!.ReservationDate!.Value,
+            reservationModel.ParkingSpace.Location.ReservationGraceInMinutes);
 
-            reservationModel.UpdateBasedOnValueObject(reservation);
+        reservationModel.UpdateBasedOnValueObject(reservation);
 
-            databaseDbContext.Reservations.Update(reservationModel);
-
-            return true;
-        }
-
-        return false;
+        databaseDbContext.Reservations.Update(reservationModel);
     }
 }

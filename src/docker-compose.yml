@@ -31,6 +31,20 @@ services:
     volumes:
       - ../volumes/mssql_data:/var/opt/mssql/data
 
+  storage:
+    container_name: 'Storage'
+    image: mcr.microsoft.com/azure-storage/azurite:latest  # Update to the latest version
+    restart: always
+    hostname: azurite
+    command: "azurite --blobHost 0.0.0.0 --blobPort 10000 --queueHost 0.0.0.0 --queuePort 10001 --skipApiVersionCheck"
+    ports:
+        - "10000:10000"
+        - "10001:10001"
+    volumes:
+        - ../volumes/azure_data:/data
+    networks:
+        - internal-network
+
 networks:
   internal-network:
     driver: bridge

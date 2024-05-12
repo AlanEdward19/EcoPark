@@ -1,6 +1,6 @@
 ﻿namespace EcoPark.Application.ParkingSpaces.List;
 
-public class ListParkingSpacesQueryHandler(IAggregateRepository<ParkingSpaceModel> repository)
+public class ListParkingSpacesQueryHandler(IRepository<ParkingSpaceModel> repository)
     : IHandler<ListParkingSpacesQuery, IEnumerable<ParkingSpaceSimplifiedViewModel>?>
 {
     public async Task<IEnumerable<ParkingSpaceSimplifiedViewModel>?> HandleAsync(ListParkingSpacesQuery command, CancellationToken cancellationToken)

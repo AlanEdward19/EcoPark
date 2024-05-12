@@ -6,21 +6,20 @@ using EcoPark.Application.ParkingSpaces.Update;
 using EcoPark.Application.ParkingSpaces.Update.Status;
 using EcoPark.Application.Reservations.Update.Status;
 using EcoPark.Domain.Aggregates.Location.ParkingSpace;
-using EcoPark.Domain.Commons.Enums;
-using EcoPark.Application.Punctuation;
 
 namespace EcoPark.Infrastructure.Repositories;
 
 public class ParkingSpaceRepository(DatabaseDbContext databaseDbContext, IUnitOfWork unitOfWork,
-    IRepository<ReservationModel> reservationRepository, IRepository<PunctuationModel> punctuationRepository)
-    : IAggregateRepository<ParkingSpaceModel>
+    IRepository<ReservationModel> reservationRepository, IRepository<PunctuationModel> punctuationRepository, IAuthenticationService authenticationService)
+    : IRepository<ParkingSpaceModel>
 {
     public IUnitOfWork UnitOfWork { get; } = unitOfWork;
 
-    public async Task<bool> CheckChangePermissionAsync(ICommand command, CancellationToken cancellationToken)
+    public async Task<EOperationStatus> CheckChangePermissionAsync(ICommand command, CancellationToken cancellationToken)
     {
         EmployeeModel? owner;
         ParkingSpaceModel? parkingSpace;
+        EmployeeModel employeeModel;
         var requestUserInfo = command.RequestUserInfo;
 
         switch (command)
@@ -33,30 +32,53 @@ public class ParkingSpaceRepository(DatabaseDbContext databaseDbContext, IUnitOf
                     .ThenInclude(x => x.Credentials)
                     .FirstOrDefaultAsync(x => x.Id.Equals(updateCommand.ParkingSpaceId), cancellationToken);
 
+                if (parkingSpace == null) return EOperationStatus.NotFound;
+
                 owner = await databaseDbContext.Employees
                     .Include(x => x.Employees)
                     .ThenInclude(x => x.Credentials)
                     .Include(x => x.Credentials)
                     .FirstOrDefaultAsync(x => x.Id.Equals(parkingSpace.Location.OwnerId), cancellationToken);
 
-                if (owner == null) return false;
-
-                if (owner.Credentials.Email.Equals(requestUserInfo.Email)) return true;
+                if (owner!.Credentials.Email.Equals(requestUserInfo.Email)) return EOperationStatus.Successful;
 
                 if (owner.Employees.Select(x => x.Credentials.Email).Contains(requestUserInfo.Email))
                 {
-                    EmployeeModel employeeModel = (await databaseDbContext.Employees
+                    employeeModel = (await databaseDbContext.Employees
                         .Include(x => x.Credentials)
                         .Include(x => x.GroupAccesses)
                         .FirstOrDefaultAsync(x => x.Credentials.Email.Equals(requestUserInfo.Email), cancellationToken))!;
 
-                    return employeeModel.GroupAccesses.Any(x => x.LocationId.Equals(parkingSpace.LocationId));
+                    return employeeModel.GroupAccesses.Any(x => x.LocationId.Equals(parkingSpace.LocationId))
+                        ? EOperationStatus.Successful
+                        : EOperationStatus.NotAuthorized;
                 }
 
                 break;
 
-            case UpdateParkingSpaceStatusCommand:
-                return requestUserInfo.UserType == EUserType.System;
+            case UpdateParkingSpaceStatusCommand parkingSpaceStatusCommand:
+                if (requestUserInfo.UserType != EUserType.System)
+                    return EOperationStatus.NotAuthorized;
+
+                employeeModel = (await databaseDbContext.Employees
+                    .Include(x => x.Credentials)
+                    .Include(x => x.GroupAccesses)
+                    .FirstOrDefaultAsync(x => x.Credentials.Email.Equals(requestUserInfo.Email), cancellationToken))!;
+
+                //if(employeeModel.Credentials.Ipv4 != authenticationService.GetUserIpAddress()) //Validar ipv4
+
+                parkingSpace = await databaseDbContext.ParkingSpaces
+                    .AsNoTracking()
+                    .Include(x => x.Location)
+                    .ThenInclude(x => x.Owner)
+                    .ThenInclude(x => x.Credentials)
+                    .FirstOrDefaultAsync(x => x.Id.Equals(parkingSpaceStatusCommand.Id), cancellationToken);
+
+                if (parkingSpace == null) return EOperationStatus.NotFound;
+
+                return employeeModel.GroupAccesses.Any(x => x.LocationId.Equals(parkingSpace.LocationId))
+                    ? EOperationStatus.Successful
+                    : EOperationStatus.NotAuthorized;
 
             case DeleteParkingSpaceCommand deleteCommand:
                 parkingSpace = await databaseDbContext.ParkingSpaces
@@ -66,24 +88,26 @@ public class ParkingSpaceRepository(DatabaseDbContext databaseDbContext, IUnitOf
                     .ThenInclude(x => x.Credentials)
                     .FirstOrDefaultAsync(x => x.Id.Equals(deleteCommand.Id), cancellationToken);
 
+                if (parkingSpace == null) return EOperationStatus.NotFound;
+
                 owner = await databaseDbContext.Employees
                     .Include(x => x.Employees)
                     .ThenInclude(x => x.Credentials)
                     .Include(x => x.Credentials)
                     .FirstOrDefaultAsync(x => x.Id.Equals(parkingSpace.Location.OwnerId), cancellationToken);
 
-                if (owner == null) return false;
-
-                if (owner.Credentials.Email.Equals(requestUserInfo.Email)) return true;
+                if (owner!.Credentials.Email.Equals(requestUserInfo.Email)) return EOperationStatus.Successful;
 
                 if (owner.Employees.Select(x => x.Credentials.Email).Contains(requestUserInfo.Email))
                 {
-                    EmployeeModel employeeModel = (await databaseDbContext.Employees
+                    employeeModel = (await databaseDbContext.Employees
                         .Include(x => x.Credentials)
                         .Include(x => x.GroupAccesses)
                         .FirstOrDefaultAsync(x => x.Credentials.Email.Equals(requestUserInfo.Email), cancellationToken))!;
 
-                    return employeeModel.GroupAccesses.Any(x => x.LocationId.Equals(parkingSpace.LocationId));
+                    return employeeModel.GroupAccesses.Any(x => x.LocationId.Equals(parkingSpace.LocationId))
+                        ? EOperationStatus.Successful
+                        : EOperationStatus.NotAuthorized;
                 }
 
                 break;
@@ -94,7 +118,7 @@ public class ParkingSpaceRepository(DatabaseDbContext databaseDbContext, IUnitOf
                     .Include(x => x.Owner)
                     .FirstOrDefaultAsync(x => x.Id.Equals(insertCommand.LocationId), cancellationToken);
 
-                if (location == null) return false;
+                if (location == null) return EOperationStatus.NotFound;
 
                 owner = await databaseDbContext.Employees
                     .Include(x => x.Employees)
@@ -102,27 +126,27 @@ public class ParkingSpaceRepository(DatabaseDbContext databaseDbContext, IUnitOf
                     .Include(x => x.Credentials)
                     .FirstOrDefaultAsync(x => x.Id.Equals(location.OwnerId), cancellationToken);
 
-                if (owner == null) return false;
-
-                if (owner.Credentials.Email.Equals(requestUserInfo.Email)) return true;
+                if (owner!.Credentials.Email.Equals(requestUserInfo.Email)) return EOperationStatus.Successful;
 
                 if (owner.Employees.Select(x => x.Credentials.Email).Contains(requestUserInfo.Email))
                 {
-                    EmployeeModel employeeModel = (await databaseDbContext.Employees
+                    employeeModel = (await databaseDbContext.Employees
                         .Include(x => x.Credentials)
                         .Include(x => x.GroupAccesses)
                         .FirstOrDefaultAsync(x => x.Credentials.Email.Equals(requestUserInfo.Email), cancellationToken))!;
 
-                    return employeeModel.GroupAccesses.Any(x => x.LocationId.Equals(location.Id));
+                    return employeeModel.GroupAccesses.Any(x => x.LocationId.Equals(location.Id))
+                        ? EOperationStatus.Successful
+                        : EOperationStatus.NotAuthorized;
                 }
 
                 break;
         }
 
-        return false;
+        return EOperationStatus.NotAuthorized;
     }
 
-    public async Task<bool> AddAsync(ICommand command, CancellationToken cancellationToken)
+    public async Task AddAsync(ICommand command, CancellationToken cancellationToken)
     {
         var parsedCommand = command as InsertParkingSpaceCommand;
 
@@ -130,28 +154,30 @@ public class ParkingSpaceRepository(DatabaseDbContext databaseDbContext, IUnitOf
             parsedCommand.IsOccupied!.Value, parsedCommand.Type!.Value);
 
         await databaseDbContext.ParkingSpaces.AddAsync(parkingSpaceModel, cancellationToken);
-
-        return true;
     }
 
-    public async Task<bool> UpdateAsync(ICommand command, CancellationToken cancellationToken) => command switch
+    public async Task UpdateAsync(ICommand command, CancellationToken cancellationToken)
     {
-        UpdateParkingSpaceCommand updateParkingSpaceCommand => await UpdateParkingSpaceAsync(updateParkingSpaceCommand, cancellationToken),
-        UpdateParkingSpaceStatusCommand updateParkingSpaceStatusCommand => await UpdateParkingSpaceStatusAsync(updateParkingSpaceStatusCommand, cancellationToken),
-    };
+        switch (command)
+        {
+            case UpdateParkingSpaceCommand updateParkingSpaceCommand:
+                await UpdateParkingSpaceAsync(updateParkingSpaceCommand, cancellationToken);
+                break;
 
-    public async Task<bool> DeleteAsync(ICommand command, CancellationToken cancellationToken)
+            case UpdateParkingSpaceStatusCommand updateParkingSpaceStatusCommand:
+                await UpdateParkingSpaceStatusAsync(updateParkingSpaceStatusCommand, cancellationToken);
+                break;
+        }
+    }
+
+    public async Task DeleteAsync(ICommand command, CancellationToken cancellationToken)
     {
         var parsedCommand = command as DeleteParkingSpaceCommand;
 
-        ParkingSpaceModel? parkingSpaceModel = await databaseDbContext.ParkingSpaces
-            .FirstOrDefaultAsync(ps => ps.Id == parsedCommand.Id, cancellationToken);
-
-        if (parkingSpaceModel == null) return false;
+        ParkingSpaceModel parkingSpaceModel = await databaseDbContext.ParkingSpaces
+            .FirstAsync(ps => ps.Id == parsedCommand.Id, cancellationToken);
 
         databaseDbContext.ParkingSpaces.Remove(parkingSpaceModel);
-
-        return true;
     }
 
     public async Task<ParkingSpaceModel?> GetByIdAsync(IQuery query, CancellationToken cancellationToken)
@@ -215,31 +241,24 @@ public class ParkingSpaceRepository(DatabaseDbContext databaseDbContext, IUnitOf
         return await databaseQuery.ToListAsync(cancellationToken);
     }
 
-    private async Task<bool> UpdateParkingSpaceAsync(UpdateParkingSpaceCommand command,
+    private async Task UpdateParkingSpaceAsync(UpdateParkingSpaceCommand command,
         CancellationToken cancellationToken)
     {
-        ParkingSpaceModel? parkingSpaceModel = await databaseDbContext.ParkingSpaces
-            .FirstOrDefaultAsync(p => p.Id == command.ParkingSpaceId, cancellationToken);
+        ParkingSpaceModel parkingSpaceModel = await databaseDbContext.ParkingSpaces
+            .FirstAsync(p => p.Id == command.ParkingSpaceId, cancellationToken);
 
-        if (parkingSpaceModel != null)
-        {
-            ParkingSpaceAggregate parkingSpaceAggregate = new(parkingSpaceModel);
+        ParkingSpaceAggregate parkingSpaceAggregate = new(parkingSpaceModel);
 
-            parkingSpaceAggregate.UpdateFloor(command.Floor);
-            parkingSpaceAggregate.UpdateParkingSpaceName(command.ParkingSpaceName);
-            parkingSpaceAggregate.UpdateParkingSpaceType(command.ParkingSpaceType);
-            parkingSpaceAggregate.SetOccupied(command.IsOccupied);
+        parkingSpaceAggregate.UpdateFloor(command.Floor);
+        parkingSpaceAggregate.UpdateParkingSpaceName(command.ParkingSpaceName);
+        parkingSpaceAggregate.UpdateParkingSpaceType(command.ParkingSpaceType);
+        parkingSpaceAggregate.SetOccupied(command.IsOccupied);
 
-            parkingSpaceModel.UpdateBasedOnAggregate(parkingSpaceAggregate);
-            databaseDbContext.ParkingSpaces.Update(parkingSpaceModel);
-
-            return true;
-        }
-
-        return false;
+        parkingSpaceModel.UpdateBasedOnAggregate(parkingSpaceAggregate);
+        databaseDbContext.ParkingSpaces.Update(parkingSpaceModel);
     }
 
-    private async Task<bool> UpdateParkingSpaceStatusAsync(UpdateParkingSpaceStatusCommand command,
+    private async Task UpdateParkingSpaceStatusAsync(UpdateParkingSpaceStatusCommand command,
         CancellationToken cancellationToken)
     {
         ReservationModel? reservationModel = await databaseDbContext.Reservations
@@ -250,10 +269,8 @@ public class ParkingSpaceRepository(DatabaseDbContext databaseDbContext, IUnitOf
 
         if (reservationModel == null)
         {
-            ParkingSpaceModel? parkingSpaceModel = await databaseDbContext.ParkingSpaces
-                .FirstOrDefaultAsync(p => p.Id == command.Id, cancellationToken);
-
-            if (parkingSpaceModel == null) return false;
+            ParkingSpaceModel parkingSpaceModel = await databaseDbContext.ParkingSpaces
+                .FirstAsync(p => p.Id == command.Id, cancellationToken);
 
             if (parkingSpaceModel.IsOccupied == command.Status)
                 throw new Exception(command.Status
@@ -267,46 +284,41 @@ public class ParkingSpaceRepository(DatabaseDbContext databaseDbContext, IUnitOf
             parkingSpaceModel.UpdateBasedOnAggregate(parkingSpaceAggregate);
 
             databaseDbContext.ParkingSpaces.Update(parkingSpaceModel);
-
-            return true;
         }
-
-
-        if (reservationModel.ParkingSpace != null)
+        else
         {
-            if (reservationModel.ParkingSpace.IsOccupied == command.Status)
-                throw new Exception(command.Status
-                    ? "ParkingSpace is already occupied"
-                    : "ParkingSpace is already not occupied");
+            if (reservationModel!.ParkingSpace != null)
+            {
+                if (reservationModel.ParkingSpace.IsOccupied == command.Status)
+                    throw new Exception(command.Status
+                        ? "ParkingSpace is already occupied"
+                        : "ParkingSpace is already not occupied");
 
-            UpdateReservationStatusCommand reservationStatusCommand = new();
-            reservationStatusCommand.SetReservationId(reservationModel.Id);
-            reservationStatusCommand.SetReservationStatus(EReservationStatus.Completed);
+                UpdateReservationStatusCommand reservationStatusCommand = new();
+                reservationStatusCommand.SetReservationId(reservationModel.Id);
+                reservationStatusCommand.SetReservationStatus(EReservationStatus.Completed);
 
-            ParkingSpaceAggregate parkingSpaceAggregate = new(reservationModel.ParkingSpace);
-            parkingSpaceAggregate.SetOccupied(command.Status);
-            reservationModel.ParkingSpace.UpdateBasedOnAggregate(parkingSpaceAggregate);
+                ParkingSpaceAggregate parkingSpaceAggregate = new(reservationModel.ParkingSpace);
+                parkingSpaceAggregate.SetOccupied(command.Status);
+                reservationModel.ParkingSpace.UpdateBasedOnAggregate(parkingSpaceAggregate);
 
-            databaseDbContext.ParkingSpaces.Update(reservationModel.ParkingSpace);
+                databaseDbContext.ParkingSpaces.Update(reservationModel.ParkingSpace);
 
-            PunctuationModel? punctuation = await databaseDbContext.Punctuations
-                .FirstOrDefaultAsync(x => x.ClientId == reservationModel.ClientId.Value &&
-                                          x.LocationId == reservationModel.ParkingSpace.LocationId, cancellationToken);
+                PunctuationModel? punctuation = await databaseDbContext.Punctuations
+                    .FirstOrDefaultAsync(x => x.ClientId == reservationModel.ClientId.Value &&
+                                              x.LocationId == reservationModel.ParkingSpace.LocationId, cancellationToken);
 
-            PunctuationCommand punctuationCommand =
-                new(reservationModel.ParkingSpace.LocationId, reservationModel.ClientId.Value, reservationModel.Punctuation);
+                PunctuationCommand punctuationCommand =
+                    new(reservationModel.ParkingSpace.LocationId, reservationModel.ClientId.Value, reservationModel.Punctuation);
 
-            if (punctuation == null)
-                await punctuationRepository.AddAsync(punctuationCommand, cancellationToken);
+                if (punctuation == null)
+                    await punctuationRepository.AddAsync(punctuationCommand, cancellationToken);
 
-            else
-                await punctuationRepository.UpdateAsync(punctuationCommand, cancellationToken);
+                else
+                    await punctuationRepository.UpdateAsync(punctuationCommand, cancellationToken);
 
-            await reservationRepository.UpdateAsync(reservationStatusCommand, cancellationToken);
-
-            return true;
+                await reservationRepository.UpdateAsync(reservationStatusCommand, cancellationToken);
+            }
         }
-
-        return false;
     }
 }

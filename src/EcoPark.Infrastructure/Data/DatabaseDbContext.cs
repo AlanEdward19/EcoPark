@@ -1,6 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
-
-namespace EcoPark.Infrastructure.Data;
+﻿namespace EcoPark.Infrastructure.Data;
 
 public partial class DatabaseDbContext : DbContext
 {
@@ -22,6 +20,12 @@ public partial class DatabaseDbContext : DbContext
         modelBuilder.Entity<PunctuationModel>()
             .HasOne(p => p.Client)
             .WithMany(c => c.Punctuations)
+            .HasForeignKey(p => p.ClientId)
+            .OnDelete(DeleteBehavior.NoAction);
+
+        modelBuilder.Entity<ClientClaimedRewardModel>()
+            .HasOne(p => p.Client)
+            .WithMany(c => c.ClaimedRewards)
             .HasForeignKey(p => p.ClientId)
             .OnDelete(DeleteBehavior.NoAction);
     }

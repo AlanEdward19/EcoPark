@@ -62,7 +62,8 @@ public class ReservationController(ILogger<ReservationController> logger) : Cont
         return status switch
         {
             EOperationStatus.Successful => Created(Request.GetDisplayUrl(), result),
-            EOperationStatus.Failed => NotFound(result),
+            EOperationStatus.NotFound => NotFound(result),
+            EOperationStatus.Failed => BadRequest(result),
             EOperationStatus.NotAuthorized => Unauthorized(result)
         };
     }
@@ -93,7 +94,8 @@ public class ReservationController(ILogger<ReservationController> logger) : Cont
         return status switch
         {
             EOperationStatus.Successful => Created(Request.GetDisplayUrl(), result),
-            EOperationStatus.Failed => NotFound(result),
+            EOperationStatus.NotFound => NotFound(result),
+            EOperationStatus.Failed => BadRequest(result),
             EOperationStatus.NotAuthorized => Unauthorized(result)
         };
     }
@@ -104,7 +106,7 @@ public class ReservationController(ILogger<ReservationController> logger) : Cont
     /// <param name="handler"></param>
     /// <param name="query"></param>
     /// <param name="cancellationToken"></param>
-    /// <returns>Mensagem sobre resultado da operação</returns>
+    /// <returns>Informações da Reserva</returns>
     [ProducesResponseType(typeof(ReservationSimplifiedViewModel), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(EntityNotFoundValueObject), StatusCodes.Status404NotFound)]
     [HttpGet]
@@ -148,6 +150,7 @@ public class ReservationController(ILogger<ReservationController> logger) : Cont
         {
             EOperationStatus.Successful => Created(Request.GetDisplayUrl(), result),
             EOperationStatus.Failed => BadRequest(result),
+            EOperationStatus.NotFound => NotFound(result),
             EOperationStatus.NotAuthorized => Unauthorized(result)
         };
     }
@@ -178,7 +181,8 @@ public class ReservationController(ILogger<ReservationController> logger) : Cont
         return status switch
         {
             EOperationStatus.Successful => Created(Request.GetDisplayUrl(), result),
-            EOperationStatus.Failed => NotFound(result),
+            EOperationStatus.NotFound => NotFound(result),
+            EOperationStatus.Failed => BadRequest(result),
             EOperationStatus.NotAuthorized => Unauthorized(result)
         };
     }
@@ -207,7 +211,8 @@ public class ReservationController(ILogger<ReservationController> logger) : Cont
         return status switch
         {
             EOperationStatus.Successful => Accepted(Request.GetDisplayUrl(), result),
-            EOperationStatus.Failed => NotFound(result),
+            EOperationStatus.NotFound => NotFound(result),
+            EOperationStatus.Failed => BadRequest(result),
             EOperationStatus.NotAuthorized => Unauthorized(result)
         };
     }

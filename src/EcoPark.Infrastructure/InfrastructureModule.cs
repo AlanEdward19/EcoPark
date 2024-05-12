@@ -1,6 +1,9 @@
-﻿using EcoPark.Infrastructure.Repositories;
+﻿using EcoPark.Domain.Interfaces.Providers;
+using EcoPark.Infrastructure.Providers;
+using EcoPark.Infrastructure.Repositories;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 
 namespace EcoPark.Infrastructure;
 
@@ -11,6 +14,7 @@ public static class InfrastructureModule
         services
             .ConfigureDatabase(configuration)
             .ConfigureWebSocket()
+            .AddProviders(configuration)
             .ConfigureRepositories();
 
         return services;
@@ -28,14 +32,16 @@ public static class InfrastructureModule
 
     private static IServiceCollection ConfigureRepositories(this IServiceCollection services)
     {
-        services.AddScoped<IAggregateRepository<LocationModel>, LocationRepository>();
-        services.AddScoped<IAggregateRepository<ParkingSpaceModel>, ParkingSpaceRepository>();
+        services.AddScoped<IRepository<LocationModel>, LocationRepository>();
+        services.AddScoped<IRepository<ParkingSpaceModel>, ParkingSpaceRepository>();
         services.AddScoped<IRepository<EmployeeModel>, EmployeeRepository>();
         services.AddScoped<IRepository<ReservationModel>, ReservationRepository>();
         services.AddScoped<IRepository<CredentialsModel>, LoginRepository>();
-        services.AddScoped<IAggregateRepository<ClientModel>, ClientRepository>();
+        services.AddScoped<IRepository<ClientModel>, ClientRepository>();
         services.AddScoped<IRepository<CarModel>, CarRepository>();
         services.AddScoped<IRepository<PunctuationModel>, PunctuationRepository>();
+        services.AddScoped<IRepository<RewardModel>, RewardRepository>();
+        services.AddScoped<IRepository<ClientClaimedRewardModel>, ClientClaimedRewardRepository>();
 
         return services;
     }
@@ -44,6 +50,14 @@ public static class InfrastructureModule
     {
         services
             .AddSignalR();
+
+        return services;
+    }
+
+    private static IServiceCollection AddProviders(this IServiceCollection services, IConfiguration configuration)
+    {
+        services.AddScoped<IStorageProvider>(_ =>
+            new StorageProvider(configuration.GetConnectionString("StorageAccount"), new Logger<StorageProvider>(new LoggerFactory())));
 
         return services;
     }

@@ -13,12 +13,20 @@ using EcoPark.Application.Clients.List;
 using EcoPark.Application.Clients.Update;
 using EcoPark.Application.Employees.Delete.GroupAccess;
 using EcoPark.Application.Employees.Insert.GroupAccess;
+using EcoPark.Application.Employees.Insert.System;
 using EcoPark.Application.ParkingSpaces.Update.Status;
-using EcoPark.Application.Punctuation.Get;
-using EcoPark.Application.Punctuation.List;
-using EcoPark.Application.Punctuation.Models;
+using EcoPark.Application.Punctuations.Get;
+using EcoPark.Application.Punctuations.List;
+using EcoPark.Application.Punctuations.Models;
 using EcoPark.Application.Reservations.Update.Status;
-using EcoPark.Domain.Interfaces.Services;
+using EcoPark.Application.Rewards.Delete;
+using EcoPark.Application.Rewards.Get;
+using EcoPark.Application.Rewards.Insert;
+using EcoPark.Application.Rewards.Insert.RedeemReward;
+using EcoPark.Application.Rewards.List;
+using EcoPark.Application.Rewards.List.ListUserRewards;
+using EcoPark.Application.Rewards.Update;
+using EcoPark.Application.Rewards.Update.UseReward;
 
 namespace EcoPark.Application;
 
@@ -65,6 +73,11 @@ public static class ApplicationModule
 
         services.AddScoped<IHandler<GetPunctuationQuery, PunctuationViewModel?>, GetPunctuationQueryHandler>();
         services.AddScoped<IHandler<ListPunctuationsQuery, IEnumerable<PunctuationViewModel>?>, ListPunctuationsQueryHandler>();
+
+        services.AddScoped<IHandler<GetRewardQuery, RewardViewModel?>, GetRewardQueryHandler>();
+        services.AddScoped<IHandler<ListRewardsQuery, IEnumerable<RewardViewModel>>, ListRewardsQueryHandler>();
+
+        services.AddScoped<IHandler<ListUserRewardsQuery, IEnumerable<UserRewardViewModel>>, ListUserRewardsQueryHandler>();
 
         return services;
     }
@@ -116,7 +129,7 @@ public static class ApplicationModule
             .AddScoped<IHandler<UpdateReservationCommand, DatabaseOperationResponseViewModel>,
                 UpdateReservationCommandHandler>();
         services
-            .AddScoped<IHandler<UpdateReservationStatusCommand, DatabaseOperationResponseViewModel>, 
+            .AddScoped<IHandler<UpdateReservationStatusCommand, DatabaseOperationResponseViewModel>,
                 UpdateReservationStatusCommandHandler>();
         services
             .AddScoped<IHandler<DeleteReservationCommand, DatabaseOperationResponseViewModel>,
@@ -129,6 +142,9 @@ public static class ApplicationModule
         services
             .AddScoped<IHandler<InsertEmployeeCommand, DatabaseOperationResponseViewModel>,
                 InsertEmployeeCommandHandler>();
+
+        services
+            .AddScoped<IHandler<InsertSystemCommand, DatabaseOperationResponseViewModel>, InsertSystemCommandHandler>();
 
         services
             .AddScoped<IHandler<InsertEmployeeGroupAccessCommand, DatabaseOperationResponseViewModel>,
@@ -168,6 +184,25 @@ public static class ApplicationModule
         services.AddScoped<IHandler<UpdateCarCommand, DatabaseOperationResponseViewModel>, UpdateCarCommandHandler>();
 
         services.AddScoped<IHandler<DeleteCarCommand, DatabaseOperationResponseViewModel>, DeleteCarCommandHandler>();
+
+        #endregion
+
+        #region Reward
+
+        services
+            .AddScoped<IHandler<InsertRewardCommand, DatabaseOperationResponseViewModel>, InsertRewardCommandHandler>();
+
+        services
+            .AddScoped<IHandler<RedeemRewardCommand, DatabaseOperationResponseViewModel>, RedeemRewardCommandHandler>();
+
+        services
+            .AddScoped<IHandler<UpdateRewardCommand, DatabaseOperationResponseViewModel>, UpdateRewardCommandHandler>();
+
+        services
+            .AddScoped<IHandler<UseRewardCommand, DatabaseOperationResponseViewModel>, UseRewardCommandHandler>();
+
+        services
+            .AddScoped<IHandler<DeleteRewardCommand, DatabaseOperationResponseViewModel>, DeleteRewardCommandHandler>();
 
         #endregion
 

@@ -1,6 +1,6 @@
 ﻿namespace EcoPark.Domain.DataModels;
 
-public class CredentialsModel(string email, string password, string firstName, string lastName, EUserType userType, string? ipv4)
+public class CredentialsModel(string email, string password, string firstName, string lastName, EUserType userType, string? ipv4, string? image)
     : BaseDataModel
 {
     public string Email { get; set; } = email;
@@ -9,4 +9,5 @@ public class CredentialsModel(string email, string password, string firstName, s
     public string LastName { get; set; } = lastName;
     public EUserType UserType { get; set; } = userType;
     public string? Ipv4 { get; set; } = ipv4;
+    public string? Image { get; set; } = image;
 }
