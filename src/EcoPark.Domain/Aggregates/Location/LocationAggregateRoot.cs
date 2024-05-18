@@ -4,8 +4,6 @@ namespace EcoPark.Domain.Aggregates.Location;
 
 public class LocationAggregateRoot
 {
-    private List<ParkingSpaceAggregate> _parkingSpaces = new();
-
     public Guid Id { get; private set; }
     public string Name { get; private set; }
     public string Address { get; private set; }
@@ -13,7 +11,6 @@ public class LocationAggregateRoot
     public double CancellationFeeRate { get; private set; }
     public double ReservationFeeRate { get; private set; }
     public double HourlyParkingRate { get; private set; }
-    public IReadOnlyCollection<ParkingSpaceAggregate> ParkingSpaces => new ReadOnlyCollection<ParkingSpaceAggregate>(_parkingSpaces);
 
     public LocationAggregateRoot(Guid id, string name, string address, int reservationGraceInMinutes,
         double cancellationFeeRate, double reservationFeeRate, double hourlyParkingRate)
@@ -36,9 +33,6 @@ public class LocationAggregateRoot
         CancellationFeeRate = locationModel.CancellationFeeRate;
         ReservationFeeRate = locationModel.ReservationFeeRate;
         HourlyParkingRate = locationModel.HourlyParkingRate;
-
-        _parkingSpaces = locationModel.ParkingSpaces?
-            .Select(parkingSpaceModel => new ParkingSpaceAggregate(parkingSpaceModel)).ToList() ?? new();
     }
 
     public void UpdateName(string? name)
@@ -76,7 +70,4 @@ public class LocationAggregateRoot
         if (hourlyParkingRate is >= 0 && hourlyParkingRate != HourlyParkingRate)
             HourlyParkingRate = hourlyParkingRate.Value;
     }
-
-    public void AddParkingSpace(ParkingSpaceAggregate parkingSpace) => _parkingSpaces.Add(parkingSpace);
-    public void RemoveParkingSpace(ParkingSpaceAggregate parkingSpace) => _parkingSpaces.Remove(parkingSpace);
 }

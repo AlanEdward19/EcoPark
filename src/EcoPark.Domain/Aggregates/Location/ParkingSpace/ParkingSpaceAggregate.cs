@@ -10,8 +10,6 @@ public class ParkingSpaceAggregate
     public bool IsOccupied { get; private set; }
     public EParkingSpaceType Type { get; private set; }
 
-    private List<Reservation> _reservations = new();
-
     public ParkingSpaceAggregate(ParkingSpaceModel parkingSpaceModel)
     {
         Id = parkingSpaceModel.Id;
@@ -19,18 +17,6 @@ public class ParkingSpaceAggregate
         Name = parkingSpaceModel.ParkingSpaceName;
         IsOccupied = parkingSpaceModel.IsOccupied;
         Type = parkingSpaceModel.ParkingSpaceType;
-        _reservations = parkingSpaceModel.Reservations?.Select(reservation => new Reservation(reservation)).ToList() ??
-                        new List<Reservation>();
-    }
-
-    public IReadOnlyCollection<Reservation> Reservations => new ReadOnlyCollection<Reservation>(_reservations);
-
-    public void MakeReservation(Reservation reservation)
-    {
-        if (IsOccupied)
-            throw new Exception("Parking space is already occupied");
-
-        _reservations.Add(reservation);
     }
 
     public void UpdateFloor(int? floor)
