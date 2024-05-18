@@ -20,4 +20,13 @@ public static class ValidatorUtils
         return regex.IsMatch(licensePlate);
     }
 
+    public static bool IsValidTypeAndFuelCombination(ECarType carType, EFuelType fuelType) => carType switch
+    {
+        ECarType.Electric => fuelType == EFuelType.Electric,
+        ECarType.Hybrid => fuelType == EFuelType.Electric || fuelType == EFuelType.Gasoline ||
+                           fuelType == EFuelType.Alcohol,
+        ECarType.Combustion or ECarType.Pcd => fuelType == EFuelType.Gasoline || fuelType == EFuelType.Alcohol,
+        _ => false,
+    };
+
 }
