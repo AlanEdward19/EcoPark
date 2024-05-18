@@ -28,10 +28,5 @@ public class LocationModel(Guid ownerId, string name, string address, int reserv
         ReservationFeeRate = locationAggregate.ReservationFeeRate;
         HourlyParkingRate = locationAggregate.HourlyParkingRate;
         UpdatedAt = DateTime.Now;
-
-        if (locationAggregate.ParkingSpaces.Any())
-            ParkingSpaces = locationAggregate.ParkingSpaces.Select(parkingSpace =>
-                           new ParkingSpaceModel(locationAggregate.Id, parkingSpace.Floor, parkingSpace.Name,
-                                              parkingSpace.IsOccupied, parkingSpace.Type)).ToList();
     }
 }
