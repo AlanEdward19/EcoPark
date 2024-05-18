@@ -12,7 +12,8 @@ public class GetClientQueryHandler(IRepository<ClientModel> repository) : IHandl
             if (command.IncludeCars)
             {
                 IEnumerable<CarViewModel> cars = client.Cars.Select(car =>
-                    new CarViewModel(car.Id, car.Plate, car.Type, car.Brand, car.Model, car.Color, car.Year));
+                    new CarViewModel(car.Id, car.Plate, car.Type, car.Brand, car.Model, car.Color, car.Year,
+                        car.FuelType, car.FuelConsumptionPerLiter));
 
                 result = new ClientViewModel(client.Credentials.Id, client.Credentials.Email,
                     client.Credentials.FirstName, client.Credentials.LastName, client.Credentials.Image, cars);

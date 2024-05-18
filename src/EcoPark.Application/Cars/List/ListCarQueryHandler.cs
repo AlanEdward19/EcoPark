@@ -13,7 +13,8 @@ public class ListCarQueryHandler(IRepository<CarModel> repository) : IHandler<Li
 
         foreach (var car in cars)
         {
-            CarViewModel model = new(car.Id, car.Plate, car.Type, car.Brand, car.Model, car.Color, car.Year);
+            CarViewModel model = new(car.Id, car.Plate, car.Type, car.Brand, car.Model, car.Color, car.Year,
+                car.FuelType, car.FuelConsumptionPerLiter);
 
             result.Add(model);
         }
