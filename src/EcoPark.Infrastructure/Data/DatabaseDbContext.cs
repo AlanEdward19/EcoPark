@@ -28,6 +28,12 @@ public partial class DatabaseDbContext : DbContext
             .WithMany(c => c.ClaimedRewards)
             .HasForeignKey(p => p.ClientId)
             .OnDelete(DeleteBehavior.NoAction);
+
+        modelBuilder.Entity<CarbonEmissionModel>()
+            .HasOne(p => p.Client)
+            .WithMany(c => c.CarbonEmissions)
+            .HasForeignKey(p => p.ClientId)
+            .OnDelete(DeleteBehavior.NoAction);
     }
 
 }
