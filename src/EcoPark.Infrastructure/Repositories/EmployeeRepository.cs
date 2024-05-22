@@ -16,6 +16,7 @@ public class EmployeeRepository(DatabaseDbContext databaseDbContext, IAuthentica
 
     public async Task<EOperationStatus> CheckChangePermissionAsync(ICommand command, CancellationToken cancellationToken)
     {
+        CredentialsModel? credentialsModel = null;
         EmployeeModel? employeeModel = null;
         EmployeeModel? administratorModel = null;
         LocationModel? locationModel = null;
@@ -23,7 +24,12 @@ public class EmployeeRepository(DatabaseDbContext databaseDbContext, IAuthentica
 
         switch (command)
         {
-            case InsertSystemCommand:
+            case InsertSystemCommand insertSystemCommand:
+                credentialsModel = await databaseDbContext.Credentials
+                    .FirstOrDefaultAsync(x => x.Email.Equals(insertSystemCommand.Email), cancellationToken);
+
+                if (credentialsModel != null) return EOperationStatus.Failed;
+
                 if(requesterUserType is EUserType.PlatformAdministrator or EUserType.Administrator)
                     return EOperationStatus.Successful;
 
@@ -58,6 +64,10 @@ public class EmployeeRepository(DatabaseDbContext databaseDbContext, IAuthentica
                 return canGivePermission ? EOperationStatus.Successful : EOperationStatus.NotAuthorized;
 
             case InsertEmployeeCommand insertCommand:
+                credentialsModel = await databaseDbContext.Credentials
+                    .FirstOrDefaultAsync(x => x.Email.Equals(insertCommand.Email), cancellationToken);
+
+                if (credentialsModel != null) return EOperationStatus.Failed;
 
                 if (requesterUserType != EUserType.PlatformAdministrator)
                     return (int)requesterUserType >= (int)insertCommand.UserType!.Value ? EOperationStatus.Successful : EOperationStatus.NotAuthorized;
@@ -65,6 +75,14 @@ public class EmployeeRepository(DatabaseDbContext databaseDbContext, IAuthentica
                 return EOperationStatus.Successful;
 
             case UpdateEmployeeCommand updateCommand:
+                if (updateCommand.Email != null)
+                {
+                    credentialsModel = await databaseDbContext.Credentials
+                        .FirstOrDefaultAsync(x => x.Email.Equals(updateCommand.Email), cancellationToken);
+
+                    if (credentialsModel != null) return EOperationStatus.Failed;
+                }
+
                 employeeModel = await databaseDbContext.Employees
                     .Include(x => x.Credentials)
                     .FirstOrDefaultAsync(e => e.Credentials.Email.Equals(updateCommand.RequestUserInfo.Email)

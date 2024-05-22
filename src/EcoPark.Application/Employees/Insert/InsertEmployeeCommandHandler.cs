@@ -29,6 +29,7 @@ public class InsertEmployeeCommandHandler(IRepository<EmployeeModel> repository)
                     break;
 
                 case EOperationStatus.Failed:
+                    result = new DatabaseOperationResponseViewModel(EOperationStatus.Failed, "E-mail is not available");
                     break;
             }
         }

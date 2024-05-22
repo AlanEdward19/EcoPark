@@ -14,6 +14,8 @@ public class ClientRepository(DatabaseDbContext databaseDbContext, IAuthenticati
 
     public async Task<EOperationStatus> CheckChangePermissionAsync(ICommand command, CancellationToken cancellationToken)
     {
+        CredentialsModel? credentialsModel = null;
+
         if (command.RequestUserInfo.UserType == EUserType.PlatformAdministrator)
             return EOperationStatus.Successful;
 
@@ -21,7 +23,25 @@ public class ClientRepository(DatabaseDbContext databaseDbContext, IAuthenticati
 
         switch (command)
         {
+            case InsertClientCommand insertCommand:          
+                credentialsModel = await databaseDbContext.Credentials
+                    .FirstOrDefaultAsync(e => e.Email.Equals(insertCommand.Email), cancellationToken);
+
+                if (credentialsModel != null)
+                    return EOperationStatus.Failed;
+
+                break;
+
             case UpdateClientCommand updateCommand:
+                if (updateCommand.Email != null)
+                {
+                    credentialsModel = await databaseDbContext.Credentials
+                        .FirstOrDefaultAsync(e => e.Email.Equals(updateCommand.Email), cancellationToken);
+
+                    if (credentialsModel != null)
+                        return EOperationStatus.Failed;
+                }
+
                 clientModel = await databaseDbContext.Clients
                     .Include(x => x.Credentials)
                     .FirstOrDefaultAsync(

@@ -26,6 +26,7 @@ public class UpdateClientCommandHandler(IRepository<ClientModel> repository) : I
                     break;
 
                 case EOperationStatus.Failed:
+                    result = new DatabaseOperationResponseViewModel(EOperationStatus.Failed, "E-mail is not available");
                     break;
 
                 case EOperationStatus.NotAuthorized:
