@@ -195,7 +195,7 @@ public class ReservationController(ILogger<ReservationController> logger) : Cont
     /// <param name="cancellationToken"></param>
     /// <returns>Mensagem sobre resultado da operação</returns>
     [HttpDelete]
-    [Authorize(Roles = "PlataformAdministrator, Administrator, Employee, Client")]
+    [Authorize(Roles = "PlatformAdministrator, Administrator, Employee, Client")]
     public async Task<IActionResult> Delete([FromServices] IHandler<DeleteReservationCommand, DatabaseOperationResponseViewModel> handler,
         [FromQuery] DeleteReservationCommand command, CancellationToken cancellationToken)
     {

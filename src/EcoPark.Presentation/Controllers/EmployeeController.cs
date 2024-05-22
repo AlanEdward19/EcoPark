@@ -78,7 +78,7 @@ public class EmployeeController(ILogger<EmployeeController> logger) : Controller
     [ProducesResponseType(typeof(DatabaseOperationResponseViewModel), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(DatabaseOperationResponseViewModel), StatusCodes.Status401Unauthorized)]
     [HttpPost]
-    [Authorize(Roles = "PlataformAdministrator, Administrator")]
+    [Authorize(Roles = "PlatformAdministrator, Administrator")]
     public async Task<IActionResult> Insert([FromServices] IHandler<InsertEmployeeCommand, DatabaseOperationResponseViewModel> handler,
         [FromQuery] InsertEmployeeCommand command, [FromForm] IFormFile image ,CancellationToken cancellationToken)
     {
@@ -116,7 +116,7 @@ public class EmployeeController(ILogger<EmployeeController> logger) : Controller
     [ProducesResponseType(typeof(DatabaseOperationResponseViewModel), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(DatabaseOperationResponseViewModel), StatusCodes.Status401Unauthorized)]
     [HttpPost("system")]
-    [Authorize(Roles = "Administrator")]
+    [Authorize(Roles = "Administrator, PlatformAdministrator")]
     public async Task<IActionResult> InsertSystem([FromServices] IHandler<InsertSystemCommand, DatabaseOperationResponseViewModel> handler,
         [FromBody] InsertSystemCommand command, CancellationToken cancellationToken)
     {
@@ -266,7 +266,7 @@ public class EmployeeController(ILogger<EmployeeController> logger) : Controller
     [ProducesResponseType(typeof(DatabaseOperationResponseViewModel), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(DatabaseOperationResponseViewModel), StatusCodes.Status401Unauthorized)]
     [HttpDelete]
-    [Authorize(Roles = "PlataformAdministrator, Administrator")]
+    [Authorize(Roles = "PlatformAdministrator, Administrator")]
     public async Task<IActionResult> Delete([FromServices] IHandler<DeleteEmployeeCommand, DatabaseOperationResponseViewModel> handler, 
         [FromQuery] DeleteEmployeeCommand command, CancellationToken cancellationToken)
     {

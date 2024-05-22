@@ -95,7 +95,7 @@ public class ParkingSpaceController(ILogger<ParkingSpaceController> logger) : Co
     /// <returns>Lista de vagas de estacionamento</returns>
     [Tags("Operações da Vaga de Estacionamento")]
     [HttpPost("list")]
-    [Authorize(Roles = "PlataformAdministrator, Administrator, Employee")]
+    [Authorize(Roles = "PlatformAdministrator, Administrator, Employee")]
     public async Task<IActionResult> GetList([FromServices] IHandler<ListParkingSpacesQuery, IEnumerable<ParkingSpaceSimplifiedViewModel>> handler,
         [FromBody] ListParkingSpacesQuery query, CancellationToken cancellationToken)
     {
@@ -119,7 +119,7 @@ public class ParkingSpaceController(ILogger<ParkingSpaceController> logger) : Co
     [ProducesResponseType(typeof(ParkingSpaceSimplifiedViewModel), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(EntityNotFoundValueObject), StatusCodes.Status404NotFound)]
     [HttpGet]
-    [Authorize(Roles = "PlataformAdministrator, Administrator, Employee")]
+    [Authorize(Roles = "PlatformAdministrator, Administrator, Employee")]
     public async Task<IActionResult> GetById([FromServices] IHandler<GetParkingSpaceQuery, ParkingSpaceSimplifiedViewModel> handler,
         [FromQuery] GetParkingSpaceQuery query, CancellationToken cancellationToken)
     {

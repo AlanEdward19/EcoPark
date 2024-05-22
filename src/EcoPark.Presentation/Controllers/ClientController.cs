@@ -27,7 +27,7 @@ public class ClientController(ILogger<ClientController> logger) : ControllerBase
     /// <returns>Lista de clientes cadastrados</returns>
     [Tags("Informações do Cliente")]
     [HttpPost("list")]
-    [Authorize(Roles = "PlataformAdministrator, Administrator, Employee")]
+    [Authorize(Roles = "PlatformAdministrator, Administrator, Employee")]
     public async Task<IActionResult> GetList([FromServices] IHandler<ListClientsQuery, IEnumerable<ClientSimplifiedViewModel>> handler,
         [FromBody] ListClientsQuery query, CancellationToken cancellationToken)
     {
@@ -51,7 +51,7 @@ public class ClientController(ILogger<ClientController> logger) : ControllerBase
     [ProducesResponseType(typeof(ClientSimplifiedViewModel), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(EntityNotFoundValueObject), StatusCodes.Status404NotFound)]
     [HttpGet]
-    [Authorize(Roles = "PlataformAdministrator, Administrator, Employee")]
+    [Authorize(Roles = "PlatformAdministrator, Administrator, Employee")]
     public async Task<IActionResult> GetById([FromServices] IHandler<GetClientQuery, ClientSimplifiedViewModel?> handler, 
         [FromQuery] GetClientQuery query, CancellationToken cancellationToken)
     {
@@ -99,7 +99,7 @@ public class ClientController(ILogger<ClientController> logger) : ControllerBase
     [ProducesResponseType(typeof(DatabaseOperationResponseViewModel), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(DatabaseOperationResponseViewModel), StatusCodes.Status401Unauthorized)]
     [HttpPatch]
-    [Authorize(Roles = "PlataformAdministrator, Client")]
+    [Authorize(Roles = "PlatformAdministrator, Client")]
     public async Task<IActionResult> Update([FromServices] IHandler<UpdateClientCommand, DatabaseOperationResponseViewModel> handler,
         [FromQuery] Guid id, [FromBody] UpdateClientCommand command, CancellationToken cancellationToken)
     {
@@ -137,7 +137,7 @@ public class ClientController(ILogger<ClientController> logger) : ControllerBase
     [ProducesResponseType(typeof(DatabaseOperationResponseViewModel), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(DatabaseOperationResponseViewModel), StatusCodes.Status401Unauthorized)]
     [HttpDelete]
-    [Authorize(Roles = "PlataformAdministrator, Client")]
+    [Authorize(Roles = "PlatformAdministrator, Client")]
     public async Task<IActionResult> Delete([FromServices] IHandler<DeleteClientCommand, DatabaseOperationResponseViewModel> handler, 
         [FromQuery] DeleteClientCommand command, CancellationToken cancellationToken)
     {

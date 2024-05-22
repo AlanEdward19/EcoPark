@@ -26,7 +26,7 @@ public class RewardController(ILogger<RewardController> logger) : ControllerBase
     [Tags("Informações de Recompensas")]
     [ProducesResponseType(typeof(IEnumerable<RewardViewModel>), StatusCodes.Status200OK)]
     [HttpPost("list")]
-    [Authorize(Roles = "Administrator, Employee, Client, PlataformAdministrator")]
+    [Authorize(Roles = "Administrator, Employee, Client, PlatformAdministrator")]
     public async Task<IActionResult> GetList([FromServices] IHandler<ListRewardsQuery, IEnumerable<RewardViewModel>> handler,
         [FromBody] ListRewardsQuery query, CancellationToken cancellationToken)
     {
@@ -50,7 +50,7 @@ public class RewardController(ILogger<RewardController> logger) : ControllerBase
     [ProducesResponseType(typeof(RewardViewModel), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(EntityNotFoundValueObject), StatusCodes.Status404NotFound)]
     [HttpGet]
-    [Authorize(Roles = "Administrator, Employee, Client, PlataformAdministrator")]
+    [Authorize(Roles = "Administrator, Employee, Client, PlatformAdministrator")]
     public async Task<IActionResult> GetById([FromServices] IHandler<GetRewardQuery, RewardViewModel?> handler,
         [FromQuery] GetRewardQuery query, CancellationToken cancellationToken)
     {

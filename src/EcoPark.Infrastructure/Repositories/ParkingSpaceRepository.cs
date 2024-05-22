@@ -217,7 +217,7 @@ public class ParkingSpaceRepository(DatabaseDbContext databaseDbContext, IUnitOf
             databaseQuery = databaseQuery
                 .Where(x => x.Location.OwnerId.Equals(employeeModel.Id));
         }
-        else if (requestUserInfo.UserType != EUserType.PlataformAdministrator)
+        else if (requestUserInfo.UserType != EUserType.PlatformAdministrator)
         {
             employeeModel = await databaseDbContext.Employees
                 .Include(x => x.Credentials)

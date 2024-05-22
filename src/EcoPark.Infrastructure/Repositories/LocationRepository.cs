@@ -146,7 +146,7 @@ public class LocationRepository(DatabaseDbContext databaseDbContext, IUnitOfWork
             databaseQuery = databaseQuery
                 .Where(x => x.OwnerId.Equals(employeeModel.Id));
         }
-        else if(requestUserInfo.UserType != EUserType.PlataformAdministrator)
+        else if(requestUserInfo.UserType != EUserType.PlatformAdministrator)
         {
             employeeModel = await databaseDbContext.Employees
                 .Include(x => x.Credentials)
@@ -195,7 +195,7 @@ public class LocationRepository(DatabaseDbContext databaseDbContext, IUnitOfWork
             databaseQuery = databaseQuery
                 .Where(x => x.OwnerId.Equals(employeeModel.Id));
         }
-        else if(requestUserInfo.UserType is not EUserType.PlataformAdministrator and not EUserType.Client)
+        else if(requestUserInfo.UserType is not EUserType.PlatformAdministrator and not EUserType.Client)
         {
             employeeModel = await databaseDbContext.Employees
                 .Include(x => x.Credentials)

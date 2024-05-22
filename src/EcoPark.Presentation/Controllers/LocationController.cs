@@ -24,7 +24,7 @@ public class LocationController(ILogger<LocationController> logger) : Controller
     /// <returns>Lista de localizações</returns>
     [Tags("Informações da Localização")]
     [HttpPost("list")]
-    [Authorize(Roles = "PlataformAdministrator, Administrator, Employee, Client")]
+    [Authorize(Roles = "PlatformAdministrator, Administrator, Employee, Client")]
     public async Task<IActionResult> GetList([FromServices] IHandler<ListLocationQuery, IEnumerable<LocationSimplifiedViewModel>> handler,
         [FromBody] ListLocationQuery query, CancellationToken cancellationToken)
     {
@@ -48,7 +48,7 @@ public class LocationController(ILogger<LocationController> logger) : Controller
     [ProducesResponseType(typeof(LocationSimplifiedViewModel), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(EntityNotFoundValueObject), StatusCodes.Status404NotFound)]
     [HttpGet]
-    [Authorize(Roles = "PlataformAdministrator, Administrator, Employee")]
+    [Authorize(Roles = "PlatformAdministrator, Administrator, Employee")]
     public async Task<IActionResult> GetById([FromServices] IHandler<GetLocationQuery, LocationSimplifiedViewModel> handler, 
         [FromQuery] GetLocationQuery query, CancellationToken cancellationToken)
     {
