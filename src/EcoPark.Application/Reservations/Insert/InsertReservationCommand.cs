@@ -8,9 +8,9 @@ public class InsertReservationCommand(Guid? parkingSpaceId, Guid? carId, DateTim
     public DateTime? ReservationDate { get; private set; } = reservationDate;
 
     [JsonIgnore]
-    public (string Email, EUserType UserType) RequestUserInfo { get; private set; }
+    public RequestUserInfoValueObject RequestUserInfo { get; private set; }
 
-    public void SetRequestUserInfo((string email, EUserType userType) information)
+    public void SetRequestUserInfo(RequestUserInfoValueObject information)
     {
         RequestUserInfo = information;
     }

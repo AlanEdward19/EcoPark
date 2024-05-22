@@ -1,8 +1,10 @@
-﻿namespace EcoPark.Domain.Interfaces;
+﻿using EcoPark.Domain.ValueObjects;
+
+namespace EcoPark.Domain.Interfaces;
 
 public interface IQuery
 {
-    public (string Email, EUserType UserType) RequestUserInfo { get; }
+    public RequestUserInfoValueObject RequestUserInfo { get; }
 
-    public void SetRequestUserInfo((string email, EUserType userType) information);
+    public void SetRequestUserInfo(RequestUserInfoValueObject information);
 }

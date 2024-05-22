@@ -9,8 +9,8 @@ public class InsertSystemCommand(string? email, string? password, string? firstN
     public string Ipv4 { get; private set; } = ipv4;
 
     [JsonIgnore]
-    public (string Email, EUserType UserType) RequestUserInfo { get; private set; }
-    public void SetRequestUserInfo((string email, EUserType userType) information)
+    public RequestUserInfoValueObject RequestUserInfo { get; private set; }
+    public void SetRequestUserInfo(RequestUserInfoValueObject information)
     {
         RequestUserInfo = information;
     }

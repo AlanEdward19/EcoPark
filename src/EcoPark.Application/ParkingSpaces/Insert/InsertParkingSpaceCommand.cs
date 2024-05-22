@@ -9,8 +9,8 @@ public class InsertParkingSpaceCommand(Guid? locationId, int? floor, string? par
     public EParkingSpaceType? Type { get; private set; } = type;
 
     [JsonIgnore]
-    public (string Email, EUserType UserType) RequestUserInfo { get; private set; }
-    public void SetRequestUserInfo((string email, EUserType userType) information)
+    public RequestUserInfoValueObject RequestUserInfo { get; private set; }
+    public void SetRequestUserInfo(RequestUserInfoValueObject information)
     {
         RequestUserInfo = information;
     }

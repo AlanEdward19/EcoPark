@@ -6,8 +6,8 @@ public class DeleteEmployeeGroupAccessCommand : ICommand
     public Guid EmployeeId { get; set; }
 
     [JsonIgnore]
-    public (string Email, EUserType UserType) RequestUserInfo { get; private set; }
-    public void SetRequestUserInfo((string email, EUserType userType) information)
+    public RequestUserInfoValueObject RequestUserInfo { get; private set; }
+    public void SetRequestUserInfo(RequestUserInfoValueObject information)
     {
         RequestUserInfo = information;
     }
