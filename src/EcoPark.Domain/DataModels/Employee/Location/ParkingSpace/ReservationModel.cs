@@ -11,6 +11,8 @@ public class ReservationModel : BaseDataModel
     public DateTime ReservationDate { get; private set; }
     public DateTime ExpirationDate { get; private set; }
 
+    public virtual CarbonEmissionModel? CarbonEmission { get; set; }
+
     [ForeignKey(nameof(ParkingSpaceId))]
     public virtual ParkingSpaceModel ParkingSpace { get; set; }
 
