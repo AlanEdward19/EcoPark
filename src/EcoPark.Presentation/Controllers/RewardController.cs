@@ -76,6 +76,7 @@ public class RewardController(ILogger<RewardController> logger) : ControllerBase
     [ProducesResponseType(typeof(DatabaseOperationResponseViewModel), StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(DatabaseOperationResponseViewModel), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(DatabaseOperationResponseViewModel), StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(DatabaseOperationResponseViewModel), StatusCodes.Status404NotFound)]
     [HttpPost("redeem")]
     public async Task<IActionResult> RedeemReward(
         [FromServices] IHandler<RedeemRewardCommand, DatabaseOperationResponseViewModel> handler,
@@ -111,6 +112,7 @@ public class RewardController(ILogger<RewardController> logger) : ControllerBase
     [ProducesResponseType(typeof(DatabaseOperationResponseViewModel), StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(DatabaseOperationResponseViewModel), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(DatabaseOperationResponseViewModel), StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(DatabaseOperationResponseViewModel), StatusCodes.Status404NotFound)]
     [HttpPost]
     public async Task<IActionResult> Insert([FromServices] IHandler<InsertRewardCommand, DatabaseOperationResponseViewModel> handler,
         [FromQuery] InsertRewardCommand command, [FromForm] IFormFile image, CancellationToken cancellationToken)
@@ -146,6 +148,7 @@ public class RewardController(ILogger<RewardController> logger) : ControllerBase
     [ProducesResponseType(typeof(DatabaseOperationResponseViewModel), StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(DatabaseOperationResponseViewModel), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(DatabaseOperationResponseViewModel), StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(DatabaseOperationResponseViewModel), StatusCodes.Status404NotFound)]
     [HttpPatch]
     public async Task<IActionResult> Update(
         [FromServices] IHandler<UpdateRewardCommand, DatabaseOperationResponseViewModel> handler,
@@ -178,6 +181,10 @@ public class RewardController(ILogger<RewardController> logger) : ControllerBase
     /// <param name="cancellationToken"></param>
     /// <returns>Mensagem sobre resultado da operação</returns>
     [Tags("Operações de Recompensas")]
+    [ProducesResponseType(typeof(DatabaseOperationResponseViewModel), StatusCodes.Status202Accepted)]
+    [ProducesResponseType(typeof(DatabaseOperationResponseViewModel), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(DatabaseOperationResponseViewModel), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(DatabaseOperationResponseViewModel), StatusCodes.Status401Unauthorized)]
     [HttpDelete]
     [Authorize(Roles = "Administrator, Employee")]
     public async Task<IActionResult> Delete([FromServices] IHandler<DeleteRewardCommand, DatabaseOperationResponseViewModel> handler,

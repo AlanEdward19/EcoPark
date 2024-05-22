@@ -7,7 +7,6 @@ using EcoPark.Application.Clients.Update;
 using EcoPark.Application.Rewards.List.ListUserRewards;
 using EcoPark.Application.Rewards.Models;
 using EcoPark.Application.Rewards.Update.UseReward;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace EcoPark.Presentation.Controllers;
 /// <summary>
@@ -98,6 +97,7 @@ public class ClientController(ILogger<ClientController> logger) : ControllerBase
     [ProducesResponseType(typeof(DatabaseOperationResponseViewModel), StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(DatabaseOperationResponseViewModel), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(DatabaseOperationResponseViewModel), StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(DatabaseOperationResponseViewModel), StatusCodes.Status404NotFound)]
     [HttpPatch]
     [Authorize(Roles = "PlatformAdministrator, Client")]
     public async Task<IActionResult> Update([FromServices] IHandler<UpdateClientCommand, DatabaseOperationResponseViewModel> handler,
@@ -133,9 +133,10 @@ public class ClientController(ILogger<ClientController> logger) : ControllerBase
     /// <param name="cancellationToken"></param>
     /// <returns>Mensagem sobre resultado da operação</returns>
     [Tags("Operações do Cliente")]
-    [ProducesResponseType(typeof(DatabaseOperationResponseViewModel), StatusCodes.Status201Created)]
+    [ProducesResponseType(typeof(DatabaseOperationResponseViewModel), StatusCodes.Status202Accepted)]
     [ProducesResponseType(typeof(DatabaseOperationResponseViewModel), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(DatabaseOperationResponseViewModel), StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(DatabaseOperationResponseViewModel), StatusCodes.Status404NotFound)]
     [HttpDelete]
     [Authorize(Roles = "PlatformAdministrator, Client")]
     public async Task<IActionResult> Delete([FromServices] IHandler<DeleteClientCommand, DatabaseOperationResponseViewModel> handler, 
@@ -152,7 +153,7 @@ public class ClientController(ILogger<ClientController> logger) : ControllerBase
 
         return status switch
         {
-            EOperationStatus.Successful => Created(Request.GetDisplayUrl(), result),
+            EOperationStatus.Successful => Accepted(Request.GetDisplayUrl(), result),
 
             EOperationStatus.NotFound => NotFound(result),
 
@@ -173,7 +174,9 @@ public class ClientController(ILogger<ClientController> logger) : ControllerBase
     [ProducesResponseType(typeof(DatabaseOperationResponseViewModel), StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(DatabaseOperationResponseViewModel), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(DatabaseOperationResponseViewModel), StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(DatabaseOperationResponseViewModel), StatusCodes.Status404NotFound)]
     [HttpPut("useReward")]
+    [Authorize(Roles = "Client")]
     public async Task<IActionResult> UseReward(
         [FromServices] IHandler<UseRewardCommand, DatabaseOperationResponseViewModel> handler,
         [FromBody] UseRewardCommand command, CancellationToken cancellationToken)
@@ -189,7 +192,7 @@ public class ClientController(ILogger<ClientController> logger) : ControllerBase
 
         return status switch
         {
-            EOperationStatus.Successful => Ok(result),
+            EOperationStatus.Successful => Created(Request.GetDisplayUrl(), result),
             EOperationStatus.Failed => BadRequest(result),
             EOperationStatus.NotFound => NotFound(result),
             EOperationStatus.NotAuthorized => Unauthorized(result)
@@ -204,6 +207,7 @@ public class ClientController(ILogger<ClientController> logger) : ControllerBase
     /// <param name="cancellationToken"></param>
     /// <returns>Lista de recompensas de um usuario</returns>
     [Tags("Informações de Recompensas")]
+    [ProducesResponseType(typeof(IEnumerable<UserRewardViewModel>), StatusCodes.Status200OK)]
     [HttpPost("Reward/list")]
     [Authorize(Roles = "Client")]
     public async Task<IActionResult> GetRewardsList([FromServices] IHandler<ListUserRewardsQuery, IEnumerable<UserRewardViewModel>> handler,

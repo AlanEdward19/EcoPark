@@ -23,6 +23,7 @@ public class LocationController(ILogger<LocationController> logger) : Controller
     /// <param name="cancellationToken"></param>
     /// <returns>Lista de localizações</returns>
     [Tags("Informações da Localização")]
+    [ProducesResponseType(typeof(IEnumerable<LocationSimplifiedViewModel>), StatusCodes.Status200OK)]
     [HttpPost("list")]
     [Authorize(Roles = "PlatformAdministrator, Administrator, Employee, Client")]
     public async Task<IActionResult> GetList([FromServices] IHandler<ListLocationQuery, IEnumerable<LocationSimplifiedViewModel>> handler,
@@ -74,6 +75,7 @@ public class LocationController(ILogger<LocationController> logger) : Controller
     [ProducesResponseType(typeof(DatabaseOperationResponseViewModel), StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(DatabaseOperationResponseViewModel), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(DatabaseOperationResponseViewModel), StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(DatabaseOperationResponseViewModel), StatusCodes.Status404NotFound)]
     [HttpPost]
     [Authorize(Roles = "Administrator")]
     public async Task<IActionResult> Insert([FromServices] IHandler<InsertLocationCommand, DatabaseOperationResponseViewModel> handler,
@@ -109,6 +111,7 @@ public class LocationController(ILogger<LocationController> logger) : Controller
     [ProducesResponseType(typeof(DatabaseOperationResponseViewModel), StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(DatabaseOperationResponseViewModel), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(DatabaseOperationResponseViewModel), StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(DatabaseOperationResponseViewModel), StatusCodes.Status404NotFound)]
     [HttpPatch]
     [Authorize(Roles = "Administrator")]
     public async Task<IActionResult> Update([FromServices] IHandler<UpdateLocationCommand, DatabaseOperationResponseViewModel> handler,
@@ -141,9 +144,10 @@ public class LocationController(ILogger<LocationController> logger) : Controller
     /// <param name="cancellationToken"></param>
     /// <returns>Mensagem sobre resultado da operação</returns>
     [Tags("Operações da Localização")]
-    [ProducesResponseType(typeof(DatabaseOperationResponseViewModel), StatusCodes.Status201Created)]
+    [ProducesResponseType(typeof(DatabaseOperationResponseViewModel), StatusCodes.Status202Accepted)]
     [ProducesResponseType(typeof(DatabaseOperationResponseViewModel), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(DatabaseOperationResponseViewModel), StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(DatabaseOperationResponseViewModel), StatusCodes.Status404NotFound)]
     [HttpDelete]
     [Authorize(Roles = "Administrator")]
     public async Task<IActionResult> Delete([FromServices] IHandler<DeleteLocationCommand, DatabaseOperationResponseViewModel> handler,

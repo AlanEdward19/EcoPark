@@ -4,6 +4,34 @@
         <name>EcoPark.Presentation</name>
     </assembly>
     <members>
+        <member name="M:EcoPark.Presentation.Controllers.CarbonEmissionController.ListAsync(EcoPark.Domain.Interfaces.Services.IHandler{EcoPark.Application.CarbonEmission.List.ListCarbonEmissionsQuery,System.Collections.Generic.IEnumerable{EcoPark.Application.CarbonEmission.Models.CarbonEmissionViewModel}},EcoPark.Application.CarbonEmission.List.ListCarbonEmissionsQuery,System.Threading.CancellationToken)">
+            <summary>
+            Método para listar todas as emissões de carbono de um determinado usuário
+            </summary>
+            <param name="handler"></param>
+            <param name="query"></param>
+            <param name="cancellationToken"></param>
+            <returns></returns>
+        </member>
+        <member name="M:EcoPark.Presentation.Controllers.CarbonEmissionController.AddAsync(EcoPark.Domain.Interfaces.Services.IHandler{EcoPark.Application.CarbonEmission.Insert.InsertCarbonEmissionCommand,EcoPark.Application.Commons.Models.DatabaseOperationResponseViewModel},System.Guid,EcoPark.Application.CarbonEmission.Insert.InsertCarbonEmissionCommand,System.Threading.CancellationToken)">
+            <summary>
+            Método para adicionar uma nova emissão de carbono
+            </summary>
+            <param name="handler"></param>
+            <param name="reservationId"></param>
+            <param name="command"></param>
+            <param name="cancellationToken"></param>
+            <returns></returns>
+        </member>
+        <member name="M:EcoPark.Presentation.Controllers.CarbonEmissionController.DeleteAsync(EcoPark.Domain.Interfaces.Services.IHandler{EcoPark.Application.CarbonEmission.Delete.DeleteCarbonEmissionCommand,EcoPark.Application.Commons.Models.DatabaseOperationResponseViewModel},EcoPark.Application.CarbonEmission.Delete.DeleteCarbonEmissionCommand,System.Threading.CancellationToken)">
+            <summary>
+            Método para deletar uma emissão de carbono
+            </summary>
+            <param name="handler"></param>
+            <param name="command"></param>
+            <param name="cancellationToken"></param>
+            <returns></returns>
+        </member>
         <member name="T:EcoPark.Presentation.Controllers.CarController">
             <summary>
             Endpoints para Operações relacionadas a Carros

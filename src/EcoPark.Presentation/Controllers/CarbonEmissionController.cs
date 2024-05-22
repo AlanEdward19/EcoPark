@@ -9,6 +9,15 @@ namespace EcoPark.Presentation.Controllers;
 [ApiController]
 public class CarbonEmissionController(ILogger<CarbonEmissionController> logger) : ControllerBase
 {
+    /// <summary>
+    /// Método para listar todas as emissões de carbono de um determinado usuário
+    /// </summary>
+    /// <param name="handler"></param>
+    /// <param name="query"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    [Tags("Informações da Emissão de Carbono")]
+    [ProducesResponseType(typeof(IEnumerable<CarbonEmissionViewModel>), StatusCodes.Status200OK)]
     [HttpPost("list")]
     [Authorize(Roles = "Client")]
     public async Task<IActionResult> ListAsync([FromServices] IHandler<ListCarbonEmissionsQuery, IEnumerable<CarbonEmissionViewModel>> handler,
@@ -23,6 +32,19 @@ public class CarbonEmissionController(ILogger<CarbonEmissionController> logger) 
         return Ok(await handler.HandleAsync(query, cancellationToken));
     }
 
+    /// <summary>
+    /// Método para adicionar uma nova emissão de carbono
+    /// </summary>
+    /// <param name="handler"></param>
+    /// <param name="reservationId"></param>
+    /// <param name="command"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    [Tags("Operações da Emissão de Carbono")]
+    [ProducesResponseType(typeof(DatabaseOperationResponseViewModel), StatusCodes.Status201Created)]
+    [ProducesResponseType(typeof(DatabaseOperationResponseViewModel), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(DatabaseOperationResponseViewModel), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(DatabaseOperationResponseViewModel), StatusCodes.Status401Unauthorized)]
     [HttpPost]
     [Authorize(Roles = "Client")]
     public async Task<IActionResult> AddAsync([FromServices] IHandler<InsertCarbonEmissionCommand, DatabaseOperationResponseViewModel> handler,
@@ -50,10 +72,22 @@ public class CarbonEmissionController(ILogger<CarbonEmissionController> logger) 
         };
     }
 
+    /// <summary>
+    /// Método para deletar uma emissão de carbono
+    /// </summary>
+    /// <param name="handler"></param>
+    /// <param name="command"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    [Tags("Operações da Emissão de Carbono")]
+    [ProducesResponseType(typeof(DatabaseOperationResponseViewModel), StatusCodes.Status202Accepted)]
+    [ProducesResponseType(typeof(DatabaseOperationResponseViewModel), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(DatabaseOperationResponseViewModel), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(DatabaseOperationResponseViewModel), StatusCodes.Status401Unauthorized)]
     [HttpDelete]
     [Authorize(Roles = "System")]
     public async Task<IActionResult> DeleteAsync([FromServices] IHandler<DeleteCarbonEmissionCommand, DatabaseOperationResponseViewModel> handler,
-        [FromBody] DeleteCarbonEmissionCommand command, CancellationToken cancellationToken)
+        [FromQuery] DeleteCarbonEmissionCommand command, CancellationToken cancellationToken)
     {
         logger.LogInformation(
             $"Method Call: DeleteCarbonEmission with parameters: \n{string.Join("\n", EntityPropertiesUtilities.GetEntityPropertiesAndValueAsIEnumerable(command))}");
@@ -66,7 +100,7 @@ public class CarbonEmissionController(ILogger<CarbonEmissionController> logger) 
 
         return status switch
         {
-            EOperationStatus.Successful => Created(Request.GetDisplayUrl(), result),
+            EOperationStatus.Successful => Accepted(Request.GetDisplayUrl(), result),
 
             EOperationStatus.NotFound => NotFound(result),
 
