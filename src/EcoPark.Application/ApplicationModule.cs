@@ -1,6 +1,10 @@
 ﻿using EcoPark.Application.Authentication.Get;
 using EcoPark.Application.Authentication.Models;
 using EcoPark.Application.Authentication.Services;
+using EcoPark.Application.CarbonEmission.Delete;
+using EcoPark.Application.CarbonEmission.Insert;
+using EcoPark.Application.CarbonEmission.List;
+using EcoPark.Application.CarbonEmission.Models;
 using EcoPark.Application.Cars.Delete;
 using EcoPark.Application.Cars.Get;
 using EcoPark.Application.Cars.Insert;
@@ -78,6 +82,10 @@ public static class ApplicationModule
         services.AddScoped<IHandler<ListRewardsQuery, IEnumerable<RewardViewModel>>, ListRewardsQueryHandler>();
 
         services.AddScoped<IHandler<ListUserRewardsQuery, IEnumerable<UserRewardViewModel>>, ListUserRewardsQueryHandler>();
+
+        services
+            .AddScoped<IHandler<ListCarbonEmissionsQuery, IEnumerable<CarbonEmissionViewModel>>,
+                ListCarbonEmissionsQueryHandler>();
 
         return services;
     }
@@ -203,6 +211,18 @@ public static class ApplicationModule
 
         services
             .AddScoped<IHandler<DeleteRewardCommand, DatabaseOperationResponseViewModel>, DeleteRewardCommandHandler>();
+
+        #endregion
+
+        #region Carbon Emission
+
+        services
+            .AddScoped<IHandler<InsertCarbonEmissionCommand, DatabaseOperationResponseViewModel>,
+                InsertCarbonEmissionCommandHandler>();
+
+        services
+            .AddScoped<IHandler<DeleteCarbonEmissionCommand, DatabaseOperationResponseViewModel>,
+                           DeleteCarbonEmissionCommandHandler>();
 
         #endregion
 

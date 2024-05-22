@@ -4,6 +4,7 @@ using EcoPark.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace EcoPark.Infrastructure.Migrations
 {
     [DbContext(typeof(DatabaseDbContext))]
-    partial class DatabaseDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240518220729_AddedMoreDetailsToCar")]
+    partial class AddedMoreDetailsToCar
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -70,46 +73,6 @@ namespace EcoPark.Infrastructure.Migrations
                     b.HasIndex("ClientId");
 
                     b.ToTable("Cars");
-                });
-
-            modelBuilder.Entity("EcoPark.Domain.DataModels.Client.CarbonEmissionModel", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("ClientId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<double>("Emission")
-                        .HasColumnType("float");
-
-                    b.Property<double>("Forecast")
-                        .HasColumnType("float");
-
-                    b.Property<double>("Inhibition")
-                        .HasColumnType("float");
-
-                    b.Property<bool>("IsConfirmed")
-                        .HasColumnType("bit");
-
-                    b.Property<Guid>("ReservationId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ClientId");
-
-                    b.HasIndex("ReservationId")
-                        .IsUnique();
-
-                    b.ToTable("CarbonEmissions");
                 });
 
             modelBuilder.Entity("EcoPark.Domain.DataModels.Client.ClientClaimedRewardModel", b =>
@@ -465,25 +428,6 @@ namespace EcoPark.Infrastructure.Migrations
                     b.Navigation("Client");
                 });
 
-            modelBuilder.Entity("EcoPark.Domain.DataModels.Client.CarbonEmissionModel", b =>
-                {
-                    b.HasOne("EcoPark.Domain.DataModels.Client.ClientModel", "Client")
-                        .WithMany("CarbonEmissions")
-                        .HasForeignKey("ClientId")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
-
-                    b.HasOne("EcoPark.Domain.DataModels.Employee.Location.ParkingSpace.ReservationModel", "Reservation")
-                        .WithOne("CarbonEmission")
-                        .HasForeignKey("EcoPark.Domain.DataModels.Client.CarbonEmissionModel", "ReservationId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Client");
-
-                    b.Navigation("Reservation");
-                });
-
             modelBuilder.Entity("EcoPark.Domain.DataModels.Client.ClientClaimedRewardModel", b =>
                 {
                     b.HasOne("EcoPark.Domain.DataModels.Client.ClientModel", "Client")
@@ -632,8 +576,6 @@ namespace EcoPark.Infrastructure.Migrations
 
             modelBuilder.Entity("EcoPark.Domain.DataModels.Client.ClientModel", b =>
                 {
-                    b.Navigation("CarbonEmissions");
-
                     b.Navigation("Cars");
 
                     b.Navigation("ClaimedRewards");
@@ -660,11 +602,6 @@ namespace EcoPark.Infrastructure.Migrations
             modelBuilder.Entity("EcoPark.Domain.DataModels.Employee.Location.ParkingSpace.ParkingSpaceModel", b =>
                 {
                     b.Navigation("Reservations");
-                });
-
-            modelBuilder.Entity("EcoPark.Domain.DataModels.Employee.Location.ParkingSpace.ReservationModel", b =>
-                {
-                    b.Navigation("CarbonEmission");
                 });
 #pragma warning restore 612, 618
         }

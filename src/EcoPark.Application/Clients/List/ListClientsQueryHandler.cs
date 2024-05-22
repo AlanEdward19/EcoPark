@@ -16,7 +16,8 @@ public class ListClientsQueryHandler(IRepository<ClientModel> repository) : IHan
             foreach (var client in clients)
             {
                 IEnumerable<CarViewModel> cars = client.Cars.Select(car =>
-                    new CarViewModel(car.Id, car.Plate, car.Type, car.Brand, car.Model, car.Color, car.Year));
+                    new CarViewModel(car.Id, car.Plate, car.Type, car.Brand, car.Model, car.Color, car.Year,
+                        car.FuelType, car.FuelConsumptionPerLiter));
 
                 ClientViewModel model = new(client.Credentials.Id, client.Credentials.Email,
                     client.Credentials.FirstName, client.Credentials.LastName, client.Credentials.Image, cars);

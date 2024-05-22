@@ -14,7 +14,7 @@ public class ClientRepository(DatabaseDbContext databaseDbContext, IAuthenticati
 
     public async Task<EOperationStatus> CheckChangePermissionAsync(ICommand command, CancellationToken cancellationToken)
     {
-        if (command.RequestUserInfo.UserType == EUserType.PlataformAdministrator)
+        if (command.RequestUserInfo.UserType == EUserType.PlatformAdministrator)
             return EOperationStatus.Successful;
 
         ClientModel? clientModel = null;

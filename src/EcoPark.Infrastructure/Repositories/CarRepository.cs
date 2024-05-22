@@ -97,6 +97,8 @@ public class CarRepository(DatabaseDbContext databaseDbContext, IUnitOfWork unit
         car.UpdatePlate(parsedCommand.Plate);
         car.UpdateType(parsedCommand.Type);
         car.UpdateYear(parsedCommand.Year);
+        car.UpdateFuelType(parsedCommand.FuelType);
+        car.UpdateFuelConsumptionPerLiter(parsedCommand.FuelConsumptionPerLiter);
 
         carModel.UpdateBasedOnValueObject(car);
 

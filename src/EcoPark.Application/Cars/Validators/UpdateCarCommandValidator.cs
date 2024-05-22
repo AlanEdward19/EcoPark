@@ -17,5 +17,10 @@ public class UpdateCarCommandValidator : AbstractValidator<UpdateCarCommand>
             .Must(ValidatorUtils.ValidateLicensePlate)
             .WithMessage("Place must be in a valid format")
             .When(x => !string.IsNullOrWhiteSpace(x.Plate));
+
+        RuleFor(x => x)
+            .Must(x => ValidatorUtils.IsValidTypeAndFuelCombination(x.Type!.Value, x.FuelType!.Value))
+            .WithMessage("Invalid Type and FuelType combination")
+            .When(x => x.FuelType != null && x.FuelConsumptionPerLiter != null);
     }
 }

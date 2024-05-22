@@ -75,6 +75,7 @@ public class CarController(ILogger<CarController> logger) : ControllerBase
     [ProducesResponseType(typeof(DatabaseOperationResponseViewModel), StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(DatabaseOperationResponseViewModel), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(DatabaseOperationResponseViewModel), StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(DatabaseOperationResponseViewModel), StatusCodes.Status404NotFound)]
     [HttpPost]
     public async Task<IActionResult> Insert(
         [FromServices] IHandler<InsertCarCommand, DatabaseOperationResponseViewModel> handler,
@@ -113,6 +114,7 @@ public class CarController(ILogger<CarController> logger) : ControllerBase
     [ProducesResponseType(typeof(DatabaseOperationResponseViewModel), StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(DatabaseOperationResponseViewModel), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(DatabaseOperationResponseViewModel), StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(DatabaseOperationResponseViewModel), StatusCodes.Status404NotFound)]
     [HttpPatch]
     public async Task<IActionResult> Update(
         [FromServices] IHandler<UpdateCarCommand, DatabaseOperationResponseViewModel> handler, [FromQuery] Guid id,
@@ -148,9 +150,10 @@ public class CarController(ILogger<CarController> logger) : ControllerBase
     /// <param name="cancellationToken"></param>
     /// <returns>Mensagem sobre resultado da operação</returns>
     [Tags("Operações do Carro")]
-    [ProducesResponseType(typeof(DatabaseOperationResponseViewModel), StatusCodes.Status201Created)]
+    [ProducesResponseType(typeof(DatabaseOperationResponseViewModel), StatusCodes.Status202Accepted)]
     [ProducesResponseType(typeof(DatabaseOperationResponseViewModel), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(DatabaseOperationResponseViewModel), StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(DatabaseOperationResponseViewModel), StatusCodes.Status404NotFound)]
     [HttpDelete]
     public async Task<IActionResult> Delete(
         [FromServices] IHandler<DeleteCarCommand, DatabaseOperationResponseViewModel> handler,
@@ -167,7 +170,7 @@ public class CarController(ILogger<CarController> logger) : ControllerBase
 
         return status switch
         {
-            EOperationStatus.Successful => Created(Request.GetDisplayUrl(), result),
+            EOperationStatus.Successful => Accepted(Request.GetDisplayUrl(), result),
 
             EOperationStatus.NotFound => NotFound(result),
 

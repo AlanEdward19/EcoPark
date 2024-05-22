@@ -6,5 +6,5 @@ public enum EUserType
     Employee = 1,
     System = 2,
     Administrator = 3,
-    PlataformAdministrator = 4
+    PlatformAdministrator = 4
 }

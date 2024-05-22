@@ -15,6 +15,7 @@ public class ClientModel(Guid credentialsId)
 
     public virtual ICollection<PunctuationModel> Punctuations { get; set; }
     public virtual ICollection<ClientClaimedRewardModel> ClaimedRewards { get; set; }
+    public virtual ICollection<CarbonEmissionModel> CarbonEmissions { get; set; }
 
     public void SetCredentials(CredentialsModel credentials)
     {

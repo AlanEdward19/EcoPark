@@ -15,7 +15,9 @@ public class LoginController(ILogger<LoginController> logger) : ControllerBase
     /// <param name="query"></param>
     /// <param name="cancellationToken"></param>
     /// <returns>Email do usuário e seu token</returns>
+    [Tags("Login")]
     [ProducesResponseType(typeof(LoginViewModel), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(EntityNotFoundValueObject), StatusCodes.Status404NotFound)]
     [HttpPut]
     public async Task<IActionResult> Login([FromServices] IHandler<LoginQuery, LoginViewModel> handler, [FromBody] LoginQuery query, CancellationToken cancellationToken)
     {

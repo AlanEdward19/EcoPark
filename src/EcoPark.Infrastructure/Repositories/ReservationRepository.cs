@@ -45,14 +45,19 @@ public class ReservationRepository(DatabaseDbContext databaseDbContext, IUnitOfW
                             r => r.ReservationCode.Equals(updateReservationStatusCommand.ReservationCode) &&
                                  r.Status == EReservationStatus.Confirmed, cancellationToken);
 
-                if(reservationModel == null) return EOperationStatus.NotFound;
+                if (reservationModel == null) return EOperationStatus.NotFound;
 
                 locationModel = reservationModel!.ParkingSpace!.Location!;
 
                 employeeModel = (await databaseDbContext.Employees
                     .Include(x => x.Credentials)
                     .Include(x => x.GroupAccesses)
+                    .Include(x => x.Administrator)
+                    .ThenInclude(x => x.Credentials)
                     .FirstOrDefaultAsync(x => x.Credentials.Email.Equals(requestUserInfo.Email), cancellationToken))!;
+
+                if (employeeModel.Administrator is { Credentials.UserType: EUserType.PlatformAdministrator })
+                    return EOperationStatus.Successful;
 
                 return employeeModel.GroupAccesses.Any(x => x.LocationId.Equals(locationModel.Id))
                     ? EOperationStatus.Successful
@@ -76,7 +81,7 @@ public class ReservationRepository(DatabaseDbContext databaseDbContext, IUnitOfW
 
             case DeleteReservationCommand deleteCommand:
 
-                if (requestUserInfo.UserType == EUserType.PlataformAdministrator)
+                if (requestUserInfo.UserType == EUserType.PlatformAdministrator)
                     return EOperationStatus.Successful;
 
                 if (requestUserInfo.UserType is EUserType.Administrator or EUserType.Employee)
@@ -211,12 +216,9 @@ public class ReservationRepository(DatabaseDbContext databaseDbContext, IUnitOfW
         EReservationStatus reservationStatus;
 
         if (parkingSpaceModel.Location.ReservationFeeRate > 0)
-        {
             logger.LogInformation("Chamando gateway de pagamento [Mock]");
-            reservationStatus = EReservationStatus.Created;
-        }
-        else
-            reservationStatus = EReservationStatus.Confirmed;
+
+        reservationStatus = EReservationStatus.Confirmed;
 
         ReservationModel? lastReservation = await databaseDbContext.Reservations
             .AsNoTracking()
@@ -418,10 +420,12 @@ public class ReservationRepository(DatabaseDbContext databaseDbContext, IUnitOfW
 
         if (command!.ReservationId != null)
             reservationModel = await databaseDbContext.Reservations
+                .Include(reservationModel => reservationModel.CarbonEmission!)
                 .FirstAsync(r => r.Id == command.ReservationId, cancellationToken);
 
         else if (!string.IsNullOrWhiteSpace(command!.ReservationCode))
             reservationModel = await databaseDbContext.Reservations
+                .Include(reservationModel => reservationModel.CarbonEmission!)
                 .FirstAsync(
                     r => r.ReservationCode.Equals(command.ReservationCode) &&
                          r.Status == EReservationStatus.Confirmed, cancellationToken);
@@ -432,8 +436,14 @@ public class ReservationRepository(DatabaseDbContext databaseDbContext, IUnitOfW
 
         reservationModel.UpdateBasedOnValueObject(reservation);
 
-        databaseDbContext.Reservations.Update(reservationModel);
+        if (command.Status == EReservationStatus.Arrived && reservationModel.CarbonEmission != null)
+            reservationModel.CarbonEmission.IsConfirmed = true;
 
+        else if ((command.Status is EReservationStatus.Cancelled or EReservationStatus.Expired) &&
+                 reservationModel.CarbonEmission != null)
+            databaseDbContext.CarbonEmissions.Remove(reservationModel.CarbonEmission);
+
+        databaseDbContext.Reservations.Update(reservationModel);
     }
 
     private async Task UpdateReservationAsync(UpdateReservationCommand command, CancellationToken cancellationToken)

@@ -27,6 +27,7 @@ public class ParkingSpaceController(ILogger<ParkingSpaceController> logger) : Co
     [ProducesResponseType(typeof(DatabaseOperationResponseViewModel), StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(DatabaseOperationResponseViewModel), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(DatabaseOperationResponseViewModel), StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(DatabaseOperationResponseViewModel), StatusCodes.Status404NotFound)]
     [HttpPut("occupy")]
     [Authorize(Roles = "System")]
     public async Task<IActionResult> Occupy([FromServices] IHandler<UpdateParkingSpaceStatusCommand, DatabaseOperationResponseViewModel> handler,
@@ -62,6 +63,7 @@ public class ParkingSpaceController(ILogger<ParkingSpaceController> logger) : Co
     [ProducesResponseType(typeof(DatabaseOperationResponseViewModel), StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(DatabaseOperationResponseViewModel), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(DatabaseOperationResponseViewModel), StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(DatabaseOperationResponseViewModel), StatusCodes.Status404NotFound)]
     [HttpPut("vacate")]
     [Authorize(Roles = "System")]
     public async Task<IActionResult> Vacate([FromServices] IHandler<UpdateParkingSpaceStatusCommand, DatabaseOperationResponseViewModel> handler,
@@ -94,8 +96,9 @@ public class ParkingSpaceController(ILogger<ParkingSpaceController> logger) : Co
     /// <param name="cancellationToken"></param>
     /// <returns>Lista de vagas de estacionamento</returns>
     [Tags("Operações da Vaga de Estacionamento")]
+    [ProducesResponseType(typeof(IEnumerable<ParkingSpaceSimplifiedViewModel>), StatusCodes.Status200OK)]
     [HttpPost("list")]
-    [Authorize(Roles = "PlataformAdministrator, Administrator, Employee")]
+    [Authorize(Roles = "PlatformAdministrator, Administrator, Employee")]
     public async Task<IActionResult> GetList([FromServices] IHandler<ListParkingSpacesQuery, IEnumerable<ParkingSpaceSimplifiedViewModel>> handler,
         [FromBody] ListParkingSpacesQuery query, CancellationToken cancellationToken)
     {
@@ -119,7 +122,7 @@ public class ParkingSpaceController(ILogger<ParkingSpaceController> logger) : Co
     [ProducesResponseType(typeof(ParkingSpaceSimplifiedViewModel), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(EntityNotFoundValueObject), StatusCodes.Status404NotFound)]
     [HttpGet]
-    [Authorize(Roles = "PlataformAdministrator, Administrator, Employee")]
+    [Authorize(Roles = "PlatformAdministrator, Administrator, Employee")]
     public async Task<IActionResult> GetById([FromServices] IHandler<GetParkingSpaceQuery, ParkingSpaceSimplifiedViewModel> handler,
         [FromQuery] GetParkingSpaceQuery query, CancellationToken cancellationToken)
     {
@@ -145,6 +148,7 @@ public class ParkingSpaceController(ILogger<ParkingSpaceController> logger) : Co
     [ProducesResponseType(typeof(DatabaseOperationResponseViewModel), StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(DatabaseOperationResponseViewModel), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(DatabaseOperationResponseViewModel), StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(DatabaseOperationResponseViewModel), StatusCodes.Status404NotFound)]
     [HttpPost]
     [Authorize(Roles = "Administrator, Employee")]
     public async Task<IActionResult> Insert([FromServices] IHandler<InsertParkingSpaceCommand, DatabaseOperationResponseViewModel> handler,
@@ -180,6 +184,7 @@ public class ParkingSpaceController(ILogger<ParkingSpaceController> logger) : Co
     [ProducesResponseType(typeof(DatabaseOperationResponseViewModel), StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(DatabaseOperationResponseViewModel), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(DatabaseOperationResponseViewModel), StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(DatabaseOperationResponseViewModel), StatusCodes.Status404NotFound)]
     [HttpPatch]
     [Authorize(Roles = "Administrator, Employee")]
     public async Task<IActionResult> Update([FromServices] IHandler<UpdateParkingSpaceCommand, DatabaseOperationResponseViewModel> handler,
@@ -215,6 +220,7 @@ public class ParkingSpaceController(ILogger<ParkingSpaceController> logger) : Co
     [ProducesResponseType(typeof(DatabaseOperationResponseViewModel), StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(DatabaseOperationResponseViewModel), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(DatabaseOperationResponseViewModel), StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(DatabaseOperationResponseViewModel), StatusCodes.Status404NotFound)]
     [HttpDelete]
     [Authorize(Roles = "Administrator, Employee")]
     public async Task<IActionResult> Delete([FromServices] IHandler<DeleteParkingSpaceCommand, DatabaseOperationResponseViewModel> handler,

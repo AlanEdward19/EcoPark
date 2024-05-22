@@ -1,12 +1,10 @@
-﻿namespace EcoPark.Application.Authentication.Get;
+﻿namespace EcoPark.Application.CarbonEmission.Delete;
 
-public class LoginQuery(string email, string password) : IQuery
+public record DeleteCarbonEmissionCommand : DeleteEntityCommand, ICommand
 {
-    public string Email { get; private set; } = email;
-    public string Password { get; private set; } = password;
-
     [JsonIgnore]
     public (string Email, EUserType UserType) RequestUserInfo { get; private set; }
+
     public void SetRequestUserInfo((string email, EUserType userType) information)
     {
         RequestUserInfo = information;

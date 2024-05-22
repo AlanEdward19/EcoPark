@@ -7,6 +7,7 @@ public partial class DatabaseDbContext
     public DbSet<ParkingSpaceModel> ParkingSpaces { get; set; }
     public DbSet<CredentialsModel> Credentials { get; set; }
     public DbSet<GroupAccessModel> GroupAccesses { get; set; }
+    public DbSet<CarbonEmissionModel> CarbonEmissions { get; set; }
     public DbSet<PunctuationModel> Punctuations { get; set; }
     public DbSet<RewardModel> Rewards { get; set; }
     public DbSet<ClientModel> Clients { get; set; }

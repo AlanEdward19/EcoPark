@@ -42,6 +42,7 @@ public static class InfrastructureModule
         services.AddScoped<IRepository<PunctuationModel>, PunctuationRepository>();
         services.AddScoped<IRepository<RewardModel>, RewardRepository>();
         services.AddScoped<IRepository<ClientClaimedRewardModel>, ClientClaimedRewardRepository>();
+        services.AddScoped<IRepository<CarbonEmissionModel>, CarbonEmissionRepository>();
 
         return services;
     }

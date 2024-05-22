@@ -49,5 +49,20 @@ public class InsertCarCommandValidator : AbstractValidator<InsertCarCommand>
         RuleFor(x => x.Type)
             .NotNull()
             .WithMessage("Type is Required");
+
+        RuleFor(x => x.FuelConsumptionPerLiter)
+            .NotNull()
+            .WithMessage("FuelConsumptionPerLiter is Required");
+        RuleFor(x => x.FuelConsumptionPerLiter)
+            .GreaterThan(0)
+            .WithMessage("FuelConsumptionPerLiter must be greater than 0");
+
+        RuleFor(x => x.FuelType)
+            .NotNull()
+            .WithMessage("FuelType is Required");
+
+        RuleFor(x => x)
+            .Must(x => ValidatorUtils.IsValidTypeAndFuelCombination(x.Type!.Value, x.FuelType!.Value))
+            .WithMessage("Invalid Type and FuelType combination");
     }
 }

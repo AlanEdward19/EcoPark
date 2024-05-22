@@ -24,7 +24,7 @@ public class EmployeeRepository(DatabaseDbContext databaseDbContext, IAuthentica
         switch (command)
         {
             case InsertSystemCommand:
-                if(requesterUserType is EUserType.PlataformAdministrator or EUserType.Administrator)
+                if(requesterUserType is EUserType.PlatformAdministrator or EUserType.Administrator)
                     return EOperationStatus.Successful;
 
                 break;
@@ -59,7 +59,7 @@ public class EmployeeRepository(DatabaseDbContext databaseDbContext, IAuthentica
 
             case InsertEmployeeCommand insertCommand:
 
-                if (requesterUserType != EUserType.PlataformAdministrator)
+                if (requesterUserType != EUserType.PlatformAdministrator)
                     return (int)requesterUserType >= (int)insertCommand.UserType!.Value ? EOperationStatus.Successful : EOperationStatus.NotAuthorized;
 
                 return EOperationStatus.Successful;

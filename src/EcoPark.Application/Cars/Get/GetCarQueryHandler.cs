@@ -8,7 +8,8 @@ public class GetCarQueryHandler(IRepository<CarModel> repository) : IHandler<Get
         var car = await repository.GetByIdAsync(command, cancellationToken);
 
         if (car != null)
-            result = new(car.Id, car.Plate, car.Type, car.Brand, car.Model, car.Color, car.Year);
+            result = new(car.Id, car.Plate, car.Type, car.Brand, car.Model, car.Color, car.Year, car.FuelType,
+                car.FuelConsumptionPerLiter);
 
         return result;
     }

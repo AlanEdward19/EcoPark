@@ -23,6 +23,8 @@ public class ReservationController(ILogger<ReservationController> logger) : Cont
     /// <param name="query"></param>
     /// <param name="cancellationToken"></param>
     /// <returns>Lista de reservas</returns>
+    [Tags("Informações de Reserva")]
+    [ProducesResponseType(typeof(IEnumerable<ReservationSimplifiedViewModel>), StatusCodes.Status200OK)]
     [HttpPost("list")]
     [Authorize(Roles = "Administrator, Employee, Client")]
     public async Task<IActionResult> GetList([FromServices] IHandler<ListReservationQuery?, IEnumerable<ReservationSimplifiedViewModel>> handler,
@@ -44,6 +46,11 @@ public class ReservationController(ILogger<ReservationController> logger) : Cont
     /// <param name="reservationCode"></param>
     /// <param name="cancellationToken"></param>
     /// <returns>Mensagem sobre resultado da operação</returns>
+    [Tags("Operações de Reserva")]
+    [ProducesResponseType(typeof(DatabaseOperationResponseViewModel), StatusCodes.Status201Created)]
+    [ProducesResponseType(typeof(DatabaseOperationResponseViewModel), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(DatabaseOperationResponseViewModel), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(DatabaseOperationResponseViewModel), StatusCodes.Status401Unauthorized)]
     [HttpPut("arrived")]
     [Authorize(Roles = "System")]
     public async Task<IActionResult> Arrived([FromServices] IHandler<UpdateReservationStatusCommand, DatabaseOperationResponseViewModel> handler,
@@ -75,6 +82,11 @@ public class ReservationController(ILogger<ReservationController> logger) : Cont
     /// <param name="id"></param>
     /// <param name="cancellationToken"></param>
     /// <returns>Mensagem sobre resultado da operação</returns>
+    [Tags("Operações de Reserva")]
+    [ProducesResponseType(typeof(DatabaseOperationResponseViewModel), StatusCodes.Status201Created)]
+    [ProducesResponseType(typeof(DatabaseOperationResponseViewModel), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(DatabaseOperationResponseViewModel), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(DatabaseOperationResponseViewModel), StatusCodes.Status401Unauthorized)]
     [HttpPut("cancel")]
     [Authorize(Roles = "System")]
     public async Task<IActionResult> Cancel([FromServices] IHandler<UpdateReservationStatusCommand, DatabaseOperationResponseViewModel> handler,
@@ -107,6 +119,7 @@ public class ReservationController(ILogger<ReservationController> logger) : Cont
     /// <param name="query"></param>
     /// <param name="cancellationToken"></param>
     /// <returns>Informações da Reserva</returns>
+    [Tags("Informações de Reserva")]
     [ProducesResponseType(typeof(ReservationSimplifiedViewModel), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(EntityNotFoundValueObject), StatusCodes.Status404NotFound)]
     [HttpGet]
@@ -132,6 +145,11 @@ public class ReservationController(ILogger<ReservationController> logger) : Cont
     /// <param name="command"></param>
     /// <param name="cancellationToken"></param>
     /// <returns>Mensagem sobre resultado da operação</returns>
+    [Tags("Operações de Reserva")]
+    [ProducesResponseType(typeof(DatabaseOperationResponseViewModel), StatusCodes.Status201Created)]
+    [ProducesResponseType(typeof(DatabaseOperationResponseViewModel), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(DatabaseOperationResponseViewModel), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(DatabaseOperationResponseViewModel), StatusCodes.Status401Unauthorized)]
     [HttpPost]
     [Authorize(Roles = "Client")]
     public async Task<IActionResult> Insert([FromServices] IHandler<InsertReservationCommand, DatabaseOperationResponseViewModel> handler,
@@ -163,6 +181,11 @@ public class ReservationController(ILogger<ReservationController> logger) : Cont
     /// <param name="command"></param>
     /// <param name="cancellationToken"></param>
     /// <returns>Mensagem sobre resultado da operação</returns>
+    [Tags("Operações de Reserva")]
+    [ProducesResponseType(typeof(DatabaseOperationResponseViewModel), StatusCodes.Status201Created)]
+    [ProducesResponseType(typeof(DatabaseOperationResponseViewModel), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(DatabaseOperationResponseViewModel), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(DatabaseOperationResponseViewModel), StatusCodes.Status401Unauthorized)]
     [HttpPatch]
     [Authorize(Roles = "Client")]
     public async Task<IActionResult> Update([FromServices] IHandler<UpdateReservationCommand, DatabaseOperationResponseViewModel> handler,
@@ -194,8 +217,13 @@ public class ReservationController(ILogger<ReservationController> logger) : Cont
     /// <param name="command"></param>
     /// <param name="cancellationToken"></param>
     /// <returns>Mensagem sobre resultado da operação</returns>
+    [Tags("Operações de Reserva")]
+    [ProducesResponseType(typeof(DatabaseOperationResponseViewModel), StatusCodes.Status201Created)]
+    [ProducesResponseType(typeof(DatabaseOperationResponseViewModel), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(DatabaseOperationResponseViewModel), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(DatabaseOperationResponseViewModel), StatusCodes.Status401Unauthorized)]
     [HttpDelete]
-    [Authorize(Roles = "PlataformAdministrator, Administrator, Employee, Client")]
+    [Authorize(Roles = "PlatformAdministrator, Administrator, Employee, Client")]
     public async Task<IActionResult> Delete([FromServices] IHandler<DeleteReservationCommand, DatabaseOperationResponseViewModel> handler,
         [FromQuery] DeleteReservationCommand command, CancellationToken cancellationToken)
     {

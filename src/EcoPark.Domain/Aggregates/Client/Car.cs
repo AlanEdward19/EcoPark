@@ -1,6 +1,4 @@
-﻿using EcoPark.Domain.DataModels.Client;
-
-namespace EcoPark.Domain.Aggregates.Client;
+﻿namespace EcoPark.Domain.Aggregates.Client;
 
 public class Car(CarModel carModel)
 {
@@ -11,6 +9,8 @@ public class Car(CarModel carModel)
     public string Color { get; private set; } = carModel.Color;
     public string Brand { get; private set; } = carModel.Brand;
     public int Year { get; private set; } = carModel.Year;
+    public EFuelType FuelType { get; private set; } = carModel.FuelType;
+    public double FuelConsumptionPerLiter { get; private set; } = carModel.FuelConsumptionPerLiter;
 
     public void UpdatePlate(string? plate)
     {
@@ -46,5 +46,17 @@ public class Car(CarModel carModel)
     {
         if (year != null && Year != year)
             Year = year.Value;
+    }
+
+    public void UpdateFuelType(EFuelType? fuelType)
+    {
+        if (fuelType != null && fuelType != FuelType)
+            FuelType = fuelType.Value;
+    }
+
+    public void UpdateFuelConsumptionPerLiter(double? fuelConsumptionPerLiter)
+    {
+        if (fuelConsumptionPerLiter != null && fuelConsumptionPerLiter != FuelConsumptionPerLiter)
+            FuelConsumptionPerLiter = fuelConsumptionPerLiter.Value;
     }
 }

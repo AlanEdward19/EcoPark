@@ -26,6 +26,7 @@ public class EmployeeController(ILogger<EmployeeController> logger) : Controller
     /// <param name="cancellationToken"></param>
     /// <returns>Lista de funcionarios</returns>
     [Tags("Informações do Funcionário")]
+    [ProducesResponseType(typeof(IEnumerable<EmployeeViewModel>), StatusCodes.Status200OK)]
     [HttpPost("list")]
     [Authorize(Roles = "Administrator")]
     public async Task<IActionResult> GetList([FromServices] IHandler<ListEmployeesQuery, IEnumerable<EmployeeViewModel>> handler,
@@ -77,8 +78,9 @@ public class EmployeeController(ILogger<EmployeeController> logger) : Controller
     [ProducesResponseType(typeof(DatabaseOperationResponseViewModel), StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(DatabaseOperationResponseViewModel), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(DatabaseOperationResponseViewModel), StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(DatabaseOperationResponseViewModel), StatusCodes.Status404NotFound)]
     [HttpPost]
-    [Authorize(Roles = "PlataformAdministrator, Administrator")]
+    [Authorize(Roles = "PlatformAdministrator, Administrator")]
     public async Task<IActionResult> Insert([FromServices] IHandler<InsertEmployeeCommand, DatabaseOperationResponseViewModel> handler,
         [FromQuery] InsertEmployeeCommand command, [FromForm] IFormFile image ,CancellationToken cancellationToken)
     {
@@ -115,8 +117,9 @@ public class EmployeeController(ILogger<EmployeeController> logger) : Controller
     [ProducesResponseType(typeof(DatabaseOperationResponseViewModel), StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(DatabaseOperationResponseViewModel), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(DatabaseOperationResponseViewModel), StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(DatabaseOperationResponseViewModel), StatusCodes.Status404NotFound)]
     [HttpPost("system")]
-    [Authorize(Roles = "Administrator")]
+    [Authorize(Roles = "Administrator, PlatformAdministrator")]
     public async Task<IActionResult> InsertSystem([FromServices] IHandler<InsertSystemCommand, DatabaseOperationResponseViewModel> handler,
         [FromBody] InsertSystemCommand command, CancellationToken cancellationToken)
     {
@@ -152,6 +155,7 @@ public class EmployeeController(ILogger<EmployeeController> logger) : Controller
     [ProducesResponseType(typeof(DatabaseOperationResponseViewModel), StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(DatabaseOperationResponseViewModel), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(DatabaseOperationResponseViewModel), StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(DatabaseOperationResponseViewModel), StatusCodes.Status404NotFound)]
     [HttpPost("GroupAccess")]
     [Authorize(Roles = "Administrator")]
     public async Task<IActionResult> InsertGroupAccess([FromServices] IHandler<InsertEmployeeGroupAccessCommand, DatabaseOperationResponseViewModel> handler,
@@ -186,9 +190,10 @@ public class EmployeeController(ILogger<EmployeeController> logger) : Controller
     /// <param name="cancellationToken"></param>
     /// <returns>Mensagem sobre resultado da operação</returns>
     [Tags("Operações do Funcionário")]
-    [ProducesResponseType(typeof(DatabaseOperationResponseViewModel), StatusCodes.Status201Created)]
+    [ProducesResponseType(typeof(DatabaseOperationResponseViewModel), StatusCodes.Status202Accepted)]
     [ProducesResponseType(typeof(DatabaseOperationResponseViewModel), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(DatabaseOperationResponseViewModel), StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(DatabaseOperationResponseViewModel), StatusCodes.Status404NotFound)]
     [HttpDelete("GroupAccess")]
     [Authorize(Roles = "Administrator")]
     public async Task<IActionResult> DeleteGroupAccess([FromServices] IHandler<DeleteEmployeeGroupAccessCommand, DatabaseOperationResponseViewModel> handler,
@@ -205,7 +210,7 @@ public class EmployeeController(ILogger<EmployeeController> logger) : Controller
 
         return status switch
         {
-            EOperationStatus.Successful => Created(Request.GetDisplayUrl(), result),
+            EOperationStatus.Successful => Accepted(Request.GetDisplayUrl(), result),
 
             EOperationStatus.Failed => BadRequest(result),
 
@@ -227,6 +232,7 @@ public class EmployeeController(ILogger<EmployeeController> logger) : Controller
     [ProducesResponseType(typeof(DatabaseOperationResponseViewModel), StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(DatabaseOperationResponseViewModel), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(DatabaseOperationResponseViewModel), StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(DatabaseOperationResponseViewModel), StatusCodes.Status404NotFound)]
     [HttpPatch]
     [Authorize(Roles = "Administrator, Employee")]
     public async Task<IActionResult> Update([FromServices] IHandler<UpdateEmployeeCommand, DatabaseOperationResponseViewModel> handler,
@@ -262,11 +268,12 @@ public class EmployeeController(ILogger<EmployeeController> logger) : Controller
     /// <param name="cancellationToken"></param>
     /// <returns>Mensagem sobre resultado da operação</returns>
     [Tags("Operações do Funcionário")]
-    [ProducesResponseType(typeof(DatabaseOperationResponseViewModel), StatusCodes.Status201Created)]
+    [ProducesResponseType(typeof(DatabaseOperationResponseViewModel), StatusCodes.Status202Accepted)]
     [ProducesResponseType(typeof(DatabaseOperationResponseViewModel), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(DatabaseOperationResponseViewModel), StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(DatabaseOperationResponseViewModel), StatusCodes.Status404NotFound)]
     [HttpDelete]
-    [Authorize(Roles = "PlataformAdministrator, Administrator")]
+    [Authorize(Roles = "PlatformAdministrator, Administrator")]
     public async Task<IActionResult> Delete([FromServices] IHandler<DeleteEmployeeCommand, DatabaseOperationResponseViewModel> handler, 
         [FromQuery] DeleteEmployeeCommand command, CancellationToken cancellationToken)
     {
