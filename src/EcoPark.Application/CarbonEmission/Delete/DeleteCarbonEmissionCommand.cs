@@ -3,9 +3,9 @@
 public record DeleteCarbonEmissionCommand : DeleteEntityCommand, ICommand
 {
     [JsonIgnore]
-    public (string Email, EUserType UserType) RequestUserInfo { get; private set; }
+    public RequestUserInfoValueObject RequestUserInfo { get; private set; }
 
-    public void SetRequestUserInfo((string email, EUserType userType) information)
+    public void SetRequestUserInfo(RequestUserInfoValueObject information)
     {
         RequestUserInfo = information;
     }

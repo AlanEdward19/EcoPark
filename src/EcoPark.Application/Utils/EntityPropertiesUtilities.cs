@@ -7,7 +7,7 @@ public static class EntityPropertiesUtilities
     public static IEnumerable<string> GetEntityPropertiesAndValueAsIEnumerable<T>(T entity) =>
         entity.GetType().GetProperties().Select(x => $"{x.Name} = {x.GetValue(entity)}");
 
-    public static (string Email, EUserType UserType) GetUserInfo(ClaimsPrincipal user)
+    public static RequestUserInfoValueObject GetUserInfo(ClaimsPrincipal user)
     {
         var userEmail = user.FindFirst("userName")?.Value;
         var userType = user.Claims
@@ -15,6 +15,6 @@ public static class EntityPropertiesUtilities
 
         EUserType parsedUserType = Enum.Parse<EUserType>(userType, true);
 
-        return (userEmail, parsedUserType);
+        return new(userEmail, parsedUserType);
     }
 }

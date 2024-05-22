@@ -5,9 +5,9 @@ public class ListCarbonEmissionsQuery(IEnumerable<Guid> carbonEmissionsIds) : IQ
     public IEnumerable<Guid> CarbonEmissionsIds { get; private set; } = carbonEmissionsIds;
 
     [JsonIgnore]
-    public (string Email, EUserType UserType) RequestUserInfo { get; private set; }
+    public RequestUserInfoValueObject RequestUserInfo { get; private set; }
 
-    public void SetRequestUserInfo((string email, EUserType userType) information)
+    public void SetRequestUserInfo(RequestUserInfoValueObject information)
     {
         RequestUserInfo = information;
     }

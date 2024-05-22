@@ -16,7 +16,7 @@ public class UpdateRewardCommand : ICommand
     public DateTime? ExpirationDate { get; set; }
 
     [JsonIgnore]
-    public (string Email, EUserType UserType) RequestUserInfo { get; private set; }
+    public RequestUserInfoValueObject RequestUserInfo { get; private set; }
 
     public async Task SetImage(IFormFile? image, string? imageFileName, CancellationToken cancellationToken)
     {
@@ -29,7 +29,7 @@ public class UpdateRewardCommand : ICommand
         }
     }
 
-    public void SetRequestUserInfo((string email, EUserType userType) information)
+    public void SetRequestUserInfo(RequestUserInfoValueObject information)
     {
         RequestUserInfo = information;
     }

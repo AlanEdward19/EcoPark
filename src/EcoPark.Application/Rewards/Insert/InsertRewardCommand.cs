@@ -17,7 +17,7 @@ public class InsertRewardCommand : ICommand
     public Guid? LocationId { get; set; }
 
     [JsonIgnore]
-    public (string Email, EUserType UserType) RequestUserInfo { get; private set; }
+    public RequestUserInfoValueObject RequestUserInfo { get; private set; }
 
     public async Task SetImage(IFormFile? image, string imageFileName, CancellationToken cancellationToken)
     {
@@ -27,7 +27,7 @@ public class InsertRewardCommand : ICommand
         ImageFileName = imageFileName;
     }
 
-    public void SetRequestUserInfo((string email, EUserType userType) information)
+    public void SetRequestUserInfo(RequestUserInfoValueObject information)
     {
         RequestUserInfo = information;
     }

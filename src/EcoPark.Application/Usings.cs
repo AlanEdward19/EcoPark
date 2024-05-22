@@ -4,6 +4,7 @@ global using System.Text.Json.Serialization;
 #region Domain
 
 global using EcoPark.Domain.Interfaces;
+global using EcoPark.Domain.ValueObjects;
 global using EcoPark.Domain.Commons.Enums;
 global using EcoPark.Domain.DataModels;
 global using EcoPark.Domain.DataModels.Client;
