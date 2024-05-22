@@ -11,7 +11,7 @@ public class InsertLocationCommand(string? name, string? address, int? reservati
     public double? HourlyParkingRate { get; private set; } = hourlyParkingRate;
 
     [JsonIgnore]
-    public RequestUserInfoValueObject RequestUserInfo { get; private set; }
+    public RequestUserInfoValueObject? RequestUserInfo { get; private set; }
     public void SetRequestUserInfo(RequestUserInfoValueObject information)
     {
         RequestUserInfo = information;

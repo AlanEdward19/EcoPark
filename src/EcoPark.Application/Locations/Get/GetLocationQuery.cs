@@ -6,7 +6,7 @@ public class GetLocationQuery : IQuery
     public bool? IncludeParkingSpaces { get; set; } = false;
 
     [JsonIgnore]
-    public RequestUserInfoValueObject RequestUserInfo { get; private set; }
+    public RequestUserInfoValueObject? RequestUserInfo { get; private set; }
     public void SetRequestUserInfo(RequestUserInfoValueObject information)
     {
         RequestUserInfo = information;

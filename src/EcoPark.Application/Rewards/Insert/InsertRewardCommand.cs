@@ -17,7 +17,7 @@ public class InsertRewardCommand : ICommand
     public Guid? LocationId { get; set; }
 
     [JsonIgnore]
-    public RequestUserInfoValueObject RequestUserInfo { get; private set; }
+    public RequestUserInfoValueObject? RequestUserInfo { get; private set; }
 
     public async Task SetImage(IFormFile? image, string imageFileName, CancellationToken cancellationToken)
     {

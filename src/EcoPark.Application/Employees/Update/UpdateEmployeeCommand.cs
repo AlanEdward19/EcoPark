@@ -16,7 +16,7 @@ public class UpdateEmployeeCommand(string? firstName, string? lastName, string? 
     public void SetEmployeeId(Guid employeeId) => EmployeeId = employeeId;
 
     [JsonIgnore]
-    public RequestUserInfoValueObject RequestUserInfo { get; private set; }
+    public RequestUserInfoValueObject? RequestUserInfo { get; private set; }
     public void SetRequestUserInfo(RequestUserInfoValueObject information)
     {
         RequestUserInfo = information;

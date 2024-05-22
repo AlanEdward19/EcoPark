@@ -14,7 +14,7 @@ public class UpdateClientCommand(string? email, string? password, string? firstN
     public string? ImageFileName { get; private set; }
 
     [JsonIgnore]
-    public RequestUserInfoValueObject RequestUserInfo { get; private set; }
+    public RequestUserInfoValueObject? RequestUserInfo { get; private set; }
 
     public void SetClientId(Guid clientId)
     {
