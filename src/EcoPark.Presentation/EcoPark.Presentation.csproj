@@ -10,6 +10,7 @@
 
 	<PropertyGroup>
 		<DocumentationFile>Configurations\Comments\Presentation.xml</DocumentationFile>
+		<UserSecretsId>1c7f74cb-9b5f-4871-93cb-ece29416ba8c</UserSecretsId>
 	</PropertyGroup>
 
 	<ItemGroup>
