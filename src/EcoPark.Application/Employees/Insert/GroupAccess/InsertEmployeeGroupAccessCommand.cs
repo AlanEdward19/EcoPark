@@ -6,7 +6,7 @@ public class InsertEmployeeGroupAccessCommand : ICommand
     public Guid LocationId { get; set; }
 
     [JsonIgnore]
-    public RequestUserInfoValueObject RequestUserInfo { get; private set; }
+    public RequestUserInfoValueObject? RequestUserInfo { get; private set; }
 
     public void SetRequestUserInfo(RequestUserInfoValueObject information)
     {

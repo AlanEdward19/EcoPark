@@ -6,7 +6,7 @@ public class ListLocationQuery(IEnumerable<Guid>? locationIds, bool? includePark
     public bool? IncludeParkingSpaces { get; private set; } = includeParkingSpaces ?? false;
 
     [JsonIgnore]
-    public RequestUserInfoValueObject RequestUserInfo { get; private set; }
+    public RequestUserInfoValueObject? RequestUserInfo { get; private set; }
     public void SetRequestUserInfo(RequestUserInfoValueObject information)
     {
         RequestUserInfo = information;

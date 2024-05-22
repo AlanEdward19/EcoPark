@@ -6,7 +6,7 @@ public class GetClientQuery : IQuery
     public bool IncludeCars { get; set; }
 
     [JsonIgnore]
-    public RequestUserInfoValueObject RequestUserInfo { get; private set; }
+    public RequestUserInfoValueObject? RequestUserInfo { get; private set; }
     public void SetRequestUserInfo(RequestUserInfoValueObject information)
     {
         RequestUserInfo = information;

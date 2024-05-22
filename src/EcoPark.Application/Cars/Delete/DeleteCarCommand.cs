@@ -3,7 +3,7 @@
 public record DeleteCarCommand : DeleteEntityCommand, ICommand
 {
     [JsonIgnore]
-    public RequestUserInfoValueObject RequestUserInfo { get; private set; }
+    public RequestUserInfoValueObject? RequestUserInfo { get; private set; }
 
     public void SetRequestUserInfo(RequestUserInfoValueObject information)
     {

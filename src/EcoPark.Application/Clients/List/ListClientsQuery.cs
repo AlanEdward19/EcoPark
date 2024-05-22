@@ -6,7 +6,7 @@ public class ListClientsQuery(IEnumerable<Guid>? clientIds, bool includeCars) : 
     public bool IncludeCars { get; private set; } = includeCars;
 
     [JsonIgnore]
-    public RequestUserInfoValueObject RequestUserInfo { get; private set; }
+    public RequestUserInfoValueObject? RequestUserInfo { get; private set; }
     public void SetRequestUserInfo(RequestUserInfoValueObject information)
     {
         RequestUserInfo = information;

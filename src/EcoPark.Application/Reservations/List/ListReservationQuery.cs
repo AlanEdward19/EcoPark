@@ -6,7 +6,7 @@ public class ListReservationQuery(IEnumerable<Guid> reservationIds, bool include
     public bool IncludeParkingSpace { get; private set; } = includeParkingSpace;
 
     [JsonIgnore]
-    public RequestUserInfoValueObject RequestUserInfo { get; private set; }
+    public RequestUserInfoValueObject? RequestUserInfo { get; private set; }
     public void SetRequestUserInfo(RequestUserInfoValueObject information)
     {
         RequestUserInfo = information;
