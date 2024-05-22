@@ -1,19 +1,17 @@
 ﻿global using Microsoft.Extensions.DependencyInjection;
-global using Microsoft.EntityFrameworkCore;
+global using System.Text.Json.Serialization;
 
 #region Domain
 
 global using EcoPark.Domain.Interfaces;
 global using EcoPark.Domain.Commons.Enums;
 global using EcoPark.Domain.DataModels;
-global using EcoPark.Domain.Aggregates.Location;
-global using EcoPark.Domain.Aggregates.Location.ParkingSpace;
-
-#endregion
-
-#region Infrastructure
-
-global using EcoPark.Infrastructure.Data;
+global using EcoPark.Domain.DataModels.Client;
+global using EcoPark.Domain.Interfaces.Database;
+global using EcoPark.Domain.Interfaces.Services;
+global using EcoPark.Domain.DataModels.Employee;
+global using EcoPark.Domain.DataModels.Employee.Location;
+global using EcoPark.Domain.DataModels.Employee.Location.ParkingSpace;
 
 #endregion
 
@@ -41,7 +39,12 @@ global using EcoPark.Application.Reservations.Get;
 global using EcoPark.Application.Reservations.Insert;
 global using EcoPark.Application.Reservations.List;
 global using EcoPark.Application.Reservations.Update;
-
+global using EcoPark.Application.Employees.Delete;
+global using EcoPark.Application.Employees.Get;
+global using EcoPark.Application.Employees.Insert;
+global using EcoPark.Application.Employees.List;
+global using EcoPark.Application.Employees.Update;
 global using EcoPark.Application.Commons.Base.Commands;
+global using EcoPark.Application.Rewards.Models;
 
 #endregion

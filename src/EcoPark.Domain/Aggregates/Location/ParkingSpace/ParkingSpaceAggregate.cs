@@ -1,4 +1,6 @@
-﻿namespace EcoPark.Domain.Aggregates.Location.ParkingSpace;
+﻿using EcoPark.Domain.DataModels.Employee.Location.ParkingSpace;
+
+namespace EcoPark.Domain.Aggregates.Location.ParkingSpace;
 
 public class ParkingSpaceAggregate
 {
@@ -8,8 +10,6 @@ public class ParkingSpaceAggregate
     public bool IsOccupied { get; private set; }
     public EParkingSpaceType Type { get; private set; }
 
-    private List<Reservation> _reservations = new();
-
     public ParkingSpaceAggregate(ParkingSpaceModel parkingSpaceModel)
     {
         Id = parkingSpaceModel.Id;
@@ -17,35 +17,23 @@ public class ParkingSpaceAggregate
         Name = parkingSpaceModel.ParkingSpaceName;
         IsOccupied = parkingSpaceModel.IsOccupied;
         Type = parkingSpaceModel.ParkingSpaceType;
-        _reservations = parkingSpaceModel.Reservations?.Select(reservation => new Reservation(reservation)).ToList() ??
-                        new List<Reservation>();
-    }
-
-    public IReadOnlyCollection<Reservation> Reservations => new ReadOnlyCollection<Reservation>(_reservations);
-
-    public void MakeReservation(Reservation reservation)
-    {
-        if (IsOccupied)
-            throw new Exception("Parking space is already occupied");
-
-        _reservations.Add(reservation);
     }
 
     public void UpdateFloor(int? floor)
     {
-        if(floor != null)
+        if(floor != null && floor.Value != Floor)
             Floor = floor.Value;
     }
 
     public void UpdateParkingSpaceName(string? parkingSpaceName)
     {
-        if(!string.IsNullOrWhiteSpace(parkingSpaceName))
+        if(!string.IsNullOrWhiteSpace(parkingSpaceName) && !parkingSpaceName.Equals(Name))
             Name = parkingSpaceName;
     }
 
     public void UpdateParkingSpaceType(EParkingSpaceType? parkingSpaceType)
     {
-        if(parkingSpaceType != null)
+        if(parkingSpaceType != null && parkingSpaceType.Value != Type)
             Type = parkingSpaceType.Value;
     }
 

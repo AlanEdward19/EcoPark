@@ -7,27 +7,25 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Cars\Get\" />
-    <Folder Include="Cars\Insert\" />
-    <Folder Include="Cars\Delete\" />
+    <Folder Include="Authentication\Models\" />
     <Folder Include="Cars\Models\" />
-    <Folder Include="Cars\Update\" />
-    <Folder Include="Employees\Delete\" />
-    <Folder Include="Employees\Insert\" />
+    <Folder Include="Cars\List\" />
     <Folder Include="Employees\Models\" />
     <Folder Include="Employees\List\" />
     <Folder Include="Employees\Update\" />
-    <Folder Include="Authentication\" />
-    <Folder Include="ParkingSpaces\Models\" />
+    <Folder Include="Locations\Validators\" />
+    <Folder Include="Rewards\Get\" />
   </ItemGroup>
 
 	<ItemGroup>
+		<PackageReference Include="FluentValidation" Version="11.9.0" />
+		<PackageReference Include="FluentValidation.AspNetCore" Version="11.3.0" />
 		<PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="8.0.1" />
+		<PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="7.5.1" />
 	</ItemGroup>
 
 	<ItemGroup>
 	  <ProjectReference Include="..\EcoPark.Domain\EcoPark.Domain.csproj" />
-	  <ProjectReference Include="..\EcoPark.Infrastructure\EcoPark.Infrastructure.csproj" />
 	</ItemGroup>
 
 </Project>

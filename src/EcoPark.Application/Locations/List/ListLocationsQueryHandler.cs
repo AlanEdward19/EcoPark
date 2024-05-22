@@ -1,35 +1,27 @@
 ﻿namespace EcoPark.Application.Locations.List;
 
-public class ListLocationsQueryHandler(DatabaseDbContext databaseDbContext) : IHandler<ListLocationQuery, IEnumerable<LocationSimplifiedViewModel>>
+public class ListLocationsQueryHandler(IRepository<LocationModel> repository) : IHandler<ListLocationQuery, IEnumerable<LocationSimplifiedViewModel>>
 {
     public async Task<IEnumerable<LocationSimplifiedViewModel>> HandleAsync(ListLocationQuery command, CancellationToken cancellationToken)
     {
-        bool hasLocationIds = command.LocationIds != null && command.LocationIds.Any();
-        IQueryable<LocationModel> query = databaseDbContext.Locations;
+        var locations = await repository.ListAsync(command, cancellationToken);
 
-        IEnumerable<LocationModel> locationModels;
-
-        if (hasLocationIds)
-            query = query.Where(l => command.LocationIds!.Contains(l.Id));
+        if (locations == null || !locations.Any())
+            return Enumerable.Empty<LocationSimplifiedViewModel>();
 
         if (command.IncludeParkingSpaces!.Value)
         {
-            List<LocationViewModel> result = hasLocationIds
-                ? new(command.LocationIds!.Count())
-                : new(100);
+            List<LocationViewModel> result = new(command.LocationIds!.Count());
 
-            query = query.Include(l => l.ParkingSpaces);
-
-            locationModels = await query.ToListAsync(cancellationToken);
-
-            foreach (var locationModel in locationModels)
+            foreach (var locationModel in locations)
             {
-                List<ParkingSpaceSimplifiedWithoutLocationViewModel>? parkingSpaces =
+                List<ParkingSpaceSimplifiedViewModel>? parkingSpaces =
                     locationModel.ParkingSpaces?.Select(x =>
-                        new ParkingSpaceSimplifiedWithoutLocationViewModel(x.Floor, x.ParkingSpaceName, x.IsOccupied,
+                        new ParkingSpaceSimplifiedViewModel(x.Id, x.Floor, x.ParkingSpaceName, x.IsOccupied,
                             x.ParkingSpaceType)).ToList();
 
-                LocationViewModel location = new(locationModel.Name, locationModel.Address, parkingSpaces);
+                LocationViewModel location = new(locationModel.Id, locationModel.Name, locationModel.Address, locationModel.ReservationGraceInMinutes,
+                    locationModel.CancellationFeeRate, locationModel.ReservationFeeRate, locationModel.HourlyParkingRate, parkingSpaces);
 
                 result.Add(location);
             }
@@ -38,15 +30,12 @@ public class ListLocationsQueryHandler(DatabaseDbContext databaseDbContext) : IH
         }
         else
         {
-            List<LocationSimplifiedViewModel> result = hasLocationIds
-                ? new(command.LocationIds!.Count())
-                : new(100);
+            List<LocationSimplifiedViewModel> result = new(command.LocationIds!.Count());
 
-            locationModels = await query.ToListAsync(cancellationToken);
-
-            foreach (var locationModel in locationModels)
+            foreach (var locationModel in locations)
             {
-                LocationSimplifiedViewModel location = new(locationModel.Name, locationModel.Address);
+                LocationSimplifiedViewModel location = new(locationModel.Id, locationModel.Name, locationModel.Address, locationModel.ReservationGraceInMinutes,
+                    locationModel.CancellationFeeRate, locationModel.ReservationFeeRate, locationModel.HourlyParkingRate);
 
                 result.Add(location);
             }

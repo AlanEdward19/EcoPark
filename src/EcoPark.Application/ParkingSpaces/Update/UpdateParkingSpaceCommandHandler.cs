@@ -1,40 +1,46 @@
 ﻿namespace EcoPark.Application.ParkingSpaces.Update;
 
-public class UpdateParkingSpaceCommandHandler(DatabaseDbContext databaseDbContext) : IHandler<UpdateParkingSpaceCommand, DatabaseOperationResponseViewModel>
+public class UpdateParkingSpaceCommandHandler(IRepository<ParkingSpaceModel> repository) : IHandler<UpdateParkingSpaceCommand, DatabaseOperationResponseViewModel>
 {
     public async Task<DatabaseOperationResponseViewModel> HandleAsync(UpdateParkingSpaceCommand command,
         CancellationToken cancellationToken)
     {
-        DatabaseOperationResponseViewModel result;
+        DatabaseOperationResponseViewModel result = new(EOperationStatus.Failed, "AAAAA");
 
         try
         {
-            ParkingSpaceModel? parkingSpaceModel = await databaseDbContext.ParkingSpaces
-                .FirstOrDefaultAsync(p => p.Id == command.ParkingSpaceId, cancellationToken);
+            EOperationStatus status = await repository.CheckChangePermissionAsync(command, cancellationToken);
 
-            if (parkingSpaceModel != null)
+            switch (status)
             {
-                ParkingSpaceAggregate parkingSpaceAggregate = new(parkingSpaceModel);
+                case EOperationStatus.Successful:
+                    await repository.UnitOfWork.StartAsync(cancellationToken);
 
-                parkingSpaceAggregate.UpdateFloor(command.Floor);
-                parkingSpaceAggregate.UpdateParkingSpaceName(command.ParkingSpaceName);
-                parkingSpaceAggregate.UpdateParkingSpaceType(command.ParkingSpaceType);
-                parkingSpaceAggregate.SetOccupied(command.IsOccupied);
+                    await repository.UpdateAsync(command, cancellationToken);
 
-                parkingSpaceModel.UpdateBasedOnAggregate(parkingSpaceAggregate);
+                    await repository.UnitOfWork.SaveEntitiesAsync(cancellationToken);
+                    await repository.UnitOfWork.CommitAsync(cancellationToken);
 
-                databaseDbContext.ParkingSpaces.Update(parkingSpaceModel);
+                    result = new(EOperationStatus.Successful, "Parking space updated successfully");
 
-                await databaseDbContext.SaveChangesAsync(cancellationToken);
+                    break;
 
-                result = new("Patch", EOperationStatus.Successful, "Parking space updated successfully");
+                case EOperationStatus.NotAuthorized:
+                    result = new(EOperationStatus.NotAuthorized, "You have no permission to update this parking space");
+                    break;
+
+                case EOperationStatus.Failed:
+                    break;
+
+                case EOperationStatus.NotFound:
+                    result = new(EOperationStatus.NotFound, "Parking space not found");
+                    break;
             }
-            else
-                result = new("Patch", EOperationStatus.Failed, "No Parking space were found with this id");
         }
         catch (Exception e)
         {
-            result = new("Patch", EOperationStatus.Failed, e.Message);
+            await repository.UnitOfWork.RollbackAsync(cancellationToken);
+            result = new(EOperationStatus.Failed, e.Message);
         }
 
         return result;

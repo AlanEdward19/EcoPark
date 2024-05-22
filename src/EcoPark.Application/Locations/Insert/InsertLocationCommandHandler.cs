@@ -1,24 +1,42 @@
 ﻿namespace EcoPark.Application.Locations.Insert;
 
-public class InsertLocationCommandHandler(DatabaseDbContext databaseContext) : IHandler<InsertLocationCommand, DatabaseOperationResponseViewModel>
+public class InsertLocationCommandHandler(IRepository<LocationModel> repository) : IHandler<InsertLocationCommand, DatabaseOperationResponseViewModel>
 {
-    public async Task<DatabaseOperationResponseViewModel> HandleAsync(InsertLocationCommand command, 
+    public async Task<DatabaseOperationResponseViewModel> HandleAsync(InsertLocationCommand command,
         CancellationToken cancellationToken)
     {
-        DatabaseOperationResponseViewModel result;
+        DatabaseOperationResponseViewModel result = new(EOperationStatus.Failed, "AAAAA");
+
         try
         {
-            LocationModel locationModel = new(command.Name, command.Address);
+            EOperationStatus status = await repository.CheckChangePermissionAsync(command, cancellationToken);
 
-            await databaseContext.Locations.AddAsync(locationModel, cancellationToken);
+            switch (status)
+            {
+                case EOperationStatus.Successful:
+                    await repository.UnitOfWork.StartAsync(cancellationToken);
 
-            await databaseContext.SaveChangesAsync(cancellationToken);
+                    await repository.AddAsync(command, cancellationToken);
 
-            result = new DatabaseOperationResponseViewModel("Post" ,EOperationStatus.Successful, "Location was inserted successfully!");
+                    await repository.UnitOfWork.SaveEntitiesAsync(cancellationToken);
+                    await repository.UnitOfWork.CommitAsync(cancellationToken);
+
+                    result = new DatabaseOperationResponseViewModel(EOperationStatus.Successful, "Location was inserted successfully!");
+
+                    break;
+
+                case EOperationStatus.NotAuthorized:
+                    result = new DatabaseOperationResponseViewModel(EOperationStatus.NotAuthorized, "You have no permission to insert this location");
+                    break;
+
+                case EOperationStatus.Failed:
+                    break;
+            }
         }
         catch (Exception e)
         {
-            result = new DatabaseOperationResponseViewModel("Post", EOperationStatus.Failed, e.Message);
+            await repository.UnitOfWork.RollbackAsync(cancellationToken);
+            result = new DatabaseOperationResponseViewModel(EOperationStatus.Failed, e.Message);
         }
 
         return result;

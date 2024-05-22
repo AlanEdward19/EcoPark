@@ -1,6 +1,6 @@
 ﻿namespace EcoPark.Application.ParkingSpaces.Update;
 
-public class UpdateParkingSpaceCommand(int? floor, string? parkingSpaceName, EParkingSpaceType? parkingSpaceType, bool? isOccupied)
+public class UpdateParkingSpaceCommand(int? floor, string? parkingSpaceName, EParkingSpaceType? parkingSpaceType, bool? isOccupied) : ICommand
 {
     public Guid ParkingSpaceId { get; private set; }
     public int? Floor { get; private set; } = floor;
@@ -9,4 +9,11 @@ public class UpdateParkingSpaceCommand(int? floor, string? parkingSpaceName, EPa
     public bool? IsOccupied { get; private set; } = isOccupied;
 
     public void SetParkingSpaceId(Guid parkingSpaceId) => ParkingSpaceId = parkingSpaceId;
+
+    [JsonIgnore]
+    public (string Email, EUserType UserType) RequestUserInfo { get; private set; }
+    public void SetRequestUserInfo((string email, EUserType userType) information)
+    {
+        RequestUserInfo = information;
+    }
 }

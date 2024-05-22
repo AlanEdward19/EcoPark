@@ -1,38 +1,43 @@
 ﻿namespace EcoPark.Application.Locations.Update;
 
-public class UpdateLocationCommandHandler(DatabaseDbContext databaseDbContext) : IHandler<UpdateLocationCommand, DatabaseOperationResponseViewModel>
+public class UpdateLocationCommandHandler(IRepository<LocationModel> repository) : IHandler<UpdateLocationCommand, DatabaseOperationResponseViewModel>
 {
-    public async Task<DatabaseOperationResponseViewModel> HandleAsync(UpdateLocationCommand command, 
+    public async Task<DatabaseOperationResponseViewModel> HandleAsync(UpdateLocationCommand command,
         CancellationToken cancellationToken)
     {
-        DatabaseOperationResponseViewModel result;
+        DatabaseOperationResponseViewModel result = new(EOperationStatus.Failed, "AAAAA");
 
         try
         {
-            LocationModel? locationModel = await databaseDbContext.Locations
-                .FirstOrDefaultAsync(l => l.Id == command.LocationId, cancellationToken);
+            EOperationStatus status = await repository.CheckChangePermissionAsync(command, cancellationToken);
 
-            if (locationModel != null)
+            switch (status)
             {
-                LocationAggregateRoot locationAggregate = new(locationModel);
+                case EOperationStatus.Successful:
+                    await repository.UnitOfWork.StartAsync(cancellationToken);
 
-                locationAggregate.UpdateName(command.Name);
-                locationAggregate.UpdateAddress(command.Address);
+                    await repository.UpdateAsync(command, cancellationToken);
 
-                locationModel.UpdateBasedOnAggregate(locationAggregate);
+                    await repository.UnitOfWork.SaveEntitiesAsync(cancellationToken);
+                    await repository.UnitOfWork.CommitAsync(cancellationToken);
 
-                databaseDbContext.Locations.Update(locationModel);
+                    result = new(EOperationStatus.Successful, "Location updated successfully");
 
-                await databaseDbContext.SaveChangesAsync(cancellationToken);
+                    break;
 
-                result = new("Patch", EOperationStatus.Successful, "Location updated successfully");
+                case EOperationStatus.NotAuthorized:
+                    result = new(EOperationStatus.NotAuthorized, "You have no permission to update this location");
+                    break;
+
+                case EOperationStatus.NotFound:
+                    result = new(EOperationStatus.NotFound, "Location wasn't found");
+                    break;
             }
-            else
-                result = new("Patch", EOperationStatus.Failed, "No Location were found with this id");
         }
         catch (Exception e)
         {
-            result = new("Patch", EOperationStatus.Failed, e.Message);
+            await repository.UnitOfWork.RollbackAsync(cancellationToken);
+            result = new(EOperationStatus.Failed, e.Message);
         }
 
         return result;

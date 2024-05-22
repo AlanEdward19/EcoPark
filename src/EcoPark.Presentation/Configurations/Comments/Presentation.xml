@@ -1,0 +1,584 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>EcoPark.Presentation</name>
+    </assembly>
+    <members>
+        <member name="M:EcoPark.Presentation.Controllers.CarbonEmissionController.ListAsync(EcoPark.Domain.Interfaces.Services.IHandler{EcoPark.Application.CarbonEmission.List.ListCarbonEmissionsQuery,System.Collections.Generic.IEnumerable{EcoPark.Application.CarbonEmission.Models.CarbonEmissionViewModel}},EcoPark.Application.CarbonEmission.List.ListCarbonEmissionsQuery,System.Threading.CancellationToken)">
+            <summary>
+            Método para listar todas as emissões de carbono de um determinado usuário
+            </summary>
+            <param name="handler"></param>
+            <param name="query"></param>
+            <param name="cancellationToken"></param>
+            <returns></returns>
+        </member>
+        <member name="M:EcoPark.Presentation.Controllers.CarbonEmissionController.AddAsync(EcoPark.Domain.Interfaces.Services.IHandler{EcoPark.Application.CarbonEmission.Insert.InsertCarbonEmissionCommand,EcoPark.Application.Commons.Models.DatabaseOperationResponseViewModel},System.Guid,EcoPark.Application.CarbonEmission.Insert.InsertCarbonEmissionCommand,System.Threading.CancellationToken)">
+            <summary>
+            Método para adicionar uma nova emissão de carbono
+            </summary>
+            <param name="handler"></param>
+            <param name="reservationId"></param>
+            <param name="command"></param>
+            <param name="cancellationToken"></param>
+            <returns></returns>
+        </member>
+        <member name="M:EcoPark.Presentation.Controllers.CarbonEmissionController.DeleteAsync(EcoPark.Domain.Interfaces.Services.IHandler{EcoPark.Application.CarbonEmission.Delete.DeleteCarbonEmissionCommand,EcoPark.Application.Commons.Models.DatabaseOperationResponseViewModel},EcoPark.Application.CarbonEmission.Delete.DeleteCarbonEmissionCommand,System.Threading.CancellationToken)">
+            <summary>
+            Método para deletar uma emissão de carbono
+            </summary>
+            <param name="handler"></param>
+            <param name="command"></param>
+            <param name="cancellationToken"></param>
+            <returns></returns>
+        </member>
+        <member name="T:EcoPark.Presentation.Controllers.CarController">
+            <summary>
+            Endpoints para Operações relacionadas a Carros
+            </summary>
+            <param name="logger"></param>
+        </member>
+        <member name="M:EcoPark.Presentation.Controllers.CarController.#ctor(Microsoft.Extensions.Logging.ILogger{EcoPark.Presentation.Controllers.CarController})">
+            <summary>
+            Endpoints para Operações relacionadas a Carros
+            </summary>
+            <param name="logger"></param>
+        </member>
+        <member name="M:EcoPark.Presentation.Controllers.CarController.GetById(EcoPark.Domain.Interfaces.Services.IHandler{EcoPark.Application.Cars.Get.GetCarQuery,EcoPark.Application.Cars.Models.CarViewModel},EcoPark.Application.Cars.Get.GetCarQuery,System.Threading.CancellationToken)">
+            <summary>
+            Método para buscar um carro pelo Id
+            </summary>
+            <param name="handler"></param>
+            <param name="query"></param>
+            <param name="cancellationToken"></param>
+            <returns>Carro com suas devidas informações</returns>
+        </member>
+        <member name="M:EcoPark.Presentation.Controllers.CarController.GetList(EcoPark.Domain.Interfaces.Services.IHandler{EcoPark.Application.Cars.List.ListCarQuery,System.Collections.Generic.IEnumerable{EcoPark.Application.Cars.Models.CarViewModel}},EcoPark.Application.Cars.List.ListCarQuery,System.Threading.CancellationToken)">
+            <summary>
+            Método para listar todos os carros que o determinado usuario possui, podendo filtrar por uma lista de Ids
+            </summary>
+            <param name="handler"></param>
+            <param name="query"></param>
+            <param name="cancellationToken"></param>
+            <returns>Lista de Carros com suas devidas informações</returns>
+        </member>
+        <member name="M:EcoPark.Presentation.Controllers.CarController.Insert(EcoPark.Domain.Interfaces.Services.IHandler{EcoPark.Application.Cars.Insert.InsertCarCommand,EcoPark.Application.Commons.Models.DatabaseOperationResponseViewModel},EcoPark.Application.Cars.Insert.InsertCarCommand,System.Threading.CancellationToken)">
+            <summary>
+            Método para inserir um novo carro atrelado a um usuario em especifico que está logado.
+            </summary>
+            <param name="handler"></param>
+            <param name="command"></param>
+            <param name="cancellationToken"></param>
+            <returns>Mensagem sobre resultado da operação</returns>
+        </member>
+        <member name="M:EcoPark.Presentation.Controllers.CarController.Update(EcoPark.Domain.Interfaces.Services.IHandler{EcoPark.Application.Cars.Update.UpdateCarCommand,EcoPark.Application.Commons.Models.DatabaseOperationResponseViewModel},System.Guid,EcoPark.Application.Cars.Update.UpdateCarCommand,System.Threading.CancellationToken)">
+            <summary>
+            Método para atualizar um carro atrelado a um usuario em especifico que está logado.
+            </summary>
+            <param name="handler"></param>
+            <param name="id"></param>
+            <param name="command"></param>
+            <param name="cancellationToken"></param>
+            <returns>Mensagem sobre resultado da operação</returns>
+        </member>
+        <member name="M:EcoPark.Presentation.Controllers.CarController.Delete(EcoPark.Domain.Interfaces.Services.IHandler{EcoPark.Application.Cars.Delete.DeleteCarCommand,EcoPark.Application.Commons.Models.DatabaseOperationResponseViewModel},EcoPark.Application.Cars.Delete.DeleteCarCommand,System.Threading.CancellationToken)">
+            <summary>
+            Método para deletar um carro atrelado a um usuario em especifico que está logado.
+            </summary>
+            <param name="handler"></param>
+            <param name="command"></param>
+            <param name="cancellationToken"></param>
+            <returns>Mensagem sobre resultado da operação</returns>
+        </member>
+        <member name="T:EcoPark.Presentation.Controllers.ClientController">
+            <summary>
+            Endpoints para Operações relacionadas a Clientes
+            </summary>
+            <param name="logger"></param>
+        </member>
+        <member name="M:EcoPark.Presentation.Controllers.ClientController.#ctor(Microsoft.Extensions.Logging.ILogger{EcoPark.Presentation.Controllers.ClientController})">
+            <summary>
+            Endpoints para Operações relacionadas a Clientes
+            </summary>
+            <param name="logger"></param>
+        </member>
+        <member name="M:EcoPark.Presentation.Controllers.ClientController.GetList(EcoPark.Domain.Interfaces.Services.IHandler{EcoPark.Application.Clients.List.ListClientsQuery,System.Collections.Generic.IEnumerable{EcoPark.Application.Clients.Models.ClientSimplifiedViewModel}},EcoPark.Application.Clients.List.ListClientsQuery,System.Threading.CancellationToken)">
+            <summary>
+            Método para listar todos os clientes cadastrados [Somente donos da plataforma tem acesso]
+            </summary>
+            <param name="handler"></param>
+            <param name="query"></param>
+            <param name="cancellationToken"></param>
+            <returns>Lista de clientes cadastrados</returns>
+        </member>
+        <member name="M:EcoPark.Presentation.Controllers.ClientController.GetById(EcoPark.Domain.Interfaces.Services.IHandler{EcoPark.Application.Clients.Get.GetClientQuery,EcoPark.Application.Clients.Models.ClientSimplifiedViewModel},EcoPark.Application.Clients.Get.GetClientQuery,System.Threading.CancellationToken)">
+            <summary>
+            Método para buscar um cliente pelo Id
+            </summary>
+            <param name="handler"></param>
+            <param name="query"></param>
+            <param name="cancellationToken"></param>
+            <returns>Cliente Cadastrado</returns>
+        </member>
+        <member name="M:EcoPark.Presentation.Controllers.ClientController.Insert(EcoPark.Domain.Interfaces.Services.IHandler{EcoPark.Application.Clients.Insert.InsertClientCommand,EcoPark.Application.Commons.Models.DatabaseOperationResponseViewModel},EcoPark.Application.Clients.Insert.InsertClientCommand,Microsoft.AspNetCore.Http.IFormFile,System.Threading.CancellationToken)">
+            <summary>
+            Método para inserir um novo cliente
+            </summary>
+            <param name="handler"></param>
+            <param name="command"></param>
+            <param name="cancellationToken"></param>
+            <returns>Mensagem sobre resultado da operação</returns>
+        </member>
+        <member name="M:EcoPark.Presentation.Controllers.ClientController.Update(EcoPark.Domain.Interfaces.Services.IHandler{EcoPark.Application.Clients.Update.UpdateClientCommand,EcoPark.Application.Commons.Models.DatabaseOperationResponseViewModel},System.Guid,EcoPark.Application.Clients.Update.UpdateClientCommand,System.Threading.CancellationToken)">
+            <summary>
+            Método para atualizar um cliente
+            </summary>
+            <param name="handler"></param>
+            <param name="id"></param>
+            <param name="command"></param>
+            <param name="cancellationToken"></param>
+            <returns>Mensagem sobre resultado da operação</returns>
+        </member>
+        <member name="M:EcoPark.Presentation.Controllers.ClientController.Delete(EcoPark.Domain.Interfaces.Services.IHandler{EcoPark.Application.Clients.Delete.DeleteClientCommand,EcoPark.Application.Commons.Models.DatabaseOperationResponseViewModel},EcoPark.Application.Clients.Delete.DeleteClientCommand,System.Threading.CancellationToken)">
+            <summary>
+            Método para deletar um cliente
+            </summary>
+            <param name="handler"></param>
+            <param name="command"></param>
+            <param name="cancellationToken"></param>
+            <returns>Mensagem sobre resultado da operação</returns>
+        </member>
+        <member name="M:EcoPark.Presentation.Controllers.ClientController.UseReward(EcoPark.Domain.Interfaces.Services.IHandler{EcoPark.Application.Rewards.Update.UseReward.UseRewardCommand,EcoPark.Application.Commons.Models.DatabaseOperationResponseViewModel},EcoPark.Application.Rewards.Update.UseReward.UseRewardCommand,System.Threading.CancellationToken)">
+            <summary>
+            Método para usar uma recompensa
+            </summary>
+            <param name="handler"></param>
+            <param name="command"></param>
+            <param name="cancellationToken"></param>
+            <returns></returns>
+        </member>
+        <member name="M:EcoPark.Presentation.Controllers.ClientController.GetRewardsList(EcoPark.Domain.Interfaces.Services.IHandler{EcoPark.Application.Rewards.List.ListUserRewards.ListUserRewardsQuery,System.Collections.Generic.IEnumerable{EcoPark.Application.Rewards.Models.UserRewardViewModel}},EcoPark.Application.Rewards.List.ListUserRewards.ListUserRewardsQuery,System.Threading.CancellationToken)">
+            <summary>
+            Método para listar todos as recompensas resgatadas por um usuario
+            </summary>
+            <param name="handler"></param>
+            <param name="query"></param>
+            <param name="cancellationToken"></param>
+            <returns>Lista de recompensas de um usuario</returns>
+        </member>
+        <member name="T:EcoPark.Presentation.Controllers.EmployeeController">
+            <summary>
+            Endpoints para Operações relacionadas a Funcionários
+            </summary>
+            <param name="logger"></param>
+        </member>
+        <member name="M:EcoPark.Presentation.Controllers.EmployeeController.#ctor(Microsoft.Extensions.Logging.ILogger{EcoPark.Presentation.Controllers.EmployeeController})">
+            <summary>
+            Endpoints para Operações relacionadas a Funcionários
+            </summary>
+            <param name="logger"></param>
+        </member>
+        <member name="M:EcoPark.Presentation.Controllers.EmployeeController.GetList(EcoPark.Domain.Interfaces.Services.IHandler{EcoPark.Application.Employees.List.ListEmployeesQuery,System.Collections.Generic.IEnumerable{EcoPark.Application.Employees.Models.EmployeeViewModel}},EcoPark.Application.Employees.List.ListEmployeesQuery,System.Threading.CancellationToken)">
+            <summary>
+            Método para listar todos os funcionários cadastrados atrelados a um administrador
+            </summary>
+            <param name="handler"></param>
+            <param name="query"></param>
+            <param name="cancellationToken"></param>
+            <returns>Lista de funcionarios</returns>
+        </member>
+        <member name="M:EcoPark.Presentation.Controllers.EmployeeController.GetById(EcoPark.Domain.Interfaces.Services.IHandler{EcoPark.Application.Employees.Get.GetEmployeeQuery,EcoPark.Application.Employees.Models.EmployeeViewModel},EcoPark.Application.Employees.Get.GetEmployeeQuery,System.Threading.CancellationToken)">
+            <summary>
+            Método para buscar um funcionário pelo Id
+            </summary>
+            <param name="handler"></param>
+            <param name="query"></param>
+            <param name="cancellationToken"></param>
+            <returns>Funcionario</returns>
+        </member>
+        <member name="M:EcoPark.Presentation.Controllers.EmployeeController.Insert(EcoPark.Domain.Interfaces.Services.IHandler{EcoPark.Application.Employees.Insert.InsertEmployeeCommand,EcoPark.Application.Commons.Models.DatabaseOperationResponseViewModel},EcoPark.Application.Employees.Insert.InsertEmployeeCommand,Microsoft.AspNetCore.Http.IFormFile,System.Threading.CancellationToken)">
+            <summary>
+            Método para inserir um novo funcionário
+            </summary>
+            <param name="handler"></param>
+            <param name="command"></param>
+            <param name="cancellationToken"></param>
+            <returns>Mensagem sobre resultado da operação</returns>
+        </member>
+        <member name="M:EcoPark.Presentation.Controllers.EmployeeController.InsertSystem(EcoPark.Domain.Interfaces.Services.IHandler{EcoPark.Application.Employees.Insert.System.InsertSystemCommand,EcoPark.Application.Commons.Models.DatabaseOperationResponseViewModel},EcoPark.Application.Employees.Insert.System.InsertSystemCommand,System.Threading.CancellationToken)">
+            <summary>
+            Método para inserir um novo funcionário
+            </summary>
+            <param name="handler"></param>
+            <param name="command"></param>
+            <param name="cancellationToken"></param>
+            <returns>Mensagem sobre resultado da operação</returns>
+        </member>
+        <member name="M:EcoPark.Presentation.Controllers.EmployeeController.InsertGroupAccess(EcoPark.Domain.Interfaces.Services.IHandler{EcoPark.Application.Employees.Insert.GroupAccess.InsertEmployeeGroupAccessCommand,EcoPark.Application.Commons.Models.DatabaseOperationResponseViewModel},EcoPark.Application.Employees.Insert.GroupAccess.InsertEmployeeGroupAccessCommand,System.Threading.CancellationToken)">
+            <summary>
+            Método para adicionar permissão de acesso a uma localização para um funcionario
+            </summary>
+            <param name="handler"></param>
+            <param name="command"></param>
+            <param name="cancellationToken"></param>
+            <returns>Mensagem sobre resultado da operação</returns>
+        </member>
+        <member name="M:EcoPark.Presentation.Controllers.EmployeeController.DeleteGroupAccess(EcoPark.Domain.Interfaces.Services.IHandler{EcoPark.Application.Employees.Delete.GroupAccess.DeleteEmployeeGroupAccessCommand,EcoPark.Application.Commons.Models.DatabaseOperationResponseViewModel},EcoPark.Application.Employees.Delete.GroupAccess.DeleteEmployeeGroupAccessCommand,System.Threading.CancellationToken)">
+            <summary>
+            Método para deletar permissão de acesso a uma localização para um funcionario
+            </summary>
+            <param name="handler"></param>
+            <param name="command"></param>
+            <param name="cancellationToken"></param>
+            <returns>Mensagem sobre resultado da operação</returns>
+        </member>
+        <member name="M:EcoPark.Presentation.Controllers.EmployeeController.Update(EcoPark.Domain.Interfaces.Services.IHandler{EcoPark.Application.Employees.Update.UpdateEmployeeCommand,EcoPark.Application.Commons.Models.DatabaseOperationResponseViewModel},EcoPark.Application.Employees.Update.UpdateEmployeeCommand,System.Guid,System.Threading.CancellationToken)">
+            <summary>
+            Método para atualizar um funcionário
+            </summary>
+            <param name="handler"></param>
+            <param name="command"></param>
+            <param name="id"></param>
+            <param name="cancellationToken"></param>
+            <returns>Mensagem sobre resultado da operação</returns>
+        </member>
+        <member name="M:EcoPark.Presentation.Controllers.EmployeeController.Delete(EcoPark.Domain.Interfaces.Services.IHandler{EcoPark.Application.Employees.Delete.DeleteEmployeeCommand,EcoPark.Application.Commons.Models.DatabaseOperationResponseViewModel},EcoPark.Application.Employees.Delete.DeleteEmployeeCommand,System.Threading.CancellationToken)">
+            <summary>
+            Método para deletar um funcionário
+            </summary>
+            <param name="handler"></param>
+            <param name="command"></param>
+            <param name="cancellationToken"></param>
+            <returns>Mensagem sobre resultado da operação</returns>
+        </member>
+        <member name="T:EcoPark.Presentation.Controllers.LocationController">
+            <summary>
+            Endpoints para Operações relacionadas a Localizações
+            </summary>
+            <param name="logger"></param>
+        </member>
+        <member name="M:EcoPark.Presentation.Controllers.LocationController.#ctor(Microsoft.Extensions.Logging.ILogger{EcoPark.Presentation.Controllers.LocationController})">
+            <summary>
+            Endpoints para Operações relacionadas a Localizações
+            </summary>
+            <param name="logger"></param>
+        </member>
+        <member name="M:EcoPark.Presentation.Controllers.LocationController.GetList(EcoPark.Domain.Interfaces.Services.IHandler{EcoPark.Application.Locations.List.ListLocationQuery,System.Collections.Generic.IEnumerable{EcoPark.Application.Locations.Models.LocationSimplifiedViewModel}},EcoPark.Application.Locations.List.ListLocationQuery,System.Threading.CancellationToken)">
+            <summary>
+            Método para listar todas as localizações cadastradas que estejam no escopo de permissões do funcionario ou do administrador
+            </summary>
+            <param name="handler"></param>
+            <param name="query"></param>
+            <param name="cancellationToken"></param>
+            <returns>Lista de localizações</returns>
+        </member>
+        <member name="M:EcoPark.Presentation.Controllers.LocationController.GetById(EcoPark.Domain.Interfaces.Services.IHandler{EcoPark.Application.Locations.Get.GetLocationQuery,EcoPark.Application.Locations.Models.LocationSimplifiedViewModel},EcoPark.Application.Locations.Get.GetLocationQuery,System.Threading.CancellationToken)">
+            <summary>
+            Método para buscar uma localização pelo Id que esteja no escopo de permissões do funcionario ou do administrador
+            </summary>
+            <param name="handler"></param>
+            <param name="query"></param>
+            <param name="cancellationToken"></param>
+            <returns>Localização</returns>
+        </member>
+        <member name="M:EcoPark.Presentation.Controllers.LocationController.Insert(EcoPark.Domain.Interfaces.Services.IHandler{EcoPark.Application.Locations.Insert.InsertLocationCommand,EcoPark.Application.Commons.Models.DatabaseOperationResponseViewModel},EcoPark.Application.Locations.Insert.InsertLocationCommand,System.Threading.CancellationToken)">
+            <summary>
+            Método para inserir uma nova localização
+            </summary>
+            <param name="handler"></param>
+            <param name="command"></param>
+            <param name="cancellationToken"></param>
+            <returns>Mensagem sobre resultado da operação</returns>
+        </member>
+        <member name="M:EcoPark.Presentation.Controllers.LocationController.Update(EcoPark.Domain.Interfaces.Services.IHandler{EcoPark.Application.Locations.Update.UpdateLocationCommand,EcoPark.Application.Commons.Models.DatabaseOperationResponseViewModel},EcoPark.Application.Locations.Update.UpdateLocationCommand,System.Guid,System.Threading.CancellationToken)">
+            <summary>
+            Método para atualizar uma localização
+            </summary>
+            <param name="handler"></param>
+            <param name="command"></param>
+            <param name="id"></param>
+            <param name="cancellationToken"></param>
+            <returns>Mensagem sobre resultado da operação</returns>
+        </member>
+        <member name="M:EcoPark.Presentation.Controllers.LocationController.Delete(EcoPark.Domain.Interfaces.Services.IHandler{EcoPark.Application.Locations.Delete.DeleteLocationCommand,EcoPark.Application.Commons.Models.DatabaseOperationResponseViewModel},EcoPark.Application.Locations.Delete.DeleteLocationCommand,System.Threading.CancellationToken)">
+            <summary>
+            Método para deletar uma localização
+            </summary>
+            <param name="handler"></param>
+            <param name="command"></param>
+            <param name="cancellationToken"></param>
+            <returns>Mensagem sobre resultado da operação</returns>
+        </member>
+        <member name="T:EcoPark.Presentation.Controllers.LoginController">
+            <summary>
+            Endpoints para Operações relacionadas a Login
+            </summary>
+            <param name="logger"></param>
+        </member>
+        <member name="M:EcoPark.Presentation.Controllers.LoginController.#ctor(Microsoft.Extensions.Logging.ILogger{EcoPark.Presentation.Controllers.LoginController})">
+            <summary>
+            Endpoints para Operações relacionadas a Login
+            </summary>
+            <param name="logger"></param>
+        </member>
+        <member name="M:EcoPark.Presentation.Controllers.LoginController.Login(EcoPark.Domain.Interfaces.Services.IHandler{EcoPark.Application.Authentication.Get.LoginQuery,EcoPark.Application.Authentication.Models.LoginViewModel},EcoPark.Application.Authentication.Get.LoginQuery,System.Threading.CancellationToken)">
+            <summary>
+            Método para realizar o login de um usuario
+            </summary>
+            <param name="handler"></param>
+            <param name="query"></param>
+            <param name="cancellationToken"></param>
+            <returns>Email do usuário e seu token</returns>
+        </member>
+        <member name="T:EcoPark.Presentation.Controllers.ParkingSpaceController">
+            <summary>
+            Endpoints para Operações relacionadas a Vagas de Estacionamento
+            </summary>
+            <param name="logger"></param>
+        </member>
+        <member name="M:EcoPark.Presentation.Controllers.ParkingSpaceController.#ctor(Microsoft.Extensions.Logging.ILogger{EcoPark.Presentation.Controllers.ParkingSpaceController})">
+            <summary>
+            Endpoints para Operações relacionadas a Vagas de Estacionamento
+            </summary>
+            <param name="logger"></param>
+        </member>
+        <member name="M:EcoPark.Presentation.Controllers.ParkingSpaceController.Occupy(EcoPark.Domain.Interfaces.Services.IHandler{EcoPark.Application.ParkingSpaces.Update.Status.UpdateParkingSpaceStatusCommand,EcoPark.Application.Commons.Models.DatabaseOperationResponseViewModel},System.Guid,System.Threading.CancellationToken)">
+            <summary>
+            Método para ocupar uma vaga de estacionamento
+            </summary>
+            <param name="handler"></param>
+            <param name="id"></param>
+            <param name="cancellationToken"></param>
+            <returns>Mensagem sobre resultado da operação</returns>
+        </member>
+        <member name="M:EcoPark.Presentation.Controllers.ParkingSpaceController.Vacate(EcoPark.Domain.Interfaces.Services.IHandler{EcoPark.Application.ParkingSpaces.Update.Status.UpdateParkingSpaceStatusCommand,EcoPark.Application.Commons.Models.DatabaseOperationResponseViewModel},System.Guid,System.Threading.CancellationToken)">
+            <summary>
+            Método para desocupar uma vaga de estacionamento
+            </summary>
+            <param name="handler"></param>
+            <param name="id"></param>
+            <param name="cancellationToken"></param>
+            <returns>Mensagem sobre resultado da operação</returns>
+        </member>
+        <member name="M:EcoPark.Presentation.Controllers.ParkingSpaceController.GetList(EcoPark.Domain.Interfaces.Services.IHandler{EcoPark.Application.ParkingSpaces.List.ListParkingSpacesQuery,System.Collections.Generic.IEnumerable{EcoPark.Application.ParkingSpaces.Models.ParkingSpaceSimplifiedViewModel}},EcoPark.Application.ParkingSpaces.List.ListParkingSpacesQuery,System.Threading.CancellationToken)">
+            <summary>
+            Método para listar todas as vagas de estacionamento, limitadas pelo escopo de permissão do funcionário ou administrador
+            </summary>
+            <param name="handler"></param>
+            <param name="query"></param>
+            <param name="cancellationToken"></param>
+            <returns>Lista de vagas de estacionamento</returns>
+        </member>
+        <member name="M:EcoPark.Presentation.Controllers.ParkingSpaceController.GetById(EcoPark.Domain.Interfaces.Services.IHandler{EcoPark.Application.ParkingSpaces.Get.GetParkingSpaceQuery,EcoPark.Application.ParkingSpaces.Models.ParkingSpaceSimplifiedViewModel},EcoPark.Application.ParkingSpaces.Get.GetParkingSpaceQuery,System.Threading.CancellationToken)">
+            <summary>
+            Método para buscar uma vaga de estacionamento pelo seu Id, limitado pelo escopo de permissão do funcionário ou administrador
+            </summary>
+            <param name="handler"></param>
+            <param name="query"></param>
+            <param name="cancellationToken"></param>
+            <returns>Vaga de estacionamento</returns>
+        </member>
+        <member name="M:EcoPark.Presentation.Controllers.ParkingSpaceController.Insert(EcoPark.Domain.Interfaces.Services.IHandler{EcoPark.Application.ParkingSpaces.Insert.InsertParkingSpaceCommand,EcoPark.Application.Commons.Models.DatabaseOperationResponseViewModel},EcoPark.Application.ParkingSpaces.Insert.InsertParkingSpaceCommand,System.Threading.CancellationToken)">
+            <summary>
+            Método para inserir uma nova vaga de estacionamento
+            </summary>
+            <param name="handler"></param>
+            <param name="command"></param>
+            <param name="cancellationToken"></param>
+            <returns>Mensagem sobre resultado da operação</returns>
+        </member>
+        <member name="M:EcoPark.Presentation.Controllers.ParkingSpaceController.Update(EcoPark.Domain.Interfaces.Services.IHandler{EcoPark.Application.ParkingSpaces.Update.UpdateParkingSpaceCommand,EcoPark.Application.Commons.Models.DatabaseOperationResponseViewModel},EcoPark.Application.ParkingSpaces.Update.UpdateParkingSpaceCommand,System.Guid,System.Threading.CancellationToken)">
+            <summary>
+            Método para atualizar uma vaga de estacionamento
+            </summary>
+            <param name="handler"></param>
+            <param name="command"></param>
+            <param name="Id"></param>
+            <param name="cancellationToken"></param>
+            <returns>Mensagem sobre resultado da operação</returns>
+        </member>
+        <member name="M:EcoPark.Presentation.Controllers.ParkingSpaceController.Delete(EcoPark.Domain.Interfaces.Services.IHandler{EcoPark.Application.ParkingSpaces.Delete.DeleteParkingSpaceCommand,EcoPark.Application.Commons.Models.DatabaseOperationResponseViewModel},EcoPark.Application.ParkingSpaces.Delete.DeleteParkingSpaceCommand,System.Threading.CancellationToken)">
+            <summary>
+            Método para deletar uma vaga de estacionamento
+            </summary>
+            <param name="handler"></param>
+            <param name="command"></param>
+            <param name="cancellationToken"></param>
+            <returns>Mensagem sobre resultado da operação</returns>
+        </member>
+        <member name="T:EcoPark.Presentation.Controllers.PunctuationController">
+            <summary>
+            Endpoints para Operações relacionadas a Pontuações
+            </summary>
+            <param name="logger"></param>
+        </member>
+        <member name="M:EcoPark.Presentation.Controllers.PunctuationController.#ctor(Microsoft.Extensions.Logging.ILogger{EcoPark.Presentation.Controllers.PunctuationController})">
+            <summary>
+            Endpoints para Operações relacionadas a Pontuações
+            </summary>
+            <param name="logger"></param>
+        </member>
+        <member name="M:EcoPark.Presentation.Controllers.PunctuationController.GetList(EcoPark.Domain.Interfaces.Services.IHandler{EcoPark.Application.Punctuations.List.ListPunctuationsQuery,System.Collections.Generic.IEnumerable{EcoPark.Application.Punctuations.Models.PunctuationViewModel}},EcoPark.Application.Punctuations.List.ListPunctuationsQuery,System.Threading.CancellationToken)">
+            <summary>
+            Método para listar todas as pontuações que o determinado usuario possui, podendo filtrar por uma lista de Ids
+            </summary>
+            <param name="handler"></param>
+            <param name="query"></param>
+            <param name="cancellationToken"></param>
+            <returns>Lista de Pontuações com suas devidas informações</returns>
+        </member>
+        <member name="M:EcoPark.Presentation.Controllers.PunctuationController.GetById(EcoPark.Domain.Interfaces.Services.IHandler{EcoPark.Application.Punctuations.Get.GetPunctuationQuery,EcoPark.Application.Punctuations.Models.PunctuationViewModel},EcoPark.Application.Punctuations.Get.GetPunctuationQuery,System.Threading.CancellationToken)">
+            <summary>
+            Método para buscar uma pontuação pelo Id
+            </summary>
+            <param name="handler"></param>
+            <param name="query"></param>
+            <param name="cancellationToken"></param>
+            <returns>Pontuação com suas devidas informações</returns>
+        </member>
+        <member name="T:EcoPark.Presentation.Controllers.ReservationController">
+            <summary>
+            Endpoints para Operações relacionadas a Reservas
+            </summary>
+            <param name="logger"></param>
+        </member>
+        <member name="M:EcoPark.Presentation.Controllers.ReservationController.#ctor(Microsoft.Extensions.Logging.ILogger{EcoPark.Presentation.Controllers.ReservationController})">
+            <summary>
+            Endpoints para Operações relacionadas a Reservas
+            </summary>
+            <param name="logger"></param>
+        </member>
+        <member name="M:EcoPark.Presentation.Controllers.ReservationController.GetList(EcoPark.Domain.Interfaces.Services.IHandler{EcoPark.Application.Reservations.List.ListReservationQuery,System.Collections.Generic.IEnumerable{EcoPark.Application.Reservations.Models.ReservationSimplifiedViewModel}},EcoPark.Application.Reservations.List.ListReservationQuery,System.Threading.CancellationToken)">
+            <summary>
+            Método para listar todas as reservas cadastradas, limitados ao escopo de permissões do funcionario ou do administrador
+            </summary>
+            <param name="handler"></param>
+            <param name="query"></param>
+            <param name="cancellationToken"></param>
+            <returns>Lista de reservas</returns>
+        </member>
+        <member name="M:EcoPark.Presentation.Controllers.ReservationController.Arrived(EcoPark.Domain.Interfaces.Services.IHandler{EcoPark.Application.Reservations.Update.Status.UpdateReservationStatusCommand,EcoPark.Application.Commons.Models.DatabaseOperationResponseViewModel},System.String,System.Threading.CancellationToken)">
+            <summary>
+            Método para alterar status de uma reserva para "Chegou"
+            </summary>
+            <param name="handler"></param>
+            <param name="reservationCode"></param>
+            <param name="cancellationToken"></param>
+            <returns>Mensagem sobre resultado da operação</returns>
+        </member>
+        <member name="M:EcoPark.Presentation.Controllers.ReservationController.Cancel(EcoPark.Domain.Interfaces.Services.IHandler{EcoPark.Application.Reservations.Update.Status.UpdateReservationStatusCommand,EcoPark.Application.Commons.Models.DatabaseOperationResponseViewModel},System.Guid,System.Threading.CancellationToken)">
+            <summary>
+            Método para alterar status de uma reserva para "Cancelado"
+            </summary>
+            <param name="handler"></param>
+            <param name="id"></param>
+            <param name="cancellationToken"></param>
+            <returns>Mensagem sobre resultado da operação</returns>
+        </member>
+        <member name="M:EcoPark.Presentation.Controllers.ReservationController.GetById(EcoPark.Domain.Interfaces.Services.IHandler{EcoPark.Application.Reservations.Get.GetReservationQuery,EcoPark.Application.Reservations.Models.ReservationSimplifiedViewModel},EcoPark.Application.Reservations.Get.GetReservationQuery,System.Threading.CancellationToken)">
+            <summary>
+            Método para buscar uma reserva pelo seu Id, limitado ao escopo de permissões do funcionario ou do administrador
+            </summary>
+            <param name="handler"></param>
+            <param name="query"></param>
+            <param name="cancellationToken"></param>
+            <returns>Informações da Reserva</returns>
+        </member>
+        <member name="M:EcoPark.Presentation.Controllers.ReservationController.Insert(EcoPark.Domain.Interfaces.Services.IHandler{EcoPark.Application.Reservations.Insert.InsertReservationCommand,EcoPark.Application.Commons.Models.DatabaseOperationResponseViewModel},EcoPark.Application.Reservations.Insert.InsertReservationCommand,System.Threading.CancellationToken)">
+            <summary>
+            Método para inserir uma nova reserva
+            </summary>
+            <param name="handler"></param>
+            <param name="command"></param>
+            <param name="cancellationToken"></param>
+            <returns>Mensagem sobre resultado da operação</returns>
+        </member>
+        <member name="M:EcoPark.Presentation.Controllers.ReservationController.Update(EcoPark.Domain.Interfaces.Services.IHandler{EcoPark.Application.Reservations.Update.UpdateReservationCommand,EcoPark.Application.Commons.Models.DatabaseOperationResponseViewModel},System.Guid,EcoPark.Application.Reservations.Update.UpdateReservationCommand,System.Threading.CancellationToken)">
+            <summary>
+            Método para atualizar uma reserva
+            </summary>
+            <param name="handler"></param>
+            <param name="id"></param>
+            <param name="command"></param>
+            <param name="cancellationToken"></param>
+            <returns>Mensagem sobre resultado da operação</returns>
+        </member>
+        <member name="M:EcoPark.Presentation.Controllers.ReservationController.Delete(EcoPark.Domain.Interfaces.Services.IHandler{EcoPark.Application.Reservations.Delete.DeleteReservationCommand,EcoPark.Application.Commons.Models.DatabaseOperationResponseViewModel},EcoPark.Application.Reservations.Delete.DeleteReservationCommand,System.Threading.CancellationToken)">
+            <summary>
+            Método para deletar uma reserva
+            </summary>
+            <param name="handler"></param>
+            <param name="command"></param>
+            <param name="cancellationToken"></param>
+            <returns>Mensagem sobre resultado da operação</returns>
+        </member>
+        <member name="T:EcoPark.Presentation.Controllers.RewardController">
+            <summary>
+            Endpoints para Operações relacionadas a Recompensas
+            </summary>
+            <param name="logger"></param>
+        </member>
+        <member name="M:EcoPark.Presentation.Controllers.RewardController.#ctor(Microsoft.Extensions.Logging.ILogger{EcoPark.Presentation.Controllers.RewardController})">
+            <summary>
+            Endpoints para Operações relacionadas a Recompensas
+            </summary>
+            <param name="logger"></param>
+        </member>
+        <member name="M:EcoPark.Presentation.Controllers.RewardController.GetList(EcoPark.Domain.Interfaces.Services.IHandler{EcoPark.Application.Rewards.List.ListRewardsQuery,System.Collections.Generic.IEnumerable{EcoPark.Application.Rewards.Models.RewardViewModel}},EcoPark.Application.Rewards.List.ListRewardsQuery,System.Threading.CancellationToken)">
+            <summary>
+            Método para listar todas as recompensas cadastradas, podendo filtrar por localização e lista de ids
+            </summary>
+            <param name="handler"></param>
+            <param name="query"></param>
+            <param name="cancellationToken"></param>
+            <returns>Lista de recompensas</returns>
+        </member>
+        <member name="M:EcoPark.Presentation.Controllers.RewardController.GetById(EcoPark.Domain.Interfaces.Services.IHandler{EcoPark.Application.Rewards.Get.GetRewardQuery,EcoPark.Application.Rewards.Models.RewardViewModel},EcoPark.Application.Rewards.Get.GetRewardQuery,System.Threading.CancellationToken)">
+            <summary>
+            Método para buscar uma recompensa pelo seu Id
+            </summary>
+            <param name="handler"></param>
+            <param name="query"></param>
+            <param name="cancellationToken"></param>
+            <returns>Informações da Recompensa</returns>
+        </member>
+        <member name="M:EcoPark.Presentation.Controllers.RewardController.RedeemReward(EcoPark.Domain.Interfaces.Services.IHandler{EcoPark.Application.Rewards.Insert.RedeemReward.RedeemRewardCommand,EcoPark.Application.Commons.Models.DatabaseOperationResponseViewModel},EcoPark.Application.Rewards.Insert.RedeemReward.RedeemRewardCommand,System.Threading.CancellationToken)">
+            <summary>
+            Método para resgatar uma recompensa
+            </summary>
+            <param name="handler"></param>
+            <param name="command"></param>
+            <param name="cancellationToken"></param>
+            <returns>Mensagem sobre resultado da operação</returns>
+        </member>
+        <member name="M:EcoPark.Presentation.Controllers.RewardController.Insert(EcoPark.Domain.Interfaces.Services.IHandler{EcoPark.Application.Rewards.Insert.InsertRewardCommand,EcoPark.Application.Commons.Models.DatabaseOperationResponseViewModel},EcoPark.Application.Rewards.Insert.InsertRewardCommand,Microsoft.AspNetCore.Http.IFormFile,System.Threading.CancellationToken)">
+            <summary>
+            Método para inserir uma nova recompensa
+            </summary>
+            <param name="handler"></param>
+            <param name="command"></param>
+            <param name="image"></param>
+            <param name="cancellationToken"></param>
+            <returns>Mensagem sobre resultado da operação</returns>
+        </member>
+        <member name="M:EcoPark.Presentation.Controllers.RewardController.Update(EcoPark.Domain.Interfaces.Services.IHandler{EcoPark.Application.Rewards.Update.UpdateRewardCommand,EcoPark.Application.Commons.Models.DatabaseOperationResponseViewModel},EcoPark.Application.Rewards.Update.UpdateRewardCommand,Microsoft.AspNetCore.Http.IFormFile,System.Threading.CancellationToken)">
+            <summary>
+            Método para atualizar uma recompensa
+            </summary>
+            <param name="handler"></param>
+            <param name="command"></param>
+            <param name="image"></param>
+            <param name="cancellationToken"></param>
+            <returns>Mensagem sobre resultado da operação</returns>
+        </member>
+        <member name="M:EcoPark.Presentation.Controllers.RewardController.Delete(EcoPark.Domain.Interfaces.Services.IHandler{EcoPark.Application.Rewards.Delete.DeleteRewardCommand,EcoPark.Application.Commons.Models.DatabaseOperationResponseViewModel},EcoPark.Application.Rewards.Delete.DeleteRewardCommand,System.Threading.CancellationToken)">
+            <summary>
+            Método para deletar uma recompensa
+            </summary>
+            <param name="handler"></param>
+            <param name="command"></param>
+            <param name="cancellationToken"></param>
+            <returns>Mensagem sobre resultado da operação</returns>
+        </member>
+    </members>
+</doc>

@@ -1,49 +1,29 @@
 ﻿namespace EcoPark.Application.ParkingSpaces.Get;
 
-public class GetParkingSpaceQueryHandler(DatabaseDbContext databaseContext) : IHandler<GetParkingSpaceQuery, ParkingSpaceSimplifiedViewModel?>
+public class GetParkingSpaceQueryHandler(IRepository<ParkingSpaceModel> repository) : IHandler<GetParkingSpaceQuery, ParkingSpaceSimplifiedViewModel?>
 {
     public async Task<ParkingSpaceSimplifiedViewModel?> HandleAsync(GetParkingSpaceQuery command,
         CancellationToken cancellationToken)
     {
-        ParkingSpaceModel? parkingSpaceModel;
         ParkingSpaceSimplifiedViewModel? result = null;
+        var parkingSpace = await repository.GetByIdAsync(command, cancellationToken);
 
-        IQueryable<ParkingSpaceModel> query = databaseContext.ParkingSpaces.Include(ps => ps.Location);
-
-        if (command.IncludeReservations)
+        if (parkingSpace != null)
         {
-            query = query.Include(ps => ps.Reservations);
-
-            parkingSpaceModel =
-                await query.FirstOrDefaultAsync(ps => ps.Id == command.ParkingSpaceId, cancellationToken);
-
-            if (parkingSpaceModel != null)
+            if (command.IncludeReservations)
             {
-                LocationSimplifiedViewModel location = new(parkingSpaceModel.Location.Name,
-                    parkingSpaceModel.Location.Address);
-
-                IEnumerable<ReservationSimplifiedViewModel>? reservations = parkingSpaceModel.Reservations?.Select(x =>
-                    new ReservationSimplifiedViewModel(x.CardId, x.ClientId, x.ReservationCode, x.Status,
+                IEnumerable<ReservationSimplifiedViewModel>? reservations = parkingSpace.Reservations?.Select(x =>
+                    new ReservationSimplifiedViewModel(x.Id, x.CarId, x.ClientId, x.ReservationCode, x.Punctuation, x.Status,
                         x.ReservationDate, x.ExpirationDate));
 
-                result = new ParkingSpaceViewModel(parkingSpaceModel.Floor, parkingSpaceModel.ParkingSpaceName,
-                    parkingSpaceModel.IsOccupied, parkingSpaceModel.ParkingSpaceType, location, reservations);
+                result = new ParkingSpaceViewModel(parkingSpace.Id, parkingSpace.Floor, parkingSpace.ParkingSpaceName,
+                    parkingSpace.IsOccupied, parkingSpace.ParkingSpaceType, reservations);
             }
-        }
-        else
-        {
-            parkingSpaceModel =
-                await query.FirstOrDefaultAsync(ps => ps.Id == command.ParkingSpaceId, cancellationToken);
 
-            if (parkingSpaceModel != null)
-            {
-                LocationSimplifiedViewModel location = new(parkingSpaceModel.Location.Name,
-                    parkingSpaceModel.Location.Address);
-
-                result = new ParkingSpaceSimplifiedViewModel(parkingSpaceModel.Floor,
-                    parkingSpaceModel.ParkingSpaceName, parkingSpaceModel.IsOccupied,
-                    parkingSpaceModel.ParkingSpaceType, location);
-            }
+            else
+                result = new ParkingSpaceSimplifiedViewModel(parkingSpace.Id, parkingSpace.Floor,
+                    parkingSpace.ParkingSpaceName, parkingSpace.IsOccupied,
+                    parkingSpace.ParkingSpaceType);
         }
 
         return result;
