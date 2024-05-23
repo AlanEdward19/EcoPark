@@ -16,7 +16,7 @@ public class ClientRepository(DatabaseDbContext databaseDbContext, IAuthenticati
     {
         CredentialsModel? credentialsModel = null;
 
-        if (command.RequestUserInfo.UserType == EUserType.PlatformAdministrator)
+        if (command.RequestUserInfo != null && command.RequestUserInfo.UserType == EUserType.PlatformAdministrator)
             return EOperationStatus.Successful;
 
         ClientModel? clientModel = null;
@@ -30,7 +30,7 @@ public class ClientRepository(DatabaseDbContext databaseDbContext, IAuthenticati
                 if (credentialsModel != null)
                     return EOperationStatus.Failed;
 
-                break;
+                return EOperationStatus.Successful;
 
             case UpdateClientCommand updateCommand:
                 if (updateCommand.Email != null)
