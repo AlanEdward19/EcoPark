@@ -30,7 +30,7 @@ public class EmployeeRepository(DatabaseDbContext databaseDbContext, IAuthentica
 
                 if (credentialsModel != null) return EOperationStatus.Failed;
 
-                if(requesterUserType is EUserType.PlatformAdministrator or EUserType.Administrator)
+                if (requesterUserType is EUserType.PlatformAdministrator or EUserType.Administrator)
                     return EOperationStatus.Successful;
 
                 break;
@@ -83,11 +83,15 @@ public class EmployeeRepository(DatabaseDbContext databaseDbContext, IAuthentica
                     if (credentialsModel != null) return EOperationStatus.Failed;
                 }
 
-                employeeModel = await databaseDbContext.Employees
-                    .Include(x => x.Credentials)
-                    .FirstOrDefaultAsync(e => e.Credentials.Email.Equals(updateCommand.RequestUserInfo.Email)
-                                              &&
-                                              e.Id == updateCommand.EmployeeId, cancellationToken);
+                employeeModel = updateCommand.EmployeeId == Guid.Empty
+                    ? await databaseDbContext.Employees
+                        .Include(x => x.Credentials)
+                        .FirstOrDefaultAsync(e => e.Credentials.Email.Equals(updateCommand.RequestUserInfo.Email), cancellationToken)
+                    : await databaseDbContext.Employees
+                        .Include(x => x.Credentials)
+                        .FirstOrDefaultAsync(e => e.Credentials.Email.Equals(updateCommand.RequestUserInfo.Email)
+                                                  &&
+                                                  e.Id == updateCommand.EmployeeId, cancellationToken);
 
                 if (employeeModel == null)
                 {
@@ -182,9 +186,13 @@ public class EmployeeRepository(DatabaseDbContext databaseDbContext, IAuthentica
     {
         var parsedCommand = command as UpdateEmployeeCommand;
 
-        EmployeeModel employeeModel = await databaseDbContext.Employees
-            .Include(x => x.Credentials)
-            .FirstAsync(e => e.Id == parsedCommand.EmployeeId, cancellationToken);
+        EmployeeModel employeeModel = parsedCommand.EmployeeId == Guid.Empty
+            ? await databaseDbContext.Employees
+                .Include(x => x.Credentials)
+                .FirstAsync(e => e.Credentials.Email == parsedCommand.RequestUserInfo.Email, cancellationToken)
+            : await databaseDbContext.Employees
+                .Include(x => x.Credentials)
+                .FirstAsync(e => e.Id == parsedCommand.EmployeeId, cancellationToken);
 
         EmployeeValueObject employeeValueObject = new(employeeModel);
 

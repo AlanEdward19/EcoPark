@@ -234,15 +234,15 @@ public class EmployeeController(ILogger<EmployeeController> logger) : Controller
     [ProducesResponseType(typeof(DatabaseOperationResponseViewModel), StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(typeof(DatabaseOperationResponseViewModel), StatusCodes.Status404NotFound)]
     [HttpPatch]
-    [Authorize(Roles = "Administrator, Employee")]
+    [Authorize(Roles = "Administrator, Employee, PlatformAdministrator")]
     public async Task<IActionResult> Update([FromServices] IHandler<UpdateEmployeeCommand, DatabaseOperationResponseViewModel> handler,
-        [FromBody] UpdateEmployeeCommand command, Guid id, CancellationToken cancellationToken)
+        [FromBody] UpdateEmployeeCommand command, Guid? id, CancellationToken cancellationToken)
     {
         logger.LogInformation(
             $"Method Call: UpdateEmployee with parameters: \n{string.Join("\n", EntityPropertiesUtilities.GetEntityPropertiesAndValueAsIEnumerable(command))}");
 
         var requestUserInfo = EntityPropertiesUtilities.GetUserInfo(HttpContext.User);
-        command.SetEmployeeId(id);
+        command.SetEmployeeId(id ?? Guid.Empty);
         command.SetRequestUserInfo(requestUserInfo);
 
         var result = await handler.HandleAsync(command, cancellationToken);
