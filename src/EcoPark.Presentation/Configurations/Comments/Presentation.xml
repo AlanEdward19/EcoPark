@@ -232,7 +232,7 @@
             <param name="cancellationToken"></param>
             <returns>Mensagem sobre resultado da operação</returns>
         </member>
-        <member name="M:EcoPark.Presentation.Controllers.EmployeeController.Update(EcoPark.Domain.Interfaces.Services.IHandler{EcoPark.Application.Employees.Update.UpdateEmployeeCommand,EcoPark.Application.Commons.Models.DatabaseOperationResponseViewModel},EcoPark.Application.Employees.Update.UpdateEmployeeCommand,System.Guid,System.Threading.CancellationToken)">
+        <member name="M:EcoPark.Presentation.Controllers.EmployeeController.Update(EcoPark.Domain.Interfaces.Services.IHandler{EcoPark.Application.Employees.Update.UpdateEmployeeCommand,EcoPark.Application.Commons.Models.DatabaseOperationResponseViewModel},EcoPark.Application.Employees.Update.UpdateEmployeeCommand,System.Nullable{System.Guid},System.Threading.CancellationToken)">
             <summary>
             Método para atualizar um funcionário
             </summary>
