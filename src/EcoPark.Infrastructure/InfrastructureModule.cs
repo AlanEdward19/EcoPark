@@ -50,7 +50,10 @@ public static class InfrastructureModule
     private static IServiceCollection ConfigureWebSocket(this IServiceCollection services)
     {
         services
-            .AddSignalR();
+            .AddSignalR(x =>
+            {
+                x.KeepAliveInterval = TimeSpan.FromMinutes(3);
+            });
 
         return services;
     }
