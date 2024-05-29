@@ -264,6 +264,9 @@ public class EmployeeRepository(DatabaseDbContext databaseDbContext, IAuthentica
 
         if (administratorModel == null) return null;
 
+        if(administratorModel.Id.Equals(parsedQuery.EmployeeId))
+            return administratorModel;
+        
         return administratorModel.Employees.FirstOrDefault(x => x.Id == parsedQuery.EmployeeId);
     }
 
@@ -287,11 +290,12 @@ public class EmployeeRepository(DatabaseDbContext databaseDbContext, IAuthentica
                 .AsNoTracking()
                 .Include(x => x.Credentials)
                 .AsQueryable()
-                .Where(x => x.AdministratorId.Equals(administratorModel.Id));
+                .Where(x => x.AdministratorId.Equals(administratorModel.Id) || x.Id.Equals(administratorModel.Id));
 
         if (hasEmployeeIds)
-            databaseQuery = databaseQuery.Where(e => parsedQuery.EmployeeIds!.Contains(e.Id));
-
+            databaseQuery = databaseQuery.Where(e =>
+                parsedQuery.EmployeeIds!.Contains(e.Id) || e.Id.Equals(administratorModel.Id));
+        
         return await databaseQuery.ToListAsync(cancellationToken);
     }
 
