@@ -32,4 +32,7 @@ app
     .UseAuthorization()
     .ConfigureEndpoints(builder.Configuration.GetSection("EndPointsConfig"));
 
+app.UseWebSockets();
+
+
 app.Run();

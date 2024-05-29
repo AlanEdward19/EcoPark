@@ -17,10 +17,13 @@ public class ParkingSpaceHub(DatabaseDbContext databaseDbContext, ILogger<Parkin
         await Clients.All.SendAsync("ReceiveParkingSpaces", parkingSpaces);
     }
 
-    public override Task OnConnectedAsync()
+    public override async Task OnConnectedAsync()
     {
         logger.LogInformation("Cliente conectado ao hub SignalR");
-        return base.OnConnectedAsync();
+
+        await Clients.All.SendAsync("ReceiveMessages",$"{Context.ConnectionId} has joined");
+
+
     }
 
     public override Task OnDisconnectedAsync(Exception? exception)

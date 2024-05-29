@@ -14,7 +14,7 @@ public static class Endpoint
             {
                 endpoints.MapControllers();
                 endpoints.MapHealthChecks(apiHealthCheckUrl);
-                endpoints.MapHub<ParkingSpaceHub>("/parkingSpaceHub");
+                endpoints.MapHub<ParkingSpaceHub>("parkingSpaceHub");
             });
 
         return app;
