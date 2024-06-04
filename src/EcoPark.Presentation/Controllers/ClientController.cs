@@ -50,7 +50,7 @@ public class ClientController(ILogger<ClientController> logger) : ControllerBase
     [ProducesResponseType(typeof(ClientSimplifiedViewModel), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(EntityNotFoundValueObject), StatusCodes.Status404NotFound)]
     [HttpGet]
-    [Authorize(Roles = "PlatformAdministrator, Administrator, Employee")]
+    [Authorize(Roles = "PlatformAdministrator, Administrator, Employee, Client")]
     public async Task<IActionResult> GetById([FromServices] IHandler<GetClientQuery, ClientSimplifiedViewModel?> handler, 
         [FromQuery] GetClientQuery query, CancellationToken cancellationToken)
     {

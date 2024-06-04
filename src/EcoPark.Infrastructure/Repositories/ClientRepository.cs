@@ -23,7 +23,7 @@ public class ClientRepository(DatabaseDbContext databaseDbContext, IAuthenticati
 
         switch (command)
         {
-            case InsertClientCommand insertCommand:          
+            case InsertClientCommand insertCommand:
                 credentialsModel = await databaseDbContext.Credentials
                     .FirstOrDefaultAsync(e => e.Email.Equals(insertCommand.Email), cancellationToken);
 
@@ -47,7 +47,7 @@ public class ClientRepository(DatabaseDbContext databaseDbContext, IAuthenticati
                     .FirstOrDefaultAsync(
                         e => e.Id == updateCommand.ClientId, cancellationToken);
 
-                if(clientModel == null)
+                if (clientModel == null)
                     return EOperationStatus.NotFound;
 
                 if (!clientModel.Credentials.Email.Equals(updateCommand.RequestUserInfo.Email))
@@ -61,7 +61,7 @@ public class ClientRepository(DatabaseDbContext databaseDbContext, IAuthenticati
                     .FirstOrDefaultAsync(
                         e => e.Id == deleteCommand.Id, cancellationToken);
 
-                if(clientModel == null)
+                if (clientModel == null)
                     return EOperationStatus.NotFound;
 
                 if (!clientModel.Credentials.Email.Equals(deleteCommand.RequestUserInfo.Email))
@@ -157,6 +157,7 @@ public class ClientRepository(DatabaseDbContext databaseDbContext, IAuthenticati
     public async Task<ClientModel?> GetByIdAsync(IQuery query, CancellationToken cancellationToken)
     {
         var parsedQuery = query as GetClientQuery;
+        var credentials = parsedQuery!.RequestUserInfo;
 
         IQueryable<ClientModel> databaseQuery =
             databaseDbContext.Clients
@@ -167,7 +168,13 @@ public class ClientRepository(DatabaseDbContext databaseDbContext, IAuthenticati
         if (parsedQuery.IncludeCars)
             databaseQuery = databaseQuery.Include(c => c.Cars);
 
-        return await databaseQuery.FirstOrDefaultAsync(c => c.Id == parsedQuery.ClientId, cancellationToken);
+        if (parsedQuery.ClientId != null && credentials.UserType != EUserType.Client)
+            databaseQuery = databaseQuery.Where(c => c.Id == parsedQuery.ClientId);
+
+        else
+            databaseQuery = databaseQuery.Where(c => c.Credentials.Email.Equals(credentials!.Email));
+
+        return await databaseQuery.FirstOrDefaultAsync(cancellationToken);
     }
 
     public async Task<IEnumerable<ClientModel>> ListAsync(IQuery query, CancellationToken cancellationToken)
