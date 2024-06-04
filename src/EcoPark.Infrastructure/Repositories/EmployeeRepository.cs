@@ -38,6 +38,8 @@ public class EmployeeRepository(DatabaseDbContext databaseDbContext, IAuthentica
             case InsertEmployeeGroupAccessCommand insertEmployeeGroupAccessCommand:
 
                 administratorModel = await databaseDbContext.Employees
+                    .AsNoTracking()
+                    .AsSplitQuery()
                     .Include(x => x.Credentials)
                     .FirstOrDefaultAsync(e => e.Credentials.Email.Equals(command.RequestUserInfo.Email),
                         cancellationToken);
@@ -45,7 +47,10 @@ public class EmployeeRepository(DatabaseDbContext databaseDbContext, IAuthentica
                 if (administratorModel == null) return EOperationStatus.NotAuthorized;
 
                 employeeModel = await databaseDbContext.Employees
+                    .AsNoTracking()
+                    .AsSplitQuery()
                     .Include(x => x.Credentials)
+                    .Include(x => x.GroupAccesses)
                     .FirstOrDefaultAsync(e => e.Id == insertEmployeeGroupAccessCommand.EmployeeId, cancellationToken);
 
                 if (employeeModel == null) return EOperationStatus.NotFound;
@@ -54,6 +59,9 @@ public class EmployeeRepository(DatabaseDbContext databaseDbContext, IAuthentica
                     .FirstOrDefaultAsync(x => x.Id == insertEmployeeGroupAccessCommand.LocationId, cancellationToken);
 
                 if (locationModel == null) return EOperationStatus.NotFound;
+
+                if(employeeModel.GroupAccesses.Any(x => x.LocationId == insertEmployeeGroupAccessCommand.LocationId))
+                    return EOperationStatus.Failed;
 
                 bool canGivePermission = administratorModel.Credentials.UserType == EUserType.Administrator &&
                                          (administratorModel.AdministratorId == employeeModel.AdministratorId ||

@@ -161,6 +161,7 @@ public class ClientRepository(DatabaseDbContext databaseDbContext, IAuthenticati
         IQueryable<ClientModel> databaseQuery =
             databaseDbContext.Clients
                 .AsNoTracking()
+                .Include(x => x.Credentials)
                 .AsQueryable();
 
         if (parsedQuery.IncludeCars)
@@ -176,7 +177,10 @@ public class ClientRepository(DatabaseDbContext databaseDbContext, IAuthenticati
         bool hasClientIds = parsedQuery.ClientIds != null && parsedQuery.ClientIds.Any();
 
         IQueryable<ClientModel> databaseQuery =
-            databaseDbContext.Clients.AsNoTracking().AsQueryable();
+            databaseDbContext.Clients
+                .AsNoTracking()
+                .Include(x => x.Credentials)
+                .AsQueryable();
 
         if (parsedQuery.IncludeCars)
             databaseQuery = databaseQuery.Include(c => c.Cars);
