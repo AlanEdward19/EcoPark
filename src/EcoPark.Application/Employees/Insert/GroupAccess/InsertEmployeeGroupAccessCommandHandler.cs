@@ -29,6 +29,7 @@ public class InsertEmployeeGroupAccessCommandHandler(IRepository<EmployeeModel> 
                     break;
 
                 case EOperationStatus.Failed:
+                    result = new DatabaseOperationResponseViewModel(EOperationStatus.Failed, "Employee already have permission to this location!");
                     break;
             }
         }

@@ -6,6 +6,13 @@ public partial class DatabaseDbContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        modelBuilder.Entity<GroupAccessModel>()
+            .HasKey(el => new { el.EmployeeId, el.LocationId });
+
+        modelBuilder.Entity<GroupAccessModel>()
+            .HasIndex(ga => ga.LocationId)
+            .IsUnique(false);
+
         modelBuilder.Entity<EmployeeModel>()
             .HasMany(e => e.GroupAccesses)
             .WithOne(ga => ga.Employee)

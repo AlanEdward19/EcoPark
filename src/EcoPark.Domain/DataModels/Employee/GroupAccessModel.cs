@@ -1,13 +1,23 @@
 ﻿namespace EcoPark.Domain.DataModels.Employee;
 
-public class GroupAccessModel(Guid locationId, Guid employeeId) : BaseDataModel
+public class GroupAccessModel
 {
-    public Guid LocationId { get; private set; } = locationId;
-    public Guid EmployeeId { get; private set; } = employeeId;
+    public Guid LocationId { get; private set; }
+    public Guid EmployeeId { get; private set; }
 
-    [ForeignKey(nameof(LocationId))]
+    public virtual EmployeeModel Employee { get; set; }
     public virtual LocationModel Location { get; set; }
 
-    [ForeignKey(nameof(EmployeeId))]
-    public virtual EmployeeModel Employee { get; set; }
+    public DateTime CreatedAt { get; set; }
+    public DateTime UpdatedAt { get; set; }
+
+    public GroupAccessModel(Guid locationId, Guid employeeId)
+    {
+        DateTime now = DateTime.Now;
+
+        LocationId = locationId;
+        EmployeeId = employeeId;
+        CreatedAt = now;
+        UpdatedAt = now;
+    }
 }
